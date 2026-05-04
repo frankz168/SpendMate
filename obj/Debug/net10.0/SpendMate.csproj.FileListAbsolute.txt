@@ -106,3 +106,4 @@
 /Users/frankz168/SpendMate/bin/Debug/net10.0/EPPlus.dll
 /Users/frankz168/SpendMate/bin/Debug/net10.0/EPPlus.Interfaces.dll
 /Users/frankz168/SpendMate/bin/Debug/net10.0/Microsoft.IO.RecyclableMemoryStream.dll
+/Users/frankz168/SpendMate/obj/Debug/net10.0/SpendMate.sourcelink.json

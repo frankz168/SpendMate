@@ -1,0 +1,22 @@
+# Build output
+bin/
+obj/
+
+# Visual Studio / VS Code
+.vscode/
+*.user
+*.suo
+
+# Rider / JetBrains
+.idea/
+
+# Logs
+*.log
+
+# OS
+.DS_Store
+
+# .NET
+*.dll
+*.pdb
+*.cache

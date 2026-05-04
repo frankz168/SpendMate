@@ -4,6 +4,12 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllersWithViews();
 builder.Services.AddSingleton<DbConnectionFactory>();
 
+builder.Services.AddScoped<DashboardRepository>();
+builder.Services.AddScoped<DashboardService>();
+
+builder.Services.AddScoped<ExpenseRepository>();
+builder.Services.AddScoped<ExpenseService>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

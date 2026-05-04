@@ -1,0 +1,349 @@
+@{
+    ViewBag.Title = "SpendMate";
+}
+
+<!-- SWEETALERT -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<div class="container mt-4">
+
+    <!-- DARK MODE -->
+    <div class="d-flex justify-content-end mb-2">
+        <button class="btn btn-sm btn-outline-dark" onclick="toggleDarkMode()">
+            🌙 Dark Mode
+        </button>
+          <button class="btn btn-sm btn-success" onclick="exportExcel()">
+            ⬇️ Export Excel
+         </button>
+    </div>
+
+    <!-- TITLE -->
+    <div class="mb-4">
+        <h2>💸 SpendMate</h2>
+        <p class="text-muted">Input, edit, delete pengeluaran</p>
+    </div>
+
+    <!-- INPUT -->
+    <div class="card shadow-sm mb-3">
+        <div class="card-body">
+
+            <div class="row g-3 align-items-end">
+
+                <div class="col-md-4">
+                    <label class="form-label">Category</label>
+                    <select id="category" class="form-select">
+                        <option value="">Select</option>
+                        <option value="Makan">🍽️ Makan</option>
+                        <option value="Transport">🚗 Transport</option>
+                        <option value="Belanja">🛍️ Belanja</option>
+                        <option value="Lainnya">📦 Lainnya</option>
+                    </select>
+                </div>
+
+                <div class="col-md-4">
+                    <label class="form-label">Amount</label>
+                    <input id="amount" type="number" class="form-control" placeholder="50000" />
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label">Note</label>
+                    <input id="note" class="form-control" placeholder="optional" />
+                </div>
+
+                <div class="col-md-1 d-grid">
+                    <label class="form-label">&nbsp;</label>
+                    <button id="btnSave" class="btn btn-dark" onclick="saveExpense()">+</button>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+    <!-- FILTER -->
+    <div class="row mb-2">
+
+        <div class="col-md-4">
+            <input id="searchBox" class="form-control" placeholder="Search..." oninput="applyFilter()" />
+        </div>
+
+        <div class="col-md-3">
+            <select id="filterCategory" class="form-select" onchange="applyFilter()">
+                <option value="">All Category</option>
+                <option value="Makan">Makan</option>
+                <option value="Transport">Transport</option>
+                <option value="Belanja">Belanja</option>
+                <option value="Lainnya">Lainnya</option>
+            </select>
+        </div>
+
+    </div>
+
+    <!-- TABLE -->
+    <div class="card shadow-sm">
+        <div class="card-body">
+
+            <table class="table table-sm table-bordered table-hover align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>Time</th>
+                        <th>Category</th>
+                        <th>Amount</th>
+                        <th>Note</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="expenseList"></tbody>
+            </table>
+
+            <!-- PAGINATION -->
+            <div class="d-flex justify-content-between mt-3">
+                <button class="btn btn-sm btn-outline-dark" onclick="prevPage()">◀ Prev</button>
+                <div id="pageInfo"></div>
+                <button class="btn btn-sm btn-outline-dark" onclick="nextPage()">Next ▶</button>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+<script>
+    let editId = 0;
+
+    let allData = [];
+    let filteredData = [];
+
+    let currentPage = 1;
+    const pageSize = 5;
+
+    // ================= LOAD
+    async function loadData() {
+        const res = await fetch('/Expense/GetData');
+        const data = await res.json();
+
+        allData = data.expenses;
+        filteredData = allData;
+
+        currentPage = 1;
+        renderTable();
+    }
+
+    // ================= RENDER
+    function renderTable() {
+
+        const start = (currentPage - 1) * pageSize;
+        const end = start + pageSize;
+
+        const pageData = filteredData.slice(start, end);
+
+        let rows = "";
+
+        pageData.forEach(x => {
+            rows += `
+                <tr>
+                    <td>${formatTime(x.createdate)}</td>
+                    <td>${icon(x.category)} ${x.category}</td>
+                    <td>Rp ${format(x.amount)}</td>
+                    <td>${x.note ?? ""}</td>
+                    <td>
+                        <button class="btn btn-sm btn-warning" onclick="editExpense(${x.id})">Edit</button>
+                        <button class="btn btn-sm btn-danger" onclick="deleteExpense(${x.id})">Delete</button>
+                    </td>
+                </tr>
+            `;
+        });
+
+        document.getElementById("expenseList").innerHTML = rows;
+
+        updatePageInfo();
+    }
+
+    // ================= FILTER
+    function applyFilter() {
+
+        const search = document.getElementById("searchBox").value.toLowerCase();
+        const category = document.getElementById("filterCategory").value;
+
+        filteredData = allData.filter(x => {
+
+            const matchSearch =
+                (x.note ?? "").toLowerCase().includes(search) ||
+                (x.category ?? "").toLowerCase().includes(search);
+
+            const matchCategory =
+                !category || x.category === category;
+
+            return matchSearch && matchCategory;
+        });
+
+        currentPage = 1;
+        renderTable();
+    }
+
+    // ================= PAGINATION
+    function nextPage() {
+        if (currentPage * pageSize < filteredData.length) {
+            currentPage++;
+            renderTable();
+        }
+    }
+
+    function prevPage() {
+        if (currentPage > 1) {
+            currentPage--;
+            renderTable();
+        }
+    }
+
+    function updatePageInfo() {
+        const totalPage = Math.ceil(filteredData.length / pageSize);
+        document.getElementById("pageInfo").innerText =
+            `Page ${currentPage} / ${totalPage || 1}`;
+    }
+
+    // ================= SAVE
+    async function saveExpense() {
+
+        const category = document.getElementById("category").value;
+        const amount = document.getElementById("amount").value;
+        const note = document.getElementById("note").value;
+
+        if (!category || !amount) {
+            Swal.fire("Warning", "Category & Amount wajib diisi", "warning");
+            return;
+        }
+
+        await fetch('/Expense/Save', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                id: editId,
+                userId: 1,
+                category,
+                amount: parseFloat(amount),
+                note
+            })
+        });
+
+        Swal.fire({
+            icon: 'success',
+            title: editId === 0 ? 'Added' : 'Updated',
+            timer: 1000,
+            showConfirmButton: false
+        });
+
+        resetForm();
+        loadData();
+    }
+
+    // ================= EDIT
+    async function editExpense(id) {
+        const res = await fetch('/Expense/GetById?id=' + id);
+        const x = await res.json();
+
+        editId = x.id;
+
+        document.getElementById("category").value = x.category;
+        document.getElementById("amount").value = x.amount;
+        document.getElementById("note").value = x.note;
+
+        document.getElementById("btnSave").innerText = "Update";
+
+        Swal.fire("Edit Mode", "Silakan update data", "info");
+    }
+
+    // ================= DELETE
+    async function deleteExpense(id) {
+
+        const result = await Swal.fire({
+            title: "Hapus data?",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonText: "Yes"
+        });
+
+        if (!result.isConfirmed) return;
+
+        await fetch('/Expense/Delete?id=' + id, { method: 'POST' });
+
+        Swal.fire({
+            icon: "success",
+            title: "Deleted",
+            timer: 800,
+            showConfirmButton: false
+        });
+
+        loadData();
+    }
+
+    // ================= RESET
+    function resetForm() {
+        editId = 0;
+        document.getElementById("category").value = "";
+        document.getElementById("amount").value = "";
+        document.getElementById("note").value = "";
+        document.getElementById("btnSave").innerText = "+";
+    }
+
+    // ================= HELPERS
+    function format(num) {
+        return new Intl.NumberFormat('id-ID').format(num || 0);
+    }
+
+    function formatTime(date) {
+        return new Date(date).toLocaleString('id-ID', {
+            day: '2-digit',
+            month: 'short',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+    }
+
+    function icon(cat) {
+        if (cat === "Makan") return "🍽️";
+        if (cat === "Transport") return "🚗";
+        if (cat === "Belanja") return "🛍️";
+        return "📦";
+    }
+
+    // ================= DARK MODE
+    if (localStorage.getItem("darkMode") === "true") {
+        document.body.classList.add("dark-mode");
+    }
+
+    function toggleDarkMode() {
+        document.body.classList.toggle("dark-mode");
+        localStorage.setItem("darkMode", document.body.classList.contains("dark-mode"));
+    }
+
+    loadData();
+
+    // ================= EXPORT EXCEL (.xlsx)
+    function exportExcel() {
+        window.location.href = '/Expense/ExportExcel';
+    }
+</script>
+
+<style>
+body.dark-mode {
+    background: #121212;
+    color: #eaeaea;
+}
+
+body.dark-mode .card {
+    background: #1e1e1e;
+    color: #fff;
+}
+
+body.dark-mode .table {
+    color: #fff;
+}
+
+body.dark-mode .form-control,
+body.dark-mode .form-select {
+    background: #2a2a2a;
+    color: #fff;
+    border-color: #444;
+}
+</style>

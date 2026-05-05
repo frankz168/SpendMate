@@ -15,10 +15,10 @@ public class ExpenseController : Controller
         return View();
     }
 
-    [HttpGet]
-    public IActionResult GetData()
+   [HttpGet]
+    public IActionResult GetData(DateTime from, DateTime to)
     {
-        var result = _service.GetDashboard(1);
+        var result = _service.GetExpenses(1, from, to);
         return Json(result);
     }
 

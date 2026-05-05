@@ -1,0 +1,34 @@
+@{
+    ViewBag.Title = "SpendMate Report";
+}
+
+<div class="container mt-4">
+
+    <h2>📧 SpendMate Email Report</h2>
+
+    <p class="text-muted">Send manual report by clicking button below</p>
+
+    <button class="btn btn-primary m-2" onclick="send('daily')">📅 Daily</button>
+    <button class="btn btn-success m-2" onclick="send('weekly')">📆 Weekly</button>
+    <button class="btn btn-warning m-2" onclick="send('monthly')">🗓️ Monthly</button>
+
+    <div id="status" class="mt-3 text-muted"></div>
+
+</div>
+
+<script>
+async function send(type) {
+
+    document.getElementById("status").innerText =
+        "Sending " + type + " report...";
+
+    await fetch('/Report/Send', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: 'type=' + type
+    });
+
+    document.getElementById("status").innerText =
+        "✅ " + type + " report sent successfully!";
+}
+</script>

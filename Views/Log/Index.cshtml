@@ -1,0 +1,76 @@
+@{
+    ViewBag.Title = "Log Viewer";
+}
+
+<div class="container mt-4">
+
+    <h3>📄 SpendMate Log Viewer</h3>
+
+    <div class="row mb-2">
+        <div class="col-md-4">
+            <select id="fileSelect" class="form-select" onchange="loadLog()"></select>
+        </div>
+
+        <div class="col-md-2">
+            <button class="btn btn-primary" onclick="loadLog()">Refresh</button>
+        </div>
+
+        <div class="col-md-2">
+            <button class="btn btn-outline-dark" onclick="toggleAuto()">Auto Refresh</button>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <pre id="logContent" style="height:500px; overflow:auto; background:#111; color:#0f0; padding:10px;"></pre>
+        </div>
+    </div>
+
+</div>
+
+<script>
+let auto = false;
+let timer = null;
+
+// ================= LOAD
+async function loadLog() {
+
+    const selected = document.getElementById("fileSelect").value;
+
+    let url = '/Log/Get';
+    if (selected) url += '?file=' + selected;
+
+    const res = await fetch(url);
+    const data = await res.json();
+
+    // populate dropdown
+    const select = document.getElementById("fileSelect");
+    select.innerHTML = "";
+
+    (data.files || []).forEach(f => {
+        const opt = document.createElement("option");
+        opt.value = f;
+        opt.text = f;
+        if (f === data.selected) opt.selected = true;
+        select.appendChild(opt);
+    });
+
+    // set log content
+    document.getElementById("logContent").innerText = data.content || "";
+}
+
+// ================= AUTO REFRESH
+function toggleAuto() {
+
+    auto = !auto;
+
+    if (auto) {
+        timer = setInterval(loadLog, 3000);
+    } else {
+        clearInterval(timer);
+    }
+}
+
+// init
+loadLog();
+</script>

@@ -15,5 +15,5 @@ public class Expense
 
     public string? Note { get; set; }
 
-    public DateTime CreatedAt { get; set; } = DateTime.Now;
+    public DateTime Createdate { get; set; } 
 }

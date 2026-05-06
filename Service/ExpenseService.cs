@@ -131,17 +131,17 @@ public class ExpenseService
         }
     }
 
-    public IEnumerable<dynamic> Export(int userId)
+    public IEnumerable<dynamic> Export(int userId, DateTime? from, DateTime? to)
     {
         var sw = Stopwatch.StartNew();
 
         try
         {
             _logger.LogInformation(
-                "📤 Export START | UserId={UserId}",
-                userId);
+                "📤 Export START | UserId={UserId}, From={From}, To={To}",
+                userId, from, to);
 
-            var data = _repo.GetAllForExport(userId);
+            var data = _repo.GetAllForExport(userId, from, to);
 
             sw.Stop();
 

@@ -44,15 +44,17 @@ public class ExpenseController : Controller
         return Ok();
     }
 
-    public IActionResult ExportExcel()
+   [HttpGet]
+    public IActionResult ExportExcel(DateTime? from, DateTime? to)
     {
         ExcelPackage.License.SetNonCommercialOrganization("SpendMate");
 
-        var data = _service.Export(1);
+        var data = _service.Export(1, from, to);
 
         using var package = new ExcelPackage();
         var ws = package.Workbook.Worksheets.Add("Expenses");
 
+        // ================= HEADER
         ws.Cells[1, 1].Value = "Date";
         ws.Cells[1, 2].Value = "Category";
         ws.Cells[1, 3].Value = "Amount";
@@ -62,6 +64,7 @@ public class ExpenseController : Controller
 
         int row = 2;
 
+        // ================= DATA
         foreach (var x in data)
         {
             ws.Cells[row, 1].Value = Convert.ToDateTime(x.createdate);
@@ -74,14 +77,20 @@ public class ExpenseController : Controller
             row++;
         }
 
+        // ================= AUTO FIT
         ws.Cells[ws.Dimension.Address].AutoFitColumns();
 
+        // ================= STREAM
         var stream = new MemoryStream();
         package.SaveAs(stream);
         stream.Position = 0;
 
+        string fileName = from.HasValue && to.HasValue
+            ? $"SpendMate_{from:yyyyMMdd}_{to:yyyyMMdd}.xlsx"
+            : $"SpendMate_{DateTime.Now:yyyyMMdd}.xlsx";
+
         return File(stream,
             "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-            $"SpendMate_{DateTime.Now:yyyyMMdd}.xlsx");
+            fileName);
     }
 }

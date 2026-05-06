@@ -12,9 +12,9 @@ public static class ApplicationConfig
     {
         public static string EmailTo = "franky.sutanto93@gmail.com";
 
-        public static TimeSpan DailyTime = new TimeSpan(21, 0, 0);
-        public static TimeSpan WeeklyTime = new TimeSpan(21, 0, 0);
-        public static TimeSpan MonthlyTime = new TimeSpan(21, 0, 0);
+        public static TimeSpan DailyTime = new TimeSpan(07, 10, 0);
+        public static TimeSpan WeeklyTime = new TimeSpan(07, 10, 0);
+        public static TimeSpan MonthlyTime = new TimeSpan(07, 10, 0);
 
         public static DayOfWeek WeeklyDay = DayOfWeek.Sunday;
         public static int MonthlyDay = 1;

@@ -162,9 +162,18 @@ async function loadData() {
 
 // ================= TODAY
 function setToday() {
-    const today = new Date().toISOString().split('T')[0];
-    document.getElementById("fromDate").value = today;
-    document.getElementById("toDate").value = today;
+    const today = new Date();
+
+    const from = today.toISOString().split('T')[0];
+
+    // add 1 day
+    const tomorrowDate = new Date(today);
+    tomorrowDate.setDate(tomorrowDate.getDate() + 1);
+    const to = tomorrowDate.toISOString().split('T')[0];
+
+    document.getElementById("fromDate").value = from;
+    document.getElementById("toDate").value = to;
+
     loadData();
 }
 

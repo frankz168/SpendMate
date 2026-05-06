@@ -217,7 +217,7 @@ public class ExpenseRepository
         }
     }
 
-    public IEnumerable<dynamic> GetAllForExport(int userId)
+    public IEnumerable<dynamic> GetAllForExport(int userId, DateTime? from, DateTime? to)
     {
         var sw = Stopwatch.StartNew();
 
@@ -225,12 +225,26 @@ public class ExpenseRepository
         {
             using var conn = _db.CreateConnection();
 
-            var data = conn.Query(@"
+            var sql = @"
                 SELECT createdate, category, amount, note
                 FROM expenses
                 WHERE userid = @UserId
-                ORDER BY createdate DESC",
-                new { UserId = userId }).ToList();
+            ";
+
+            if (from.HasValue)
+                sql += " AND createdate >= @FromDate";
+
+            if (to.HasValue)
+                sql += " AND createdate <= @ToDate";
+
+            sql += " ORDER BY createdate DESC";
+
+            var data = conn.Query(sql, new
+            {
+                UserId = userId,
+                FromDate = from,
+                ToDate = to
+            }).ToList();
 
             sw.Stop();
 

@@ -8,27 +8,122 @@
 
     <p class="text-muted">Send manual report by clicking button below</p>
 
-    <button class="btn btn-primary m-2" onclick="send('daily')">📅 Daily</button>
-    <button class="btn btn-success m-2" onclick="send('weekly')">📆 Weekly</button>
-    <button class="btn btn-warning m-2" onclick="send('monthly')">🗓️ Monthly</button>
-
-    <div id="status" class="mt-3 text-muted"></div>
+    <button class="btn btn-primary m-2" onclick="send('daily', this)">📅 Daily</button>
+    <button class="btn btn-success m-2" onclick="send('weekly', this)">📆 Weekly</button>
+    <button class="btn btn-warning m-2" onclick="send('monthly', this)">🗓️ Monthly</button>
 
 </div>
 
+<!-- ================= PREMIUM LOADING ================= -->
+<div id="loadingOverlay" class="loading-overlay">
+    <div class="loading-box">
+        <div class="spinner"></div>
+        <div id="loadingText">Sending...</div>
+    </div>
+</div>
+
 <script>
-async function send(type) {
+let isSending = false;
 
-    document.getElementById("status").innerText =
-        "Sending " + type + " report...";
+async function send(type, btn) {
 
-    await fetch('/Report/Send', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: 'type=' + type
-    });
+    if (isSending) return; // prevent double click
+    isSending = true;
 
-    document.getElementById("status").innerText =
-        "✅ " + type + " report sent successfully!";
+    const overlay = document.getElementById("loadingOverlay");
+    const text = document.getElementById("loadingText");
+
+    if (btn) btn.disabled = true;
+
+    text.innerText = "Sending " + type + " report...";
+    overlay.classList.add("active");
+
+    try {
+        const response = await fetch('/Report/Send', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: 'type=' + type
+        });
+
+        if (!response.ok) throw new Error();
+
+        text.innerText = "✅ Email sent successfully";
+
+    } catch (err) {
+
+        text.innerText = "❌ Failed to send email";
+
+    }
+
+    setTimeout(() => {
+        overlay.classList.remove("active");
+        if (btn) btn.disabled = false;
+        isSending = false;
+    }, 1200);
 }
 </script>
+
+<style>
+/* ================= OVERLAY ================= */
+.loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+
+    background: rgba(0,0,0,0.4);
+    backdrop-filter: blur(6px);
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    z-index: 9999;
+
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease;
+}
+
+.loading-overlay.active {
+    opacity: 1;
+    pointer-events: all;
+}
+
+/* ================= BOX ================= */
+.loading-box {
+    background: #fff;
+    padding: 28px 36px;
+    border-radius: 14px;
+    text-align: center;
+
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+}
+
+/* ================= SPINNER ================= */
+.spinner {
+    width: 38px;
+    height: 38px;
+
+    border: 4px solid #eee;
+    border-top: 4px solid #00c851;
+
+    border-radius: 50%;
+    animation: spin 0.9s linear infinite;
+
+    margin: auto;
+    margin-bottom: 10px;
+}
+
+/* ================= TEXT ================= */
+#loadingText {
+    font-size: 14px;
+    color: #333;
+}
+
+/* ================= FIX RAZOR ERROR ================= */
+@@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+</style>

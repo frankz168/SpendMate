@@ -8,14 +8,16 @@
 
     <!-- TOP BAR -->
     <div class="d-flex justify-content-end mb-2 gap-2">
-        <button class="btn btn-sm btn-outline-dark" onclick="toggleDarkMode()">🌙 Dark Mode</button>
+       <button class="btn btn-sm btn-outline-dark" onclick="toggleDarkMode()">
+            🌙 Toggle Dark
+        </button>
         <button class="btn btn-sm btn-success" onclick="exportExcel()">⬇️ Export Excel</button>
     </div>
 
     <!-- TITLE -->
     <div class="mb-4">
         <h2>💸 SpendMate</h2>
-        <p class="text-muted">Input, edit, delete pengeluaran</p>
+        <p class="text-muted">Input, edit, delete expense</p>
     </div>
 
     <!-- INPUT -->
@@ -27,10 +29,10 @@
                     <label>Category</label>
                     <select id="category" class="form-select">
                         <option value="">Select</option>
-                        <option value="Makan">🍽️ Makan</option>
+                        <option value="Food">🍽️ Food</option>
                         <option value="Transport">🚗 Transport</option>
-                        <option value="Belanja">🛍️ Belanja</option>
-                        <option value="Lainnya">📦 Lainnya</option>
+                        <option value="Shopping">🛍️ Shopping</option>
+                        <option value="Others">📦 Others</option>
                     </select>
                 </div>
 
@@ -93,10 +95,10 @@
         <div class="col-md-3">
             <select id="filterCategory" class="form-select" onchange="applyFilter()">
                 <option value="">All Category</option>
-                <option value="Makan">Makan</option>
+                <option value="Makan">Food</option>
                 <option value="Transport">Transport</option>
-                <option value="Belanja">Belanja</option>
-                <option value="Lainnya">Lainnya</option>
+                <option value="Belanja">Shopping</option>
+                <option value="Lainnya">Others</option>
             </select>
         </div>
 
@@ -251,49 +253,125 @@ function updatePageInfo() {
 }
 
 // ================= SAVE
+// ================= SAVE
 async function saveExpense() {
     const category = document.getElementById("category").value;
     const amount = document.getElementById("amount").value;
     const note = document.getElementById("note").value;
 
     if (!category || !amount) {
-        Swal.fire("Warning", "Category & Amount wajib diisi", "warning");
+        Swal.fire({
+            icon: "warning",
+            title: "Missing Data",
+            text: "Category & Amount are required"
+        });
         return;
     }
 
-    await fetch('/Expense/Save', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            id: editId,
-            userId: 1,
-            category,
-            amount: parseFloat(amount),
-            note
-        })
-    });
+    try {
+        const response = await fetch('/Expense/Save', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                id: editId,
+                userId: 1,
+                category,
+                amount: parseFloat(amount),
+                note
+            })
+        });
 
-    resetForm();
-    loadData();
+        // DEBUG (optional)
+        console.log("STATUS:", response.status);
+
+        // ❗ CHECK RESPONSE
+        if (!response.ok) {
+            const text = await response.text(); // ambil error kalau ada
+            console.error("SERVER ERROR:", text);
+            throw new Error("Server error");
+        }
+
+        // ✅ SUCCESS
+        Swal.fire({
+            icon: "success",
+            title: editId ? "Updated!" : "Saved!",
+            text: editId
+                ? "Expense updated successfully"
+                : "Expense added successfully",
+            timer: 1500,
+            showConfirmButton: false
+        });
+
+        resetForm();
+        loadData();
+
+    } catch (err) {
+        console.error("SAVE ERROR:", err);
+
+        Swal.fire({
+            icon: "error",
+            title: "Error",
+            text: "Failed to save expense"
+        });
+    }
 }
 
 // ================= EDIT
+// ================= EDIT
 async function editExpense(id) {
-    const res = await fetch('/Expense/GetById?id=' + id);
-    const x = await res.json();
+    try {
+        const res = await fetch('/Expense/GetById?id=' + id);
+        const x = await res.json();
 
-    editId = x.id;
-    category.value = x.category;
-    amount.value = x.amount;
-    note.value = x.note;
+        editId = x.id;
+        category.value = x.category;
+        amount.value = x.amount;
+        note.value = x.note;
+
+        Swal.fire({
+            icon: "info",
+            title: "Edit Mode",
+            text: "You are now editing this expense"
+        });
+
+    } catch (err) {
+        Swal.fire({
+            icon: "error",
+            title: "Error",
+            text: "Failed to load data"
+        });
+    }
 }
 
 // ================= DELETE
 async function deleteExpense(id) {
-    if (!(await Swal.fire({ title: "Delete?", showCancelButton: true })).isConfirmed) return;
+    const confirm = await Swal.fire({
+        title: "Delete this expense?",
+        text: "This action cannot be undone",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#d33",
+        confirmButtonText: "Yes, delete it",
+        cancelButtonText: "Cancel"
+    });
 
-    await fetch('/Expense/Delete?id=' + id, { method: 'POST' });
-    loadData();
+    if (!confirm.isConfirmed) return;
+
+    try {
+        await fetch('/Expense/Delete?id=' + id, { method: 'POST' });
+
+        Swal.fire({
+            icon: "success",
+            title: "Deleted!",
+            text: "Expense has been removed",
+            timer: 1200,
+            showConfirmButton: false
+        });
+
+        loadData();
+    } catch (err) {
+        Swal.fire("Error", "Failed to delete data", "error");
+    }
 }
 
 // ================= HELPERS
@@ -341,9 +419,9 @@ function formatTime(date) {
 }
 
 function icon(cat) {
-    return cat === "Makan" ? "🍽️" :
+    return cat === "Food" ? "🍽️" :
            cat === "Transport" ? "🚗" :
-           cat === "Belanja" ? "🛍️" : "📦";
+           cat === "Shopping" ? "🛍️" : "📦";
 }
 
 function exportExcel() {
@@ -358,6 +436,53 @@ function exportExcel() {
     window.location.href = url;
 }
 
+function resetForm() {
+    editId = 0;
+
+    document.getElementById("category").value = "";
+    document.getElementById("amount").value = "";
+    document.getElementById("note").value = "";
+
+    // focus balik ke input pertama
+    document.getElementById("category").focus();
+}
+
 // ================= INIT
 setToday();
+
+ // ================= DARK MODE =================
+    function toggleDarkMode() {
+        document.body.classList.toggle("dark-mode");
+
+        localStorage.setItem(
+            "darkMode",
+            document.body.classList.contains("dark-mode")
+        );
+    }
+
+    // load state
+    if (localStorage.getItem("darkMode") === "true") {
+        document.body.classList.add("dark-mode");
+    }
 </script>
+
+<style>
+    body.dark-mode {
+        background: #121212;
+        color: #eaeaea;
+    }
+
+    body.dark-mode .theme-card {
+        background: #1e1e1e;
+        color: #eaeaea;
+        border: 1px solid #2a2a2a;
+    }
+
+    body.dark-mode .table {
+        color: #eaeaea;
+    }
+
+    body.dark-mode .text-muted {
+        color: #aaa !important;
+    }
+</style>

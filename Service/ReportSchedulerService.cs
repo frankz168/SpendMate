@@ -60,7 +60,7 @@ public class ReportSchedulerService : BackgroundService
         {
             _logger.LogInformation("🔥 Sending DAILY report...");
 
-            service.SendReport("daily", ApplicationConfig.Report.EmailTo);
+            service.SendReport("daily"); // ✅ FIXED
 
             _lastDailyRun = now;
 
@@ -80,7 +80,7 @@ public class ReportSchedulerService : BackgroundService
         {
             _logger.LogInformation("🔥 Sending WEEKLY report...");
 
-            service.SendReport("weekly", ApplicationConfig.Report.EmailTo);
+            service.SendReport("weekly"); // ✅ FIXED
 
             _lastWeeklyRun = now;
 
@@ -100,7 +100,7 @@ public class ReportSchedulerService : BackgroundService
         {
             _logger.LogInformation("🔥 Sending MONTHLY report...");
 
-            service.SendReport("monthly", ApplicationConfig.Report.EmailTo);
+            service.SendReport("monthly"); // ✅ FIXED
 
             _lastMonthlyRun = now;
 

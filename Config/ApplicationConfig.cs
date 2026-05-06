@@ -10,7 +10,11 @@ public static class ApplicationConfig
 
     public static class Report
     {
-        public static string EmailTo = "franky.sutanto93@gmail.com";
+        public static List<string> EmailTo = new List<string>
+        {
+            "franky.sutanto93@gmail.com",
+            "other@email.com"
+        };
 
         public static TimeSpan DailyTime = new TimeSpan(07, 10, 0);
         public static TimeSpan WeeklyTime = new TimeSpan(07, 10, 0);
@@ -20,5 +24,5 @@ public static class ApplicationConfig
         public static int MonthlyDay = 1;
     }
     
-      public static decimal Budget = 7000000;
+      public static decimal MonthlyBudget = 6500000;
 }

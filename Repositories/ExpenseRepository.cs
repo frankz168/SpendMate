@@ -262,4 +262,25 @@ public class ExpenseRepository
             throw;
         }
     }
+
+    public decimal GetTotalExpense(int userId, DateTime from, DateTime to)
+    {
+        using var conn = _db.CreateConnection();
+
+        // 🔥 pastikan end-date inclusive (biar hari ini ikut)
+        var toInclusive = to.Date.AddDays(1);
+
+        return conn.ExecuteScalar<decimal>(@"
+            SELECT COALESCE(SUM(amount), 0)
+            FROM expenses
+            WHERE userid = @UserId
+            AND createdate >= @From
+            AND createdate < @To",
+            new
+            {
+                UserId = userId,
+                From = from,
+                To = toInclusive
+            });
+    }
 }

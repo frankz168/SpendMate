@@ -15,20 +15,81 @@
         </button>
     </div>
 
-    <!-- TOTAL -->
+    <!-- TODAY TOTAL -->
     <div class="card mb-4 shadow-sm theme-card">
         <div class="card-body">
-            <h6 class="text-muted">Total Hari Ini</h6>
+            <h6 class="text-muted">Today's Total</h6>
             <h2 class="fw-bold">
                 Rp @Model.Total.ToString("N0")
             </h2>
         </div>
     </div>
 
+    <!-- MONTHLY BUDGET -->
+    <div class="row mb-4">
+
+        <div class="col-md-4">
+            <div class="card shadow-sm theme-card">
+                <div class="card-body">
+                    <h6 class="text-muted">Monthly Budget</h6>
+                    <h5 class="fw-bold">
+                        Rp @Model.Budget.ToString("N0")
+                    </h5>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card shadow-sm theme-card">
+                <div class="card-body">
+                    <h6 class="text-muted">Used This Month</h6>
+                    <h5 class="fw-bold">
+                        Rp @Model.MonthlyTotal.ToString("N0")
+                    </h5>
+
+                    <!-- PROGRESS BAR -->
+                    @{
+                        var percent = Model.Budget == 0 ? 0 : (Model.MonthlyTotal / Model.Budget) * 100;
+                        var percentSafe = percent > 100 ? 100 : percent;
+                    }
+
+                    <div class="progress mt-2">
+                        <div class="progress-bar @(percent > 100 ? "bg-danger" : "bg-success")"
+                             role="progressbar"
+                             style="width:@percentSafe%">
+                            @percent.ToString("0")%
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card shadow-sm theme-card">
+                <div class="card-body">
+                    <h6 class="text-muted">Remaining Budget</h6>
+                    <h5 class="fw-bold @(Model.Remaining < 0 ? "text-danger" : "text-success")">
+                        Rp @Model.Remaining.ToString("N0")
+                    </h5>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- WARNING -->
+    @if (Model.Remaining < 0)
+    {
+        <div class="alert alert-danger">
+            ⚠️ You have exceeded your monthly budget!
+        </div>
+    }
+
     <!-- CHART -->
     <div class="card mb-4 shadow-sm theme-card">
         <div class="card-body">
-            <h6 class="mb-3">Visual Pengeluaran</h6>
+            <h6 class="mb-3">Expense Visualization</h6>
             <canvas id="expenseChart" height="120"></canvas>
         </div>
     </div>
@@ -36,7 +97,7 @@
     <!-- BREAKDOWN -->
     <div class="card shadow-sm theme-card">
         <div class="card-body">
-            <h6 class="mb-3">Breakdown Pengeluaran</h6>
+            <h6 class="mb-3">Today's Expense Breakdown</h6>
 
             @if (Model.Items != null && Model.Items.Count > 0)
             {
@@ -54,7 +115,7 @@
             }
             else
             {
-                <p class="text-muted">Belum ada data hari ini</p>
+                <p class="text-muted">No data for today</p>
             }
         </div>
     </div>
@@ -107,7 +168,6 @@
         );
     }
 
-    // load state
     if (localStorage.getItem("darkMode") === "true") {
         document.body.classList.add("dark-mode");
     }
@@ -132,6 +192,15 @@
     body.dark-mode .text-muted {
         color: #aaa !important;
     }
+
+    .progress {
+        height: 18px;
+        border-radius: 10px;
+    }
+
+    .progress-bar {
+        font-size: 11px;
+    }
 </style>
 
 @functions {
@@ -139,9 +208,9 @@
     {
         return category switch
         {
-            "Makan" => "🍽️",
+            "Food" => "🍽️",
             "Transport" => "🚗",
-            "Belanja" => "🛍️",
+            "Shopping" => "🛍️",
             _ => "📦"
         };
     }

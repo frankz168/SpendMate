@@ -1,49 +1,41 @@
-using Microsoft.Extensions.Logging;
-using System.Diagnostics;
-
 public class DashboardService
 {
-    private readonly DashboardRepository _repo;
-    private readonly ILogger<DashboardService> _logger;
+    private readonly ExpenseRepository _expenseRepo;
+    private readonly ReportRepository _reportRepo;
 
     public DashboardService(
-        DashboardRepository repo,
-        ILogger<DashboardService> logger)
+        ExpenseRepository expenseRepo,
+        ReportRepository reportRepo)
     {
-        _repo = repo;
-        _logger = logger;
+        _expenseRepo = expenseRepo;
+        _reportRepo = reportRepo;
     }
+
 
     public DailySummaryVM GetDailySummary(int userId)
     {
-        var sw = Stopwatch.StartNew();
+        var now = DateTime.Now;
 
-        try
-        {
-            _logger.LogInformation("📊 Start GetDailySummary for UserId={UserId}", userId);
+        var todayFrom = now.Date;
+        var monthFrom = new DateTime(now.Year, now.Month, 1);
+        var to = now;
 
-            var total = _repo.GetTotal(userId);
-            var items = _repo.GetSummary(userId);
+        var vm = new DailySummaryVM();
 
-            sw.Stop();
+        // ================= TODAY
+        vm.Total = _expenseRepo.GetTotalExpense(userId, todayFrom, to);
 
-            _logger.LogInformation(
-                "✅ Dashboard loaded: Total={Total}, Items={Count}, Time={Ms}ms",
-                total,
-                items.Count,
-                sw.ElapsedMilliseconds
-            );
+        // ================= MONTHLY
+        vm.MonthlyTotal = _expenseRepo.GetTotalExpense(userId, monthFrom, to);
 
-            return new DailySummaryVM
-            {
-                Total = total,
-                Items = items
-            };
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "❌ Failed GetDailySummary for UserId={UserId}", userId);
-            throw;
-        }
+        // ================= BUDGET
+        vm.Budget = ApplicationConfig.MonthlyBudget;
+
+        vm.Remaining = vm.Budget - vm.MonthlyTotal;
+
+        // ================= BREAKDOWN (HARI INI)
+        vm.Items = _reportRepo.GetReportData("daily");
+
+        return vm;
     }
 }

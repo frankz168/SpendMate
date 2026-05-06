@@ -13,7 +13,7 @@ public static class ApplicationConfig
         public static List<string> EmailTo = new List<string>
         {
             "franky.sutanto93@gmail.com",
-            "other@email.com"
+            "evelineamalia0812@gmail.com"
         };
 
         public static TimeSpan DailyTime = new TimeSpan(07, 10, 0);

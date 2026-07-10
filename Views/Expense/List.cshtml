@@ -1,0 +1,100 @@
+@model IEnumerable<Expense>
+
+@{
+    ViewBag.Title = "Transactions";
+
+    var list = Model?.ToList() ?? new List<Expense>();
+    var totalAmount = list.Sum(x => x.Amount);
+    var totalCount = list.Count;
+}
+
+<div class="container mt-4">
+
+    <h3>Transactions - @ViewBag.Category</h3>
+
+    <!-- TABLE -->
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Category</th>
+                <th>Note</th>
+                <th class="text-end">Amount</th>
+            </tr>
+        </thead>
+
+        <tbody>
+        @if (list.Count > 0)
+        {
+            foreach (var x in list)
+            {
+                <tr onclick="openDetail(@x.Id)" style="cursor:pointer">
+                    <td>@x.Createdate.ToString("yyyy-MM-dd HH:mm")</td>
+                    <td>@x.Category</td>
+                    <td>@x.Note</td>
+                    <td class="text-end">Rp @x.Amount.ToString("N0")</td>
+                </tr>
+            }
+        }
+        else
+        {
+            <tr>
+                <td colspan="4" class="text-center text-muted">
+                    No transactions found
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+
+    <!-- ================= SUMMARY FOOTER ================= -->
+    <div class="card mt-3 shadow-sm summary-card">
+        <div class="card-body d-flex justify-content-between align-items-center">
+
+            <div>
+                <strong>Total Transactions:</strong>
+                <span>@totalCount</span>
+            </div>
+
+            <div>
+                <strong>Total Amount:</strong>
+                <span class="fw-bold text-success">
+                    Rp @totalAmount.ToString("N0")
+                </span>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+<!-- ================= DETAIL SCRIPT ================= -->
+<script>
+function openDetail(id) {
+    fetch(`/Expense/GetById?id=${id}`)
+        .then(r => r.json())
+        .then(d => {
+            alert(
+                `Category: ${d.category}\nAmount: Rp ${d.amount}\nNote: ${d.note}`
+            );
+        });
+}
+</script>
+
+<!-- ================= STYLE ================= -->
+<style>
+
+.summary-card {
+    position: sticky;
+    bottom: 0;
+    background: #fff;
+    border-top: 2px solid rgba(0,0,0,0.1);
+}
+
+body.dark-mode .summary-card {
+    background: #1e1e1e;
+    border-top: 2px solid #333;
+    color: #eee;
+}
+
+</style>

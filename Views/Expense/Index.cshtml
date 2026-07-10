@@ -95,10 +95,10 @@
         <div class="col-md-3">
             <select id="filterCategory" class="form-select" onchange="applyFilter()">
                 <option value="">All Category</option>
-                <option value="Makan">Food</option>
+                <option value="Food">Food</option>
                 <option value="Transport">Transport</option>
-                <option value="Belanja">Shopping</option>
-                <option value="Lainnya">Others</option>
+                <option value="Shopping">Shopping</option>
+                <option value="Others">Others</option>
             </select>
         </div>
 
@@ -138,7 +138,7 @@ let editId = 0;
 let allData = [];
 let filteredData = [];
 let currentPage = 1;
-const pageSize = 5;
+const pageSize = 25;
 
 // ================= LOAD DATA
 async function loadData() {

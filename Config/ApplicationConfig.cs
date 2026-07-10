@@ -24,5 +24,5 @@ public static class ApplicationConfig
         public static int MonthlyDay = 1;
     }
     
-      public static decimal MonthlyBudget = 6500000;
+      public static decimal MonthlyBudget = 29000000;
 }

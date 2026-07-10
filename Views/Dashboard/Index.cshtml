@@ -39,6 +39,7 @@
             </div>
         </div>
 
+        <!-- USED THIS MONTH -->
         <div class="col-md-4">
             <div class="card shadow-sm theme-card">
                 <div class="card-body">
@@ -47,16 +48,24 @@
                         Rp @Model.MonthlyTotal.ToString("N0")
                     </h5>
 
-                    <!-- PROGRESS BAR -->
                     @{
-                        var percent = Model.Budget == 0 ? 0 : (Model.MonthlyTotal / Model.Budget) * 100;
+                        var percent = Model.Budget == 0
+                            ? 0m
+                            : (decimal)Model.MonthlyTotal / (decimal)Model.Budget * 100m;
+
                         var percentSafe = percent > 100 ? 100 : percent;
+
+                        var widthValue = percentSafe.ToString("0.##",
+                            System.Globalization.CultureInfo.InvariantCulture);
                     }
 
-                    <div class="progress mt-2">
-                        <div class="progress-bar @(percent > 100 ? "bg-danger" : "bg-success")"
+                    <div class="progress mt-2 premium-progress">
+                        <div class="progress-bar premium-bar @(percent > 100 ? "danger" : "normal")"
                              role="progressbar"
-                             style="width:@percentSafe%">
+                             style="width:@widthValue%">
+                        </div>
+
+                        <div class="progress-text">
                             @percent.ToString("0")%
                         </div>
                     </div>
@@ -65,6 +74,7 @@
             </div>
         </div>
 
+        <!-- REMAINING -->
         <div class="col-md-4">
             <div class="card shadow-sm theme-card">
                 <div class="card-body">
@@ -94,23 +104,32 @@
         </div>
     </div>
 
-    <!-- BREAKDOWN -->
+    <!-- BREAKDOWN (CLICKABLE UPGRADE) -->
     <div class="card shadow-sm theme-card">
         <div class="card-body">
             <h6 class="mb-3">Today's Expense Breakdown</h6>
 
             @if (Model.Items != null && Model.Items.Count > 0)
             {
-                <table class="table table-sm">
+                <table class="table table-sm table-hover">
+
+                    <tbody>
                     @foreach (var item in Model.Items)
                     {
-                        <tr>
-                            <td>@GetIcon(item.Category) @item.Category</td>
+                        <tr style="cursor:pointer"
+                            onclick="openCategory('@item.Category')">
+
+                            <td>
+                                @GetIcon(item.Category) @item.Category
+                            </td>
+
                             <td class="text-end fw-semibold">
                                 Rp @item.Total.ToString("N0")
                             </td>
                         </tr>
                     }
+                    </tbody>
+
                 </table>
             }
             else
@@ -122,23 +141,23 @@
 
 </div>
 
-<!-- CHART JS -->
+<!-- ================= CHART JS ================= -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
-    const labels = [
-        @foreach (var item in Model.Items)
-        {
-            @: "@item.Category",
-        }
-    ];
 
-    const values = [
-        @foreach (var item in Model.Items)
-        {
-            @: @item.Total,
-        }
-    ];
+    // SAFE DATA (avoid null crash)
+    const labels = @Html.Raw(
+        Model.Items != null
+        ? "[" + string.Join(",", Model.Items.Select(x => $"\"{x.Category}\"")) + "]"
+        : "[]"
+    );
+
+    const values = @Html.Raw(
+        Model.Items != null
+        ? "[" + string.Join(",", Model.Items.Select(x => x.Total.ToString(System.Globalization.CultureInfo.InvariantCulture))) + "]"
+        : "[]"
+    );
 
     const ctx = document.getElementById('expenseChart');
 
@@ -152,13 +171,32 @@
             }]
         },
         options: {
+            responsive: true,
             plugins: {
                 legend: { display: false }
+            },
+            scales: {
+                y: { beginAtZero: true }
             }
         }
     });
 
-    // ================= DARK MODE =================
+    // CATEGORY DRILL DOWN
+    function openCategory(category) {
+
+        const from = new Date();
+        from.setHours(0,0,0,0);
+
+        const to = new Date();
+        to.setHours(23,59,59,999);
+
+        window.location.href =
+            `/Expense/List?category=${encodeURIComponent(category)}`
+            + `&from=${from.toISOString()}`
+            + `&to=${to.toISOString()}`;
+    }
+
+    // DARK MODE
     function toggleDarkMode() {
         document.body.classList.toggle("dark-mode");
 
@@ -171,9 +209,12 @@
     if (localStorage.getItem("darkMode") === "true") {
         document.body.classList.add("dark-mode");
     }
+
 </script>
 
+<!-- ================= STYLE ================= -->
 <style>
+
     body.dark-mode {
         background: #121212;
         color: #eaeaea;
@@ -193,14 +234,49 @@
         color: #aaa !important;
     }
 
-    .progress {
-        height: 18px;
-        border-radius: 10px;
+    /* ================= PREMIUM PROGRESS ================= */
+
+    .premium-progress {
+        position: relative;
+        height: 22px;
+        border-radius: 12px;
+        background: rgba(0,0,0,0.08);
+        overflow: hidden;
     }
 
-    .progress-bar {
-        font-size: 11px;
+    body.dark-mode .premium-progress {
+        background: rgba(255,255,255,0.08);
     }
+
+    .premium-bar {
+        height: 100%;
+        border-radius: 12px;
+        transition: width 0.8s ease;
+    }
+
+    .premium-bar.normal {
+        background: linear-gradient(90deg, #00c853, #64dd17);
+        box-shadow: 0 0 10px rgba(0, 200, 83, 0.35);
+    }
+
+    .premium-bar.danger {
+        background: linear-gradient(90deg, #ff3d00, #ff1744);
+        box-shadow: 0 0 10px rgba(255, 23, 68, 0.35);
+    }
+
+    .progress-text {
+        position: absolute;
+        width: 100%;
+        text-align: center;
+        font-size: 11px;
+        font-weight: 600;
+        color: #fff;
+        top: 50%;
+        transform: translateY(-50%);
+        pointer-events: none;
+        text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+    }
+
 </style>
 
 @functions {

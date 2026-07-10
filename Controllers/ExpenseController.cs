@@ -93,4 +93,17 @@ public class ExpenseController : Controller
             "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
             fileName);
     }
+
+    [HttpGet]
+    public IActionResult List(DateTime from, DateTime to, string category)
+    {
+        var data = _service.GetExpenses(1, from, to);
+
+        if (!string.IsNullOrEmpty(category))
+            data = data.Where(x => x.Category == category);
+
+        ViewBag.Category = category;
+
+        return View(data);
+    }
 }

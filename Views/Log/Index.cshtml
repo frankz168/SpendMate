@@ -1,76 +1,204 @@
 @{
-    ViewBag.Title = "Log Viewer";
+    ViewBag.Title = "System Logs";
 }
 
-<div class="container mt-4">
+<div class="container mt-4 mb-5">
 
-    <h3>📄 SpendMate Log Viewer</h3>
-
-    <div class="row mb-2">
-        <div class="col-md-4">
-            <select id="fileSelect" class="form-select" onchange="loadLog()"></select>
+    <!-- HEADER -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold mb-1">📄 System Logs</h2>
+            <p class="text-muted mb-0">Monitor application background activities.</p>
         </div>
+        <button class="btn btn-outline-dark shadow-sm d-flex align-items-center gap-2" onclick="toggleDarkMode()">
+            <span id="themeIcon">🌙</span> <span class="d-none d-md-inline">Toggle Theme</span>
+        </button>
+    </div>
 
-        <div class="col-md-2">
-            <button class="btn btn-primary" onclick="loadLog()">Refresh</button>
-        </div>
+    <!-- CONTROLS -->
+    <div class="card shadow-sm mb-3 theme-card border-0">
+        <div class="card-body bg-light rounded d-flex flex-wrap gap-3 align-items-end">
+            
+            <div class="flex-grow-1" style="max-width: 300px;">
+                <label class="text-muted small fw-bold mb-1">Select Log File</label>
+                <select id="fileSelect" class="form-select shadow-sm" onchange="loadLog()"></select>
+            </div>
+            
+            <div>
+                <button class="btn btn-primary shadow-sm fw-bold" onclick="loadLog()">
+                    🔄 Refresh
+                </button>
+            </div>
+            
+            <div class="ms-auto d-flex gap-2">
+                <button id="btnAutoScroll" class="btn btn-secondary shadow-sm fw-bold" onclick="toggleAutoScroll()">
+                    ⏬ Auto-Scroll: ON
+                </button>
+                <button id="btnAutoRefresh" class="btn btn-outline-success shadow-sm fw-bold" onclick="toggleAuto()">
+                    ⏱️ Auto-Refresh: OFF
+                </button>
+            </div>
 
-        <div class="col-md-2">
-            <button class="btn btn-outline-dark" onclick="toggleAuto()">Auto Refresh</button>
         </div>
     </div>
 
-    <div class="card">
-        <div class="card-body">
-            <pre id="logContent" style="height:500px; overflow:auto; background:#111; color:#0f0; padding:10px;"></pre>
+    <!-- TERMINAL WINDOW -->
+    <div class="card shadow-lg theme-card border-0 rounded-3 overflow-hidden">
+        
+        <!-- Terminal Header -->
+        <div class="bg-dark text-light d-flex justify-content-between align-items-center px-3 py-2" style="border-bottom: 1px solid #333;">
+            <div class="d-flex gap-2">
+                <span class="rounded-circle bg-danger" style="width:13px;height:13px;"></span>
+                <span class="rounded-circle bg-warning" style="width:13px;height:13px;"></span>
+                <span class="rounded-circle bg-success" style="width:13px;height:13px;"></span>
+            </div>
+            <span class="font-monospace text-muted small">~ /var/logs/spendmate</span>
+            <div style="width: 45px;"></div> <!-- Spacer for center alignment -->
         </div>
+
+        <!-- Terminal Body -->
+        <div class="card-body p-0 bg-black">
+            <pre id="logContent" class="m-0 p-3 font-monospace terminal-box"></pre>
+        </div>
+
     </div>
 
 </div>
 
+<!-- ================= SCRIPTS ================= -->
 <script>
-let auto = false;
-let timer = null;
+    let autoRefresh = false;
+    let autoScroll = true;
+    let timer = null;
 
-// ================= LOAD
-async function loadLog() {
+    // ================= LOAD LOGS =================
+    async function loadLog() {
+        const selectEl = document.getElementById("fileSelect");
+        const selected = selectEl.value;
 
-    const selected = document.getElementById("fileSelect").value;
+        let url = '/Log/Get';
+        if (selected) url += '?file=' + selected;
 
-    let url = '/Log/Get';
-    if (selected) url += '?file=' + selected;
+        try {
+            const res = await fetch(url);
+            const data = await res.json();
 
-    const res = await fetch(url);
-    const data = await res.json();
+            // Populate dropdown only if it's empty or files list changed
+            if (selectEl.options.length === 0 || selectEl.options.length !== (data.files || []).length) {
+                selectEl.innerHTML = "";
+                (data.files || []).forEach(f => {
+                    const opt = document.createElement("option");
+                    opt.value = f;
+                    opt.text = f;
+                    if (f === data.selected) opt.selected = true;
+                    selectEl.appendChild(opt);
+                });
+            }
 
-    // populate dropdown
-    const select = document.getElementById("fileSelect");
-    select.innerHTML = "";
+            // Set log content
+            const logBox = document.getElementById("logContent");
+            logBox.innerText = data.content || "No logs found in this file.";
 
-    (data.files || []).forEach(f => {
-        const opt = document.createElement("option");
-        opt.value = f;
-        opt.text = f;
-        if (f === data.selected) opt.selected = true;
-        select.appendChild(opt);
-    });
-
-    // set log content
-    document.getElementById("logContent").innerText = data.content || "";
-}
-
-// ================= AUTO REFRESH
-function toggleAuto() {
-
-    auto = !auto;
-
-    if (auto) {
-        timer = setInterval(loadLog, 3000);
-    } else {
-        clearInterval(timer);
+            // Execute Auto-Scroll
+            if (autoScroll) {
+                logBox.scrollTop = logBox.scrollHeight;
+            }
+        } catch (err) {
+            console.error("Failed to fetch logs", err);
+            document.getElementById("logContent").innerText = "Error connecting to the server to fetch logs.";
+        }
     }
-}
 
-// init
-loadLog();
+    // ================= TOGGLES =================
+    function toggleAuto() {
+        autoRefresh = !autoRefresh;
+        const btn = document.getElementById("btnAutoRefresh");
+
+        if (autoRefresh) {
+            timer = setInterval(loadLog, 3000);
+            btn.classList.remove("btn-outline-success");
+            btn.classList.add("btn-danger");
+            btn.innerHTML = "🔴 Auto-Refresh: LIVE";
+        } else {
+            clearInterval(timer);
+            btn.classList.remove("btn-danger");
+            btn.classList.add("btn-outline-success");
+            btn.innerHTML = "⏱️ Auto-Refresh: OFF";
+        }
+    }
+
+    function toggleAutoScroll() {
+        autoScroll = !autoScroll;
+        const btn = document.getElementById("btnAutoScroll");
+        
+        if (autoScroll) {
+            btn.classList.remove("btn-outline-secondary");
+            btn.classList.add("btn-secondary");
+            btn.innerHTML = "⏬ Auto-Scroll: ON";
+            
+            // Instantly scroll down when turned back on
+            const logBox = document.getElementById("logContent");
+            logBox.scrollTop = logBox.scrollHeight;
+        } else {
+            btn.classList.remove("btn-secondary");
+            btn.classList.add("btn-outline-secondary");
+            btn.innerHTML = "⏸️ Auto-Scroll: OFF";
+        }
+    }
+
+    // ================= DARK MODE LOGIC =================
+    function toggleDarkMode() {
+        const body = document.body;
+        body.classList.toggle("dark-mode");
+        
+        const isDark = body.classList.contains("dark-mode");
+        localStorage.setItem("darkMode", isDark);
+        
+        document.getElementById("themeIcon").innerText = isDark ? "☀️" : "🌙";
+    }
+
+    // ================= INIT =================
+    document.addEventListener("DOMContentLoaded", () => {
+        // Load Dark Mode Preference
+        const isDark = localStorage.getItem("darkMode") === "true";
+        if (isDark) {
+            document.body.classList.add("dark-mode");
+            document.getElementById("themeIcon").innerText = "☀️";
+        }
+
+        // Initial Log Load
+        loadLog();
+    });
 </script>
+
+<!-- ================= STYLE ================= -->
+<style>
+    /* BASE TRANSITIONS */
+    body { transition: background-color 0.3s ease, color 0.3s ease; }
+    .theme-card { transition: background-color 0.3s ease, border-color 0.3s ease; }
+    
+    /* TERMINAL STYLING */
+    .terminal-box {
+        height: 550px; 
+        overflow-y: auto; 
+        color: #00ff41; /* Classic Terminal Green */
+        background-color: #0c0c0c;
+        font-size: 0.9rem;
+        line-height: 1.5;
+        white-space: pre-wrap; /* Allows long log lines to wrap instead of hiding */
+    }
+    
+    /* Custom Scrollbar for Terminal */
+    .terminal-box::-webkit-scrollbar { width: 10px; }
+    .terminal-box::-webkit-scrollbar-track { background: #1a1a1a; }
+    .terminal-box::-webkit-scrollbar-thumb { background: #444; border-radius: 5px; }
+    .terminal-box::-webkit-scrollbar-thumb:hover { background: #666; }
+
+    /* DARK MODE RULES */
+    body.dark-mode { background: #121212; color: #eaeaea; }
+    body.dark-mode .theme-card { background: #1e1e1e; border: 1px solid #333 !important; }
+    body.dark-mode .bg-light { background-color: #2a2a2a !important; }
+    body.dark-mode .text-muted { color: #a0a0a0 !important; }
+    body.dark-mode select { background-color: #333; color: white; border-color: #555; }
+    body.dark-mode select:focus { background-color: #444; color: white; }
+</style>

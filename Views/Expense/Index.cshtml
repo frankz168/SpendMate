@@ -6,29 +6,27 @@
 
 <div class="container mt-4">
 
-    <!-- TOP BAR -->
     <div class="d-flex justify-content-end mb-2 gap-2">
        <button class="btn btn-sm btn-outline-dark" onclick="toggleDarkMode()">
-            🌙 Toggle Dark
+            🌙 Toggle Dark Mode
         </button>
         <button class="btn btn-sm btn-success" onclick="exportExcel()">⬇️ Export Excel</button>
     </div>
 
-    <!-- TITLE -->
     <div class="mb-4">
         <h2>💸 SpendMate</h2>
-        <p class="text-muted">Input, edit, delete expense</p>
+        <p class="text-muted">Monthly Expense Tracker</p>
     </div>
 
-    <!-- INPUT -->
-    <div class="card shadow-sm mb-3">
+    <div class="card shadow-sm mb-4 border-primary">
         <div class="card-body">
+            <h5 class="card-title text-primary mb-3">➕ Add Transaction</h5>
             <div class="row g-3 align-items-end">
 
-                <div class="col-md-4">
-                    <label>Category</label>
+                <div class="col-md-3">
+                    <label class="fw-bold">Category</label>
                     <select id="category" class="form-select">
-                        <option value="">Select</option>
+                        <option value="">-- Select Category --</option>
                         <option value="Food">🍽️ Food</option>
                         <option value="Transport">🚗 Transport</option>
                         <option value="Shopping">🛍️ Shopping</option>
@@ -37,97 +35,88 @@
                 </div>
 
                 <div class="col-md-4">
-                    <label>Amount</label>
-                    <input id="amount" type="number" class="form-control" />
+                    <label class="fw-bold">Amount (Rp)</label>
+                    <input id="amount" type="number" class="form-control" placeholder="Example: 50000" min="1" />
                 </div>
 
-                <div class="col-md-3">
-                    <label>Note</label>
-                    <input id="note" class="form-control" />
+                <div class="col-md-4">
+                    <label class="fw-bold">Note</label>
+                    <input id="note" class="form-control" placeholder="Optional: Lunch..." />
                 </div>
 
                 <div class="col-md-1 d-grid">
-                    <button id="btnSave" class="btn btn-dark" onclick="saveExpense()">+</button>
+                    <button id="btnSave" class="btn btn-primary fw-bold" onclick="saveExpense()">SAVE</button>
                 </div>
 
             </div>
+            <small class="text-muted mt-2 d-inline-block">* Transactions are automatically recorded using current server time.</small>
         </div>
     </div>
 
-    <!-- DATE FILTER -->
-    <div class="row mb-2">
-
-        <div class="col-md-3">
-            <label>From</label>
-            <input id="fromDate" type="date" class="form-control" />
+    <div class="card shadow-sm mb-3">
+        <div class="card-body bg-light rounded">
+            <div class="row g-2 align-items-end">
+                <div class="col-md-2">
+                    <label class="text-muted small">From Date</label>
+                    <input id="fromDate" type="date" class="form-control form-control-sm" />
+                </div>
+                <div class="col-md-2">
+                    <label class="text-muted small">To Date</label>
+                    <input id="toDate" type="date" class="form-control form-control-sm" />
+                </div>
+                <div class="col-md-4">
+                    <label class="text-muted small">&nbsp;</label>
+                    <div>
+                        <button class="btn btn-sm btn-primary" onclick="loadData()">Apply</button>
+                        <button class="btn btn-sm btn-outline-secondary" onclick="setThisMonth()">This Month</button>
+                        <button class="btn btn-sm btn-outline-secondary" onclick="setRange(7)">Last 7 Days</button>
+                    </div>
+                </div>
+                <div class="col-md-2 ms-auto">
+                    <label class="text-muted small">Search Note</label>
+                    <input id="searchBox" class="form-control form-control-sm" placeholder="Type here..." oninput="applyFilter()" />
+                </div>
+                <div class="col-md-2">
+                    <label class="text-muted small">Filter Category</label>
+                    <select id="filterCategory" class="form-select form-select-sm" onchange="applyFilter()">
+                        <option value="">All Categories</option>
+                        <option value="Food">Food</option>
+                        <option value="Transport">Transport</option>
+                        <option value="Shopping">Shopping</option>
+                        <option value="Others">Others</option>
+                    </select>
+                </div>
+            </div>
         </div>
-
-        <div class="col-md-3">
-            <label>To</label>
-            <input id="toDate" type="date" class="form-control" />
-        </div>
-
-        <div class="col-md-2 d-grid">
-            <label>&nbsp;</label>
-            <button class="btn btn-primary" onclick="loadData()">Apply</button>
-        </div>
-
-        <div class="col-md-2 d-grid">
-            <label>&nbsp;</label>
-            <button class="btn btn-outline-secondary" onclick="setToday()">Today</button>
-        </div>
-
     </div>
 
-    <!-- QUICK RANGE -->
-    <div class="mb-2">
-        <button class="btn btn-sm btn-outline-dark" onclick="setRange(7)">Last 7 Days</button>
-        <button class="btn btn-sm btn-outline-dark" onclick="setRange(30)">Last 30 Days</button>
-    </div>
-
-    <!-- FILTER -->
-    <div class="row mb-2">
-
-        <div class="col-md-4">
-            <input id="searchBox" class="form-control" placeholder="Search..." oninput="applyFilter()" />
-        </div>
-
-        <div class="col-md-3">
-            <select id="filterCategory" class="form-select" onchange="applyFilter()">
-                <option value="">All Category</option>
-                <option value="Food">Food</option>
-                <option value="Transport">Transport</option>
-                <option value="Shopping">Shopping</option>
-                <option value="Others">Others</option>
-            </select>
-        </div>
-
-    </div>
-
-    <!-- TABLE -->
     <div class="card shadow-sm">
-        <div class="card-body">
-
-            <table class="table table-sm table-bordered">
-                <thead>
+        <div class="card-body p-0">
+            <table class="table table-hover table-striped mb-0">
+                <thead class="table-dark">
                     <tr>
-                        <th>Time</th>
+                        <th class="ps-3">Time</th>
                         <th>Category</th>
-                        <th>Amount</th>
                         <th>Note</th>
-                        <th>Action</th>
+                        <th class="text-end">Amount (Rp)</th>
+                        <th class="text-center">Action</th>
                     </tr>
                 </thead>
                 <tbody id="expenseList"></tbody>
+                <tfoot class="table-light border-top border-2">
+                    <tr>
+                        <td colspan="3" class="text-end fw-bold">TOTAL EXPENSE:</td>
+                        <td class="text-end fw-bold text-danger fs-6" id="totalAmount">Rp 0</td>
+                        <td></td>
+                    </tr>
+                </tfoot>
             </table>
 
-            <!-- PAGINATION -->
-            <div class="d-flex justify-content-between mt-3">
-                <button class="btn btn-sm btn-outline-dark" onclick="prevPage()">◀</button>
-                <div id="pageInfo"></div>
-                <button class="btn btn-sm btn-outline-dark" onclick="nextPage()">▶</button>
+            <div class="d-flex justify-content-between align-items-center p-3 border-top">
+                <button class="btn btn-sm btn-outline-dark" onclick="prevPage()">◀ Prev</button>
+                <div id="pageInfo" class="fw-bold"></div>
+                <button class="btn btn-sm btn-outline-dark" onclick="nextPage()">Next ▶</button>
             </div>
-
         </div>
     </div>
 
@@ -138,132 +127,117 @@ let editId = 0;
 let allData = [];
 let filteredData = [];
 let currentPage = 1;
-const pageSize = 25;
+const pageSize = 15;
 
-// ================= LOAD DATA
+// ================= LOAD DATA =================
 async function loadData() {
-
     const from = document.getElementById("fromDate").value;
     const to = document.getElementById("toDate").value;
-
+    
     let url = '/Expense/GetData';
-
     if (from && to) {
         url += `?from=${from}&to=${to}`;
     }
 
-    const res = await fetch(url);
-    const data = await res.json();
-
-    allData = data; // 🔥 FIXED
-    filteredData = allData;
-
-    currentPage = 1;
-    renderTable();
+    try {
+        const res = await fetch(url);
+        const data = await res.json();
+        allData = data;
+        filteredData = allData;
+        currentPage = 1;
+        renderTable();
+    } catch(err) {
+        console.error("Failed to load data", err);
+    }
 }
 
-// ================= TODAY
-function setToday() {
-    const today = new Date();
-
-    const from = today.toISOString().split('T')[0];
-
-    // add 1 day
-    const tomorrowDate = new Date(today);
-    tomorrowDate.setDate(tomorrowDate.getDate() + 1);
-    const to = tomorrowDate.toISOString().split('T')[0];
-
-    document.getElementById("fromDate").value = from;
-    document.getElementById("toDate").value = to;
-
-    loadData();
-}
-
-// ================= RANGE
-function setRange(days) {
-    const today = new Date();
-    const from = new Date();
-    from.setDate(today.getDate() - days);
-
-    document.getElementById("fromDate").value = from.toISOString().split('T')[0];
-    document.getElementById("toDate").value = today.toISOString().split('T')[0];
-
-    loadData();
-}
-
-// ================= RENDER
-function renderTable() {
-    const start = (currentPage - 1) * pageSize;
-    const pageData = filteredData.slice(start, start + pageSize);
-
-    let rows = "";
-
-    pageData.forEach(x => {
-        rows += `
-        <tr>
-            <td>${formatTime(x.createdate)}</td>
-            <td>${icon(x.category)} ${x.category}</td>
-            <td>Rp ${format(x.amount)}</td>
-            <td>${x.note ?? ""}</td>
-            <td>
-                <button class="btn btn-sm btn-warning" onclick="editExpense(${x.id})">Edit</button>
-                <button class="btn btn-sm btn-danger" onclick="deleteExpense(${x.id})">Delete</button>
-            </td>
-        </tr>`;
-    });
-
-    document.getElementById("expenseList").innerHTML = rows;
-    updatePageInfo();
-}
-
-// ================= FILTER
+// ================= RENDER & FILTER =================
 function applyFilter() {
     const search = document.getElementById("searchBox").value.toLowerCase();
     const category = document.getElementById("filterCategory").value;
-
+    
     filteredData = allData.filter(x =>
         ((x.note ?? "").toLowerCase().includes(search) ||
          (x.category ?? "").toLowerCase().includes(search)) &&
         (!category || x.category === category)
     );
-
     currentPage = 1;
     renderTable();
 }
 
-// ================= PAGINATION
-function nextPage() {
-    if (currentPage * pageSize < filteredData.length) {
-        currentPage++;
-        renderTable();
+function renderTable() {
+    const start = (currentPage - 1) * pageSize;
+    const pageData = filteredData.slice(start, start + pageSize);
+
+    let rows = "";
+    let total = 0;
+
+    // Calculate Total for Filtered Data
+    filteredData.forEach(x => total += x.amount);
+
+    if (pageData.length === 0) {
+        rows = `<tr><td colspan="5" class="text-center text-muted py-4">No transactions found.</td></tr>`;
+    } else {
+        pageData.forEach(x => {
+            rows += `
+            <tr>
+                <td class="ps-3">${formatTime(x.createdate)}</td>
+                <td>${icon(x.category)} <span class="fw-semibold">${x.category}</span></td>
+                <td class="text-muted">${x.note ?? "-"}</td>
+                <td class="text-end font-monospace">Rp ${format(x.amount)}</td>
+                <td class="text-center">
+                    <button class="btn btn-sm btn-outline-warning" onclick="editExpense(${x.id})">✏️</button>
+                    <button class="btn btn-sm btn-outline-danger" onclick="deleteExpense(${x.id})">🗑️</button>
+                </td>
+            </tr>`;
+        });
     }
+
+    document.getElementById("expenseList").innerHTML = rows;
+    document.getElementById("totalAmount").innerText = `Rp ${format(total)}`;
+    updatePageInfo();
 }
 
-function prevPage() {
-    if (currentPage > 1) {
-        currentPage--;
-        renderTable();
-    }
+// ================= DATE RANGE =================
+function setThisMonth() {
+    const date = new Date();
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, '0');
+    
+    const firstDay = `${y}-${m}-01`;
+    // Add 1 day to end of month to handle backend queries accurately (< ToDate)
+    const nextMonth = new Date(y, date.getMonth() + 1, 1);
+    const lastDay = nextMonth.toISOString().split('T')[0];
+
+    document.getElementById("fromDate").value = firstDay;
+    document.getElementById("toDate").value = lastDay;
+    loadData();
 }
 
-function updatePageInfo() {
-    const totalPage = Math.ceil(filteredData.length / pageSize);
-    document.getElementById("pageInfo").innerText =
-        `Page ${currentPage} / ${totalPage || 1}`;
+function setRange(days) {
+    const today = new Date();
+    const from = new Date();
+    from.setDate(today.getDate() - days);
+
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+
+    document.getElementById("fromDate").value = from.toISOString().split('T')[0];
+    document.getElementById("toDate").value = tomorrow.toISOString().split('T')[0];
+    loadData();
 }
 
-// ================= SAVE
-// ================= SAVE
+// ================= CRUD =================
 async function saveExpense() {
     const category = document.getElementById("category").value;
     const amount = document.getElementById("amount").value;
     const note = document.getElementById("note").value;
 
-    if (!category || !amount) {
+    if (!category || !amount || parseFloat(amount) <= 0) {
         Swal.fire({
             icon: "warning",
-            title: "Missing Data",
-            text: "Category & Amount are required"
+            title: "Incomplete Data",
+            text: "Category is required and Amount must be greater than 0"
         });
         return;
     }
@@ -274,215 +248,142 @@ async function saveExpense() {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 id: editId,
-                userId: 1,
-                category,
+                userId: 1, // original hardcode fallback
+                category: category,
                 amount: parseFloat(amount),
-                note
+                note: note
             })
         });
 
-        // DEBUG (optional)
-        console.log("STATUS:", response.status);
+        if (!response.ok) throw new Error("Server error");
 
-        // ❗ CHECK RESPONSE
-        if (!response.ok) {
-            const text = await response.text(); // ambil error kalau ada
-            console.error("SERVER ERROR:", text);
-            throw new Error("Server error");
-        }
-
-        // ✅ SUCCESS
         Swal.fire({
             icon: "success",
             title: editId ? "Updated!" : "Saved!",
-            text: editId
-                ? "Expense updated successfully"
-                : "Expense added successfully",
             timer: 1500,
             showConfirmButton: false
         });
-
+        
         resetForm();
         loadData();
 
     } catch (err) {
+        Swal.fire("Error", "Failed to save expense", "error");
         console.error("SAVE ERROR:", err);
-
-        Swal.fire({
-            icon: "error",
-            title: "Error",
-            text: "Failed to save expense"
-        });
     }
 }
 
-// ================= EDIT
-// ================= EDIT
 async function editExpense(id) {
     try {
         const res = await fetch('/Expense/GetById?id=' + id);
         const x = await res.json();
 
         editId = x.id;
-        category.value = x.category;
-        amount.value = x.amount;
-        note.value = x.note;
-
-        Swal.fire({
-            icon: "info",
-            title: "Edit Mode",
-            text: "You are now editing this expense"
-        });
-
+        document.getElementById("category").value = x.category;
+        document.getElementById("amount").value = x.amount;
+        document.getElementById("note").value = x.note;
+        
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     } catch (err) {
-        Swal.fire({
-            icon: "error",
-            title: "Error",
-            text: "Failed to load data"
-        });
+        Swal.fire("Error", "Failed to load data", "error");
     }
 }
 
-// ================= DELETE
 async function deleteExpense(id) {
     const confirm = await Swal.fire({
-        title: "Delete this expense?",
-        text: "This action cannot be undone",
+        title: "Delete Transaction?",
+        text: "This action cannot be undone.",
         icon: "warning",
         showCancelButton: true,
         confirmButtonColor: "#d33",
-        confirmButtonText: "Yes, delete it",
-        cancelButtonText: "Cancel"
+        confirmButtonText: "Yes, delete it!"
     });
 
     if (!confirm.isConfirmed) return;
 
     try {
         await fetch('/Expense/Delete?id=' + id, { method: 'POST' });
-
-        Swal.fire({
-            icon: "success",
-            title: "Deleted!",
-            text: "Expense has been removed",
-            timer: 1200,
-            showConfirmButton: false
-        });
-
+        Swal.fire({ icon: "success", title: "Deleted", timer: 1000, showConfirmButton: false });
         loadData();
     } catch (err) {
         Swal.fire("Error", "Failed to delete data", "error");
     }
 }
 
-// ================= HELPERS
+// ================= HELPERS =================
 function format(num) {
     return new Intl.NumberFormat('id-ID').format(num || 0);
 }
 
 function formatTime(date) {
-
-    console.log("RAW DATE:", date);
-
-    if (!date) {
-        console.log("❌ date kosong/null");
-        return "";
-    }
-
-    // handle kalau bukan string (misalnya sudah Date object)
-    let safeDate = date;
-
-    if (typeof date === "string") {
-        safeDate = date.replace(" ", "T");
-    }
-
-    console.log("SAFE DATE:", safeDate);
-
+    if (!date) return "-";
+    let safeDate = typeof date === "string" ? date.replace(" ", "T") : date;
     const d = new Date(safeDate);
-
-    console.log("PARSED DATE:", d);
-
-    if (isNaN(d)) {
-        console.log("❌ INVALID DATE:", date);
-        return date; // fallback tampil original
-    }
-
-    const formatted = d.toLocaleString('id-ID', {
-        day: '2-digit',
-        month: 'short',
-        hour: '2-digit',
-        minute: '2-digit'
+    if (isNaN(d)) return date;
+    
+    return d.toLocaleString('en-US', { 
+        day: '2-digit', month: 'short', year: 'numeric',
+        hour: '2-digit', minute: '2-digit', hour12: false
     });
-
-    console.log("✅ FORMATTED:", formatted);
-
-    return formatted;
 }
 
 function icon(cat) {
-    return cat === "Food" ? "🍽️" :
-           cat === "Transport" ? "🚗" :
-           cat === "Shopping" ? "🛍️" : "📦";
+    return cat === "Food" ? "🍽️" : cat === "Transport" ? "🚗" : cat === "Shopping" ? "🛍️" : "📦";
+}
+
+function resetForm() {
+    editId = 0;
+    document.getElementById("category").value = "";
+    document.getElementById("amount").value = "";
+    document.getElementById("note").value = "";
+    document.getElementById("category").focus();
 }
 
 function exportExcel() {
     const from = document.getElementById("fromDate").value;
     const to = document.getElementById("toDate").value;
-
     let url = '/Expense/ExportExcel';
-    if (from && to) {
-        url += `?from=${from}&to=${to}`;
-    }
-
+    if (from && to) url += `?from=${from}&to=${to}`;
     window.location.href = url;
 }
 
-function resetForm() {
-    editId = 0;
-
-    document.getElementById("category").value = "";
-    document.getElementById("amount").value = "";
-    document.getElementById("note").value = "";
-
-    // focus balik ke input pertama
-    document.getElementById("category").focus();
+// ================= PAGINATION =================
+function nextPage() { 
+    if (currentPage * pageSize < filteredData.length) { 
+        currentPage++; renderTable(); 
+    } 
+}
+function prevPage() { 
+    if (currentPage > 1) { 
+        currentPage--; renderTable(); 
+    } 
+}
+function updatePageInfo() { 
+    document.getElementById("pageInfo").innerText = `Page ${currentPage} of ${Math.ceil(filteredData.length / pageSize) || 1}`; 
 }
 
-// ================= INIT
-setToday();
+// ================= INIT =================
+setThisMonth(); // Load "This Month" filter by default
 
- // ================= DARK MODE =================
-    function toggleDarkMode() {
-        document.body.classList.toggle("dark-mode");
-
-        localStorage.setItem(
-            "darkMode",
-            document.body.classList.contains("dark-mode")
-        );
-    }
-
-    // load state
-    if (localStorage.getItem("darkMode") === "true") {
-        document.body.classList.add("dark-mode");
-    }
+// ================= DARK MODE =================
+function toggleDarkMode() {
+    document.body.classList.toggle("dark-mode");
+    localStorage.setItem("darkMode", document.body.classList.contains("dark-mode"));
+}
+if (localStorage.getItem("darkMode") === "true") { 
+    document.body.classList.add("dark-mode"); 
+}
 </script>
 
 <style>
-    body.dark-mode {
-        background: #121212;
-        color: #eaeaea;
-    }
-
-    body.dark-mode .theme-card {
-        background: #1e1e1e;
-        color: #eaeaea;
-        border: 1px solid #2a2a2a;
-    }
-
-    body.dark-mode .table {
-        color: #eaeaea;
-    }
-
-    body.dark-mode .text-muted {
-        color: #aaa !important;
-    }
+    /* Dark Mode Styling */
+    body.dark-mode { background: #121212; color: #eaeaea; }
+    body.dark-mode .card { background: #1e1e1e; border-color: #333; }
+    body.dark-mode .table { color: #eaeaea; }
+    body.dark-mode .table-dark { background-color: #000; border-color: #444; }
+    body.dark-mode .table-light { background-color: #2a2a2a; color: #eaeaea; border-color: #444; }
+    body.dark-mode .table-hover tbody tr:hover { background-color: #222; color: white; }
+    body.dark-mode input, body.dark-mode select { background-color: #333; color: white; border-color: #555; }
+    body.dark-mode input:focus, body.dark-mode select:focus { background-color: #444; color: white; border-color: #0d6efd; }
+    body.dark-mode .text-muted { color: #adb5bd !important; }
 </style>

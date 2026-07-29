@@ -3,14 +3,14 @@ using Microsoft.Extensions.Logging;
 using System.Data;
 using System.Diagnostics;
 
-public class ExpenseRepository
+public class TransactionRepository
 {
     private readonly DbConnectionFactory _db;
-    private readonly ILogger<ExpenseRepository> _logger;
+    private readonly ILogger<TransactionRepository> _logger;
 
-    public ExpenseRepository(
+    public TransactionRepository(
         DbConnectionFactory db,
-        ILogger<ExpenseRepository> logger)
+        ILogger<TransactionRepository> logger)
     {
         _db = db;
         _logger = logger;
@@ -76,7 +76,7 @@ public class ExpenseRepository
         }
     }
 
-    public IEnumerable<Expense> GetExpenses(int userId, DateTime from, DateTime to)
+    public IEnumerable<Transaction> GetTransactions(int userId, DateTime from, DateTime to)
     {
         var sw = Stopwatch.StartNew();
 
@@ -84,13 +84,8 @@ public class ExpenseRepository
         {
             using var conn = _db.CreateConnection();
 
-            var data = conn.Query<Expense>(@"
-                SELECT id, amount, category, note, createdate
-                FROM expenses
-                WHERE userid = @UserId
-                AND createdate >= @FromDate
-                AND createdate < @ToDate
-                ORDER BY createdate DESC",
+            var data = conn.Query<Transaction>(
+                "SELECT * FROM get_transactions(@UserId, @FromDate, @ToDate);",
                 new
                 {
                     UserId = userId,
@@ -101,7 +96,7 @@ public class ExpenseRepository
             sw.Stop();
 
             _logger.LogInformation(
-                "GetExpenses | UserId={UserId}, Count={Count}, {Ms}ms",
+                "GetTransactions | UserId={UserId}, Count={Count}, {Ms}ms",
                 userId, data.Count, sw.ElapsedMilliseconds);
 
             return data;
@@ -109,22 +104,20 @@ public class ExpenseRepository
         catch (Exception ex)
         {
             _logger.LogError(ex,
-                "GetExpenses FAILED | UserId={UserId}",
+                "GetTransactions FAILED | UserId={UserId}",
                 userId);
             throw;
         }
     }
 
-    public Expense GetById(int id, int userId)
+    public Transaction GetById(int id, int userId)
     {
         try
         {
             using var conn = _db.CreateConnection();
 
-            var data = conn.QueryFirstOrDefault<Expense>(@"
-                SELECT id, amount, category, note, createdate
-                FROM expenses
-                WHERE id = @id AND userid = @UserId",
+            var data = conn.QueryFirstOrDefault<Transaction>(
+                "SELECT * FROM get_transaction_by_id(@id, @UserId);",
                 new { id, UserId = userId });
 
             _logger.LogInformation(
@@ -142,20 +135,19 @@ public class ExpenseRepository
         }
     }
 
-    public void Insert(Expense model)
+    public void Insert(Transaction model)
     {
         try
         {
             using var conn = _db.CreateConnection();
 
-            conn.Execute(@"
-                INSERT INTO expenses(userid, amount, category, note, createdate)
-                VALUES (@UserId, @Amount, @Category, @Note, NOW())",
+            conn.Execute(
+                "SELECT insert_transaction(@UserId, @Type::VARCHAR, @Amount, @Category::VARCHAR, @Destination::VARCHAR, @Note::TEXT);",
                 model);
 
             _logger.LogInformation(
-                "Insert Expense | UserId={UserId}, Amount={Amount}, Category={Category}",
-                model.UserId, model.Amount, model.Category);
+                "Insert Transaction | UserId={UserId}, Type={Type}, Amount={Amount}, Category={Category}",
+                model.UserId, model.Type, model.Amount, model.Category);
         }
         catch (Exception ex)
         {
@@ -166,22 +158,18 @@ public class ExpenseRepository
         }
     }
 
-    public void Update(Expense model)
+    public void Update(Transaction model)
     {
         try
         {
             using var conn = _db.CreateConnection();
 
-            conn.Execute(@"
-                UPDATE expenses
-                SET amount = @Amount,
-                    category = @Category,
-                    note = @Note
-                WHERE id = @Id AND userid = @UserId",
+            conn.Execute(
+                "SELECT update_transaction(@Id, @UserId, @Type::VARCHAR, @Amount, @Category::VARCHAR, @Destination::VARCHAR, @Note::TEXT);",
                 model);
 
             _logger.LogInformation(
-                "Update Expense | Id={Id}, UserId={UserId}",
+                "Update Transaction | Id={Id}, UserId={UserId}",
                 model.Id, model.UserId);
         }
         catch (Exception ex)
@@ -199,13 +187,12 @@ public class ExpenseRepository
         {
             using var conn = _db.CreateConnection();
 
-            conn.Execute(@"
-                DELETE FROM expenses 
-                WHERE id = @id AND userid = @UserId",
+            conn.Execute(
+                "SELECT delete_transaction(@id, @UserId);",
                 new { id, UserId = userId });
 
             _logger.LogInformation(
-                "Delete Expense | Id={Id}, UserId={UserId}",
+                "Delete Transaction | Id={Id}, UserId={UserId}",
                 id, userId);
         }
         catch (Exception ex)
@@ -225,26 +212,14 @@ public class ExpenseRepository
         {
             using var conn = _db.CreateConnection();
 
-            var sql = @"
-                SELECT createdate, category, amount, note
-                FROM expenses
-                WHERE userid = @UserId
-            ";
-
-            if (from.HasValue)
-                sql += " AND createdate >= @FromDate";
-
-            if (to.HasValue)
-                sql += " AND createdate <= @ToDate";
-
-            sql += " ORDER BY createdate DESC";
-
-            var data = conn.Query(sql, new
-            {
-                UserId = userId,
-                FromDate = from,
-                ToDate = to
-            }).ToList();
+            var data = conn.Query(
+                "SELECT * FROM get_all_for_export(@UserId, @FromDate, @ToDate);",
+                new
+                {
+                    UserId = userId,
+                    FromDate = from,
+                    ToDate = to
+                }).ToList();
 
             sw.Stop();
 
@@ -263,22 +238,18 @@ public class ExpenseRepository
         }
     }
 
-    public decimal GetTotalExpense(int userId, DateTime from, DateTime to)
+    public decimal GetTotalByType(int userId, DateTime from, DateTime to, string type)
     {
         using var conn = _db.CreateConnection();
 
-        // 🔥 pastikan end-date inclusive (biar hari ini ikut)
         var toInclusive = to.Date.AddDays(1);
 
-        return conn.ExecuteScalar<decimal>(@"
-            SELECT COALESCE(SUM(amount), 0)
-            FROM expenses
-            WHERE userid = @UserId
-            AND createdate >= @From
-            AND createdate < @To",
+        return conn.ExecuteScalar<decimal>(
+            "SELECT get_total_by_type(@UserId, @From, @To, @Type::VARCHAR);",
             new
             {
                 UserId = userId,
+                Type = type,
                 From = from,
                 To = toInclusive
             });

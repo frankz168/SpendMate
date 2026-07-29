@@ -12,7 +12,7 @@
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
             <h2 class="fw-bold mb-0">📊 Dashboard</h2>
-            <p class="text-muted mb-0">Welcome back! Here is your expense overview.</p>
+            <p class="text-muted mb-0">Welcome back! Here is your financial overview.</p>
         </div>
         <button class="btn btn-outline-dark shadow-sm d-flex align-items-center gap-2" onclick="toggleDarkMode()">
             <span id="themeIcon">🌙</span> <span class="d-none d-md-inline">Toggle Theme</span>
@@ -20,12 +20,12 @@
     </div>
 
     <!-- WARNING ALERT -->
-    @if (Model.Remaining < 0)
+    @if (Model.RemainingBudget < 0)
     {
         <div class="alert alert-danger shadow-sm border-0 d-flex align-items-center" role="alert">
             <span class="fs-4 me-3">⚠️</span>
             <div>
-                <strong>Warning!</strong> You have exceeded your monthly budget by <b>Rp @Math.Abs(Model.Remaining).ToString("N0")</b>.
+                <strong>Warning!</strong> You have exceeded your monthly expense budget by <b>Rp @Math.Abs(Model.RemainingBudget).ToString("N0")</b>.
             </div>
         </div>
     }
@@ -33,50 +33,65 @@
     <!-- KEY METRICS ROW -->
     <div class="row g-3 mb-4">
         
-        <!-- TODAY'S TOTAL -->
+        <!-- MONTHLY INCOME -->
+        <div class="col-md-3">
+            <div class="card h-100 shadow-sm theme-card metric-card border-success border-bottom border-3">
+                <div class="card-body d-flex flex-column justify-content-center">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <h6 class="text-muted mb-0">Income This Month</h6>
+                        <span class="fs-5">💰</span>
+                    </div>
+                    <h4 class="fw-bold text-success mb-0">
+                        Rp @Model.MonthlyIncome.ToString("N0")
+                    </h4>
+                </div>
+            </div>
+        </div>
+
+        <!-- MONTHLY EXPENSE -->
+        <div class="col-md-3">
+            <div class="card h-100 shadow-sm theme-card metric-card border-danger border-bottom border-3">
+                <div class="card-body d-flex flex-column justify-content-center">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <h6 class="text-muted mb-0">Expense This Month</h6>
+                        <span class="fs-5">💸</span>
+                    </div>
+                    <h4 class="fw-bold text-danger mb-0">
+                        Rp @Model.MonthlyExpense.ToString("N0")
+                    </h4>
+                </div>
+            </div>
+        </div>
+
+        <!-- NET BALANCE -->
         <div class="col-md-3">
             <div class="card h-100 shadow-sm theme-card metric-card border-primary border-bottom border-3">
                 <div class="card-body d-flex flex-column justify-content-center">
                     <div class="d-flex justify-content-between align-items-center mb-2">
-                        <h6 class="text-muted mb-0">Today's Expense</h6>
-                        <span class="fs-5">📅</span>
+                        <h6 class="text-muted mb-0">Net Balance</h6>
+                        <span class="fs-5">⚖️</span>
                     </div>
-                    <h3 class="fw-bold text-primary mb-0">
-                        Rp @Model.Total.ToString("N0")
-                    </h3>
-                </div>
-            </div>
-        </div>
-
-        <!-- MONTHLY BUDGET -->
-        <div class="col-md-3">
-            <div class="card h-100 shadow-sm theme-card metric-card border-secondary border-bottom border-3">
-                <div class="card-body d-flex flex-column justify-content-center">
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-                        <h6 class="text-muted mb-0">Monthly Budget</h6>
-                        <span class="fs-5">🎯</span>
-                    </div>
-                    <h4 class="fw-bold mb-0">
-                        Rp @Model.Budget.ToString("N0")
+                    <h4 class="fw-bold text-primary mb-0">
+                        Rp @Model.NetBalance.ToString("N0")
                     </h4>
                 </div>
             </div>
         </div>
 
-        <!-- USED THIS MONTH -->
+        <!-- BUDGET REMAINING -->
         <div class="col-md-3">
-            <div class="card h-100 shadow-sm theme-card metric-card border-warning border-bottom border-3">
+            <div class="card h-100 shadow-sm theme-card metric-card @(Model.RemainingBudget < 0 ? "border-danger" : "border-info") border-bottom border-3">
                 <div class="card-body d-flex flex-column justify-content-center">
                     <div class="d-flex justify-content-between align-items-center mb-2">
-                        <h6 class="text-muted mb-0">Used This Month</h6>
-                        <span class="fs-5">💸</span>
+                        <h6 class="text-muted mb-0">Budget Remaining</h6>
+                        <span class="fs-5">🎯</span>
                     </div>
-                    <h4 class="fw-bold mb-2">
-                        Rp @Model.MonthlyTotal.ToString("N0")
+                    <h4 class="fw-bold mb-2 @(Model.RemainingBudget < 0 ? "text-danger" : "")">
+                        Rp @Model.RemainingBudget.ToString("N0")
                     </h4>
 
                     @{
-                        var percent = Model.Budget == 0 ? 0m : (decimal)Model.MonthlyTotal / (decimal)Model.Budget * 100m;
+                        var percent = Model.Budget == 0 ? 0m : (decimal)Model.MonthlyExpense / (decimal)Model.Budget * 100m;
                         var percentSafe = percent > 100 ? 100 : percent;
                         var widthValue = percentSafe.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture);
                     }
@@ -94,21 +109,6 @@
             </div>
         </div>
 
-        <!-- REMAINING -->
-        <div class="col-md-3">
-            <div class="card h-100 shadow-sm theme-card metric-card @(Model.Remaining < 0 ? "border-danger" : "border-success") border-bottom border-3">
-                <div class="card-body d-flex flex-column justify-content-center">
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-                        <h6 class="text-muted mb-0">Remaining Budget</h6>
-                        <span class="fs-5">🏦</span>
-                    </div>
-                    <h3 class="fw-bold mb-0 @(Model.Remaining < 0 ? "text-danger" : "text-success")">
-                        Rp @Model.Remaining.ToString("N0")
-                    </h3>
-                </div>
-            </div>
-        </div>
-
     </div>
 
     <!-- MAIN DASHBOARD AREA -->
@@ -118,7 +118,7 @@
         <div class="col-lg-5">
             <div class="card h-100 shadow-sm theme-card">
                 <div class="card-body d-flex flex-column">
-                    <h5 class="fw-bold mb-4">🍩 Today's Distribution</h5>
+                    <h5 class="fw-bold mb-4">🍩 Today's Expense Distribution</h5>
                     @if (Model.Items != null && Model.Items.Count > 0)
                     {
                         <div class="flex-grow-1 d-flex justify-content-center align-items-center" style="position: relative; height: 250px;">
@@ -140,7 +140,7 @@
         <div class="col-lg-7">
             <div class="card h-100 shadow-sm theme-card">
                 <div class="card-body d-flex flex-column">
-                    <h5 class="fw-bold mb-3">📋 Today's Breakdown</h5>
+                    <h5 class="fw-bold mb-3">📋 Today's Expense Breakdown</h5>
 
                     @if (Model.Items != null && Model.Items.Count > 0)
                     {
@@ -250,8 +250,7 @@
         const to = new Date();
         to.setHours(23,59,59,999);
 
-        // Arahkan ke halaman Expense/List
-        window.location.href = `/Expense/List?category=${encodeURIComponent(category)}&from=${from.toISOString()}&to=${to.toISOString()}`;
+        window.location.href = `/Transaction/List?category=${encodeURIComponent(category)}&from=${from.toISOString()}&to=${to.toISOString()}`;
     }
 
     // DARK MODE LOGIC
@@ -304,6 +303,7 @@
     body.dark-mode .border-success { border-bottom-color: #198754 !important; }
     body.dark-mode .border-warning { border-bottom-color: #ffc107 !important; }
     body.dark-mode .border-danger { border-bottom-color: #dc3545 !important; }
+    body.dark-mode .border-info { border-bottom-color: #0dcaf0 !important; }
 
     /* PREMIUM PROGRESS BAR */
     .premium-progress {
@@ -352,6 +352,7 @@
             "Food" => "🍽️",
             "Transport" => "🚗",
             "Shopping" => "🛍️",
+            "Salary" => "💰",
             _ => "📦"
         };
     }

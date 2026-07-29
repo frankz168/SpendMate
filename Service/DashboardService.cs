@@ -1,16 +1,18 @@
 public class DashboardService
 {
-    private readonly ExpenseRepository _expenseRepo;
+    private readonly TransactionRepository _repo;
     private readonly ReportRepository _reportRepo;
+    private readonly ConfigRepository _config;
 
     public DashboardService(
-        ExpenseRepository expenseRepo,
-        ReportRepository reportRepo)
+        TransactionRepository repo,
+        ReportRepository reportRepo,
+        ConfigRepository config)
     {
-        _expenseRepo = expenseRepo;
+        _repo = repo;
         _reportRepo = reportRepo;
+        _config = config;
     }
-
 
     public DailySummaryVM GetDailySummary(int userId)
     {
@@ -23,18 +25,23 @@ public class DashboardService
         var vm = new DailySummaryVM();
 
         // ================= TODAY
-        vm.Total = _expenseRepo.GetTotalExpense(userId, todayFrom, to);
+        vm.TodayIncome = _repo.GetTotalByType(userId, todayFrom, to, "Income");
+        vm.TodayExpense = _repo.GetTotalByType(userId, todayFrom, to, "Expense");
+        vm.TodayTransfer = _repo.GetTotalByType(userId, todayFrom, to, "Transfer");
 
         // ================= MONTHLY
-        vm.MonthlyTotal = _expenseRepo.GetTotalExpense(userId, monthFrom, to);
+        vm.MonthlyIncome = _repo.GetTotalByType(userId, monthFrom, to, "Income");
+        vm.MonthlyExpense = _repo.GetTotalByType(userId, monthFrom, to, "Expense");
+        vm.MonthlyTransfer = _repo.GetTotalByType(userId, monthFrom, to, "Transfer");
+
+        vm.NetBalance = vm.MonthlyIncome - vm.MonthlyExpense;
 
         // ================= BUDGET
-        vm.Budget = ApplicationConfig.MonthlyBudget;
+        vm.Budget = _config.GetDecimal("MonthlyBudget", 0);
+        vm.RemainingBudget = vm.Budget - vm.MonthlyExpense;
 
-        vm.Remaining = vm.Budget - vm.MonthlyTotal;
-
-        // ================= BREAKDOWN (HARI INI)
-        vm.Items = _reportRepo.GetReportData("daily");
+        // ================= BREAKDOWN (TODAY EXPENSES)
+        vm.Items = _reportRepo.GetReportData("daily"); // Asumsi ReportRepository masih dipakai untuk expense harian
 
         return vm;
     }

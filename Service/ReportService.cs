@@ -4,18 +4,21 @@ using System.Diagnostics;
 public class ReportService
 {
     private readonly ReportRepository _repo;
-    private readonly ExpenseRepository _expenseRepo;
+    private readonly TransactionRepository _transactionRepo;
+    private readonly ConfigRepository _config;
     private readonly EmailService _email;
     private readonly ILogger<ReportService> _logger;
 
     public ReportService(
         ReportRepository repo,
-        ExpenseRepository expenseRepo,
+        TransactionRepository transactionRepo,
+        ConfigRepository config,
         EmailService email,
         ILogger<ReportService> logger)
     {
         _repo = repo;
-        _expenseRepo = expenseRepo;
+        _transactionRepo = transactionRepo;
+        _config = config;
         _email = email;
         _logger = logger;
     }
@@ -51,14 +54,14 @@ public class ReportService
                     break;
             }
 
-            // ================= TOTAL
-            decimal total = _expenseRepo.GetTotalExpense(1, from, to);
+            // ================= TOTAL (Expenses Only for Budget)
+            decimal total = _transactionRepo.GetTotalByType(1, from, to, "Expense");
 
             // ================= DETAIL
             var data = _repo.GetReportData(type);
 
             // ================= BUDGET
-            decimal budget = ApplicationConfig.MonthlyBudget;
+            decimal budget = _config.GetDecimal("MonthlyBudget");
 
             decimal remaining = budget - total;
             decimal percent = budget == 0 ? 0 : (total / budget) * 100;
@@ -83,7 +86,8 @@ public class ReportService
             );
 
             // ================= SEND EMAIL
-            foreach (var email in ApplicationConfig.Report.EmailTo)
+            var emails = _config.GetStringList("Report_EmailTo");
+            foreach (var email in emails)
             {
                 _email.Send(
                     email,
@@ -149,7 +153,7 @@ public class ReportService
             <h2>💼 SpendMate Report</h2>
             <h3>📊 {type.ToUpper()} Summary</h3>
 
-            <p><b>Total:</b> Rp{total:N0}</p>
+            <p><b>Total Expenses:</b> Rp{total:N0}</p>
             <p><b>Budget (Monthly):</b> Rp{budget:N0}</p>
 
             <p>📆 Day: {dayNow} / {daysInMonth}</p>

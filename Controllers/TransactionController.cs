@@ -1,11 +1,11 @@
 using Microsoft.AspNetCore.Mvc;
 using OfficeOpenXml;
 
-public class ExpenseController : Controller
+public class TransactionController : Controller
 {
-    private readonly ExpenseService _service;
+    private readonly TransactionService _service;
 
-    public ExpenseController(ExpenseService service)
+    public TransactionController(TransactionService service)
     {
         _service = service;
     }
@@ -18,7 +18,7 @@ public class ExpenseController : Controller
    [HttpGet]
     public IActionResult GetData(DateTime from, DateTime to)
     {
-        var result = _service.GetExpenses(1, from, to);
+        var result = _service.GetTransactions(1, from, to);
         return Json(result);
     }
 
@@ -30,7 +30,7 @@ public class ExpenseController : Controller
     }
 
     [HttpPost]
-    public IActionResult Save([FromBody] Expense model)
+    public IActionResult Save([FromBody] Transaction model)
     {
         model.UserId = 1;
         _service.Save(model);
@@ -52,13 +52,15 @@ public class ExpenseController : Controller
         var data = _service.Export(1, from, to);
 
         using var package = new ExcelPackage();
-        var ws = package.Workbook.Worksheets.Add("Expenses");
+        var ws = package.Workbook.Worksheets.Add("Transactions");
 
         // ================= HEADER
         ws.Cells[1, 1].Value = "Date";
-        ws.Cells[1, 2].Value = "Category";
-        ws.Cells[1, 3].Value = "Amount";
-        ws.Cells[1, 4].Value = "Note";
+        ws.Cells[1, 2].Value = "Type";
+        ws.Cells[1, 3].Value = "Category";
+        ws.Cells[1, 4].Value = "Destination";
+        ws.Cells[1, 5].Value = "Amount";
+        ws.Cells[1, 6].Value = "Note";
 
         ws.Row(1).Style.Font.Bold = true;
 
@@ -70,9 +72,11 @@ public class ExpenseController : Controller
             ws.Cells[row, 1].Value = Convert.ToDateTime(x.createdate);
             ws.Cells[row, 1].Style.Numberformat.Format = "yyyy-MM-dd HH:mm";
 
-            ws.Cells[row, 2].Value = x.category;
-            ws.Cells[row, 3].Value = x.amount;
-            ws.Cells[row, 4].Value = x.note;
+            ws.Cells[row, 2].Value = x.type;
+            ws.Cells[row, 3].Value = x.category;
+            ws.Cells[row, 4].Value = x.destination;
+            ws.Cells[row, 5].Value = x.amount;
+            ws.Cells[row, 6].Value = x.note;
 
             row++;
         }
@@ -97,7 +101,7 @@ public class ExpenseController : Controller
     [HttpGet]
     public IActionResult List(DateTime from, DateTime to, string category)
     {
-        var data = _service.GetExpenses(1, from, to);
+        var data = _service.GetTransactions(1, from, to);
 
         if (!string.IsNullOrEmpty(category))
             data = data.Where(x => x.Category == category);

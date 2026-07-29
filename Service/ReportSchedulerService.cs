@@ -33,10 +33,11 @@ public class ReportSchedulerService : BackgroundService
 
                 using var scope = _serviceProvider.CreateScope();
                 var reportService = scope.ServiceProvider.GetRequiredService<ReportService>();
+                var config = scope.ServiceProvider.GetRequiredService<ConfigRepository>();
 
-                CheckDaily(reportService, now);
-                CheckWeekly(reportService, now);
-                CheckMonthly(reportService, now);
+                CheckDaily(reportService, config, now);
+                CheckWeekly(reportService, config, now);
+                CheckMonthly(reportService, config, now);
             }
             catch (Exception ex)
             {
@@ -50,9 +51,9 @@ public class ReportSchedulerService : BackgroundService
     }
 
     // ================= DAILY
-    private void CheckDaily(ReportService service, DateTime now)
+    private void CheckDaily(ReportService service, ConfigRepository config, DateTime now)
     {
-        var time = ApplicationConfig.Report.DailyTime;
+        var time = config.GetTimeSpan("Report_DailyTime", new TimeSpan(7, 10, 0));
         var target = now.Date.Add(time);
 
         if (IsWithinOneMinute(now, target) &&
@@ -60,7 +61,7 @@ public class ReportSchedulerService : BackgroundService
         {
             _logger.LogInformation("🔥 Sending DAILY report...");
 
-            service.SendReport("daily"); // ✅ FIXED
+            service.SendReport("daily");
 
             _lastDailyRun = now;
 
@@ -69,18 +70,21 @@ public class ReportSchedulerService : BackgroundService
     }
 
     // ================= WEEKLY
-    private void CheckWeekly(ReportService service, DateTime now)
+    private void CheckWeekly(ReportService service, ConfigRepository config, DateTime now)
     {
-        var time = ApplicationConfig.Report.WeeklyTime;
+        var time = config.GetTimeSpan("Report_WeeklyTime", new TimeSpan(7, 10, 0));
         var target = now.Date.Add(time);
+        
+        int configDay = config.GetInt("Report_WeeklyDay", 0);
+        DayOfWeek targetDay = (DayOfWeek)configDay;
 
-        if (now.DayOfWeek == ApplicationConfig.Report.WeeklyDay &&
+        if (now.DayOfWeek == targetDay &&
             IsWithinOneMinute(now, target) &&
             _lastWeeklyRun.Date != now.Date)
         {
             _logger.LogInformation("🔥 Sending WEEKLY report...");
 
-            service.SendReport("weekly"); // ✅ FIXED
+            service.SendReport("weekly");
 
             _lastWeeklyRun = now;
 
@@ -89,18 +93,20 @@ public class ReportSchedulerService : BackgroundService
     }
 
     // ================= MONTHLY
-    private void CheckMonthly(ReportService service, DateTime now)
+    private void CheckMonthly(ReportService service, ConfigRepository config, DateTime now)
     {
-        var time = ApplicationConfig.Report.MonthlyTime;
+        var time = config.GetTimeSpan("Report_MonthlyTime", new TimeSpan(7, 10, 0));
         var target = now.Date.Add(time);
 
-        if (now.Day == ApplicationConfig.Report.MonthlyDay &&
+        int targetDay = config.GetInt("Report_MonthlyDay", 1);
+
+        if (now.Day == targetDay &&
             IsWithinOneMinute(now, target) &&
             _lastMonthlyRun.Date != now.Date)
         {
             _logger.LogInformation("🔥 Sending MONTHLY report...");
 
-            service.SendReport("monthly"); // ✅ FIXED
+            service.SendReport("monthly");
 
             _lastMonthlyRun = now;
 

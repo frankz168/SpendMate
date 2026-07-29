@@ -29,16 +29,17 @@ builder.Host.UseSerilog();
 
 builder.Services.AddControllersWithViews();
 
-// DB
+// DB & CONFIG
 builder.Services.AddSingleton<DbConnectionFactory>();
+builder.Services.AddScoped<ConfigRepository>();
 
 // DASHBOARD
 builder.Services.AddScoped<DashboardRepository>();
 builder.Services.AddScoped<DashboardService>();
 
-// EXPENSE
-builder.Services.AddScoped<ExpenseRepository>();
-builder.Services.AddScoped<ExpenseService>();
+// TRANSACTION
+builder.Services.AddScoped<TransactionRepository>();
+builder.Services.AddScoped<TransactionService>();
 
 // REPORT + EMAIL
 builder.Services.AddScoped<EmailService>();

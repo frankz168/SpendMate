@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -10,61 +10,60 @@
     <link rel="stylesheet" href="~/css/_Layout.cshtml.css" />
 
     <!-- Font -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
-    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
 </head>
-
 <body>
 
-    <!-- NAVBAR -->
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-light bg-white border-bottom">
-            <div class="container">
-
-                <!-- BRAND -->
-                <a class="navbar-brand fw-semibold" href="/">💸 SpendMate</a>
-
-                <!-- TOGGLER (mobile) -->
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-
-                <!-- MENU -->
-                <div class="collapse navbar-collapse justify-content-end" id="navbarMain">
-                    <ul class="navbar-nav align-items-center gap-2">
-
-                         <li class="nav-item">
-                            <a class="nav-link" asp-controller="Dashboard" asp-action="Index">
-                                Dashboard
-                            </a>
-                        </li>
-
-                        <li class="nav-item">
-                            <a class="btn btn-dark btn-sm ms-2"
-                            asp-controller="Expense"
-                            asp-action="Index">
-                            + Input
-                            </a>
-                        </li>
-
-                    </ul>
-                </div>
-
+    <div class="d-flex" style="min-height: 100vh;">
+        <!-- SIDEBAR -->
+        <div class="sidebar d-flex flex-column" style="width: 250px; background-color: #EFFEED; padding: 20px;">
+            <div class="mb-4 d-flex align-items-center">
+                <!-- Toggle icon matching screenshot, wait the screenshot just has an icon on top left -->
+                <span class="fs-4 text-dark me-2">◫</span>
             </div>
-        </nav>
-    </header>
+            
+            <h3 class="fw-bold text-dark mb-4 ms-1" style="color: #0F3D21 !important;">Menu</h3>
+            
+            <ul class="nav flex-column gap-2">
+                <li class="nav-item">
+                    <a class="nav-link text-dark d-flex align-items-center" asp-controller="Dashboard" asp-action="Index">
+                        <span class="me-2" style="font-size: 1.1rem;">🏠</span> 
+                        <span class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "Dashboard" ? "fw-bold" : "")">Dashboard</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-dark d-flex align-items-center" asp-controller="Transaction" asp-action="Index">
+                        <span class="me-2" style="font-size: 1.1rem;">📄</span> 
+                        <span class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "Transaction" ? "fw-bold" : "")">All Transactions</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-dark d-flex align-items-center" href="#">
+                        <span class="me-2" style="font-size: 1.1rem;">⏱️</span> Reports
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-dark d-flex align-items-center" href="#">
+                        <span class="me-2" style="font-size: 1.1rem;">⚙️</span> Settings
+                    </a>
+                </li>
+            </ul>
+        </div>
 
-    <!-- MAIN -->
-    <div class="container mt-4">
-        <main role="main">
-            @RenderBody()
-        </main>
+        <!-- MAIN CONTENT -->
+        <div class="flex-grow-1" style="background-color: #F8FBF8; overflow-y: auto; height: 100vh;">
+            <div class="container mt-4 mb-5">
+                <main role="main">
+                    @RenderBody()
+                </main>
+            </div>
+            
+            <!-- FOOTER -->
+            <footer class="text-center text-muted pb-4">
+                © 2026 SpendMate • Build better money habits
+            </footer>
+        </div>
     </div>
-
-    <!-- FOOTER -->
-    <footer class="text-center text-muted mt-5 mb-3">
-        © 2026 SpendMate • Build better money habits
-    </footer>
 
     <!-- SCRIPTS -->
     <script src="~/lib/jquery/dist/jquery.min.js"></script>

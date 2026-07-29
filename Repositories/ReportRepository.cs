@@ -22,30 +22,9 @@ public class ReportRepository
 
             using var conn = _db.CreateConnection();
 
-            string sql = type switch
-            {
-                "daily" => @"
-                    SELECT category, SUM(amount) AS Total
-                    FROM expenses
-                    WHERE createdate >= CURRENT_DATE
-                    GROUP BY category",
-
-                "weekly" => @"
-                    SELECT category, SUM(amount) AS Total
-                    FROM expenses
-                    WHERE createdate >= CURRENT_DATE - INTERVAL '7 days'
-                    GROUP BY category",
-
-                "monthly" => @"
-                    SELECT category, SUM(amount) AS Total
-                    FROM expenses
-                    WHERE createdate >= CURRENT_DATE - INTERVAL '30 days'
-                    GROUP BY category",
-
-                _ => throw new Exception("Invalid report type")
-            };
-
-            var result = conn.Query<ReportItem>(sql).ToList();
+            var sql = "SELECT * FROM get_report_data(@Type::VARCHAR);";
+            
+            var result = conn.Query<ReportItem>(sql, new { Type = type }).ToList();
 
             _logger.LogInformation(
                 "📦 [Repo] GetReportData DONE: {Type}, Count={Count}",

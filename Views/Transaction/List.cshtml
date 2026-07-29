@@ -1,9 +1,9 @@
-@model IEnumerable<Expense>
+@model IEnumerable<Transaction>
 
 @{
     ViewBag.Title = "Transactions List";
 
-    var list = Model?.ToList() ?? new List<Expense>();
+    var list = Model?.ToList() ?? new List<Transaction>();
     var totalAmount = list.Sum(x => x.Amount);
     var totalCount = list.Count;
     var currentCategory = ViewBag.Category as string ?? "All Categories";
@@ -35,7 +35,8 @@
                     <thead class="table-light">
                         <tr>
                             <th class="ps-4 py-3 border-0 text-muted">Date & Time</th>
-                            <th class="py-3 border-0 text-muted">Category</th>
+                            <th class="py-3 border-0 text-muted">Type</th>
+                            <th class="py-3 border-0 text-muted">Category / Dest.</th>
                             <th class="py-3 border-0 text-muted">Note</th>
                             <th class="pe-4 py-3 border-0 text-end text-muted">Amount (Rp)</th>
                         </tr>
@@ -47,8 +48,11 @@
                         {
                             <tr onclick="openDetail(@x.Id)" class="transition-row" style="cursor:pointer" title="Click to view details">
                                 <td class="ps-4 py-3 text-muted">@x.Createdate.ToString("dd MMM yyyy, HH:mm")</td>
+                                <td class="py-3">
+                                    <span class="badge @GetTypeBadge(x.Type)">@x.Type</span>
+                                </td>
                                 <td class="py-3 fw-semibold">
-                                    <span class="fs-5 me-2">@GetIcon(x.Category)</span> @x.Category
+                                    <span class="fs-5 me-2">@GetIcon(x.Category)</span> @(x.Type == "Transfer" && !string.IsNullOrEmpty(x.Destination) ? x.Destination : x.Category)
                                 </td>
                                 <td class="py-3 text-muted text-truncate" style="max-width: 200px;">
                                     @(string.IsNullOrEmpty(x.Note) ? "-" : x.Note)
@@ -62,7 +66,7 @@
                     else
                     {
                         <tr>
-                            <td colspan="4" class="text-center text-muted py-5">
+                            <td colspan="5" class="text-center text-muted py-5">
                                 <div class="fs-1 mb-2">📭</div>
                                 <h5 class="fw-bold">No transactions found</h5>
                                 <p class="mb-0">Try adjusting your filters or date range.</p>
@@ -82,8 +86,8 @@
                 <span class="fw-bold fs-5">@totalCount <small class="text-muted fw-normal">items</small></span>
             </div>
             <div class="text-end">
-                <span class="text-muted d-block" style="font-size: 0.85rem;">Total Amount Spent</span>
-                <span class="fw-bold text-danger fs-4 font-monospace">
+                <span class="text-muted d-block" style="font-size: 0.85rem;">Total Amount</span>
+                <span class="fw-bold text-primary fs-4 font-monospace">
                     Rp @totalAmount.ToString("N0")
                 </span>
             </div>
@@ -95,7 +99,7 @@
 <script>
     // BEAUTIFUL DETAIL MODAL
     function openDetail(id) {
-        fetch(`/Expense/GetById?id=${id}`)
+        fetch(`/Transaction/GetById?id=${id}`)
             .then(r => r.json())
             .then(d => {
                 const formattedAmount = new Intl.NumberFormat('id-ID').format(d.amount);
@@ -108,16 +112,20 @@
                 let icon = d.category === "Food" ? "🍽️" : d.category === "Transport" ? "🚗" : d.category === "Shopping" ? "🛍️" : "📦";
 
                 Swal.fire({
-                    title: `<span class="fs-2">${icon}</span><br/>${d.category}`,
+                    title: `<span class="fs-2">${icon}</span><br/>${d.type === 'Transfer' ? d.destination : d.category}`,
                     html: `
                         <div class="text-start mt-3 p-3 bg-light rounded border dark-mode-swal-box">
+                            <div class="mb-2 d-flex justify-content-between border-bottom pb-2">
+                                <span class="text-muted fw-bold">Type</span>
+                                <span class="fw-bold">${d.type}</span>
+                            </div>
                             <div class="mb-2 d-flex justify-content-between border-bottom pb-2">
                                 <span class="text-muted fw-bold">Date</span>
                                 <span>${formattedDate}</span>
                             </div>
                             <div class="mb-2 d-flex justify-content-between border-bottom pb-2">
                                 <span class="text-muted fw-bold">Amount</span>
-                                <span class="fw-bold text-danger font-monospace fs-5">Rp ${formattedAmount}</span>
+                                <span class="fw-bold text-primary font-monospace fs-5">Rp ${formattedAmount}</span>
                             </div>
                             <div class="mt-3">
                                 <span class="text-muted fw-bold d-block mb-1">Note:</span>
@@ -208,6 +216,16 @@
             "Transport" => "🚗",
             "Shopping" => "🛍️",
             _ => "📦"
+        };
+    }
+    public string GetTypeBadge(string type)
+    {
+        return type switch
+        {
+            "Income" => "bg-success",
+            "Expense" => "bg-danger",
+            "Transfer" => "bg-info",
+            _ => "bg-secondary"
         };
     }
 }

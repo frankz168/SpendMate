@@ -14,10 +14,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
->>>>>>> 7f5658bf4300b8bc8bbcc903e037ff683bbfac4a
     <style>
         .user-profile {
             background-color: #f8fafc;
@@ -74,13 +70,6 @@
     </style>
 </head>
 
-<<<<<<< HEAD
-=======
-=======
-</head>
-
->>>>>>> cb5b015095060830f9f8aab88f71fdd31b2be89c
->>>>>>> 7f5658bf4300b8bc8bbcc903e037ff683bbfac4a
 <body>
     <div class="app-container">
         <!-- MOBILE HEADER -->
@@ -99,10 +88,6 @@
                 <button class="hamburger-btn d-md-none" onclick="toggleSidebar()">✕</button>
             </div>
             
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
->>>>>>> 7f5658bf4300b8bc8bbcc903e037ff683bbfac4a
             <div class="user-profile">
                 <div class="avatar">
                     @(Context.User.Identity?.Name?.Substring(0, 1).ToUpper() ?? "U")
@@ -118,11 +103,6 @@
                 </form>
             </div>
             
-<<<<<<< HEAD
-=======
-=======
->>>>>>> cb5b015095060830f9f8aab88f71fdd31b2be89c
->>>>>>> 7f5658bf4300b8bc8bbcc903e037ff683bbfac4a
             <nav class="d-flex flex-column gap-2 mt-4">
                 <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Dashboard" ? "active" : "")" 
                    asp-controller="Dashboard" asp-action="Index">
@@ -140,17 +120,8 @@
                    asp-controller="Report" asp-action="Index">
                     <span class="fs-5">⏱️</span> Reports
                 </a>
-<<<<<<< HEAD
                 <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Settings" ? "active" : "")" 
                    asp-controller="Settings" asp-action="Index">
-=======
-<<<<<<< HEAD
-                <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Settings" ? "active" : "")" 
-                   asp-controller="Settings" asp-action="Index">
-=======
-                <a class="nav-link" href="#">
->>>>>>> cb5b015095060830f9f8aab88f71fdd31b2be89c
->>>>>>> 7f5658bf4300b8bc8bbcc903e037ff683bbfac4a
                     <span class="fs-5">⚙️</span> Settings
                 </a>
             </nav>
@@ -199,24 +170,10 @@
                     <div class="form-group-custom d-flex justify-content-between align-items-center border-bottom pb-2">
                         <label class="mb-0 text-muted">Category</label>
                         <select id="modalCategory" class="form-control-custom w-auto text-end p-0 bg-transparent text-dark shadow-none">
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
->>>>>>> 7f5658bf4300b8bc8bbcc903e037ff683bbfac4a
                             @foreach(var c in categories)
                             {
                                 <option value="@c.Name">@c.Name</option>
                             }
-<<<<<<< HEAD
-=======
-=======
-                            <option value="Food">Food</option>
-                            <option value="Transport">Transport</option>
-                            <option value="Shopping">Shopping</option>
-                            <option value="Salary">Salary</option>
-                            <option value="Others">Others</option>
->>>>>>> cb5b015095060830f9f8aab88f71fdd31b2be89c
->>>>>>> 7f5658bf4300b8bc8bbcc903e037ff683bbfac4a
                         </select>
                     </div>
 
@@ -229,20 +186,11 @@
                         <label class="text-muted mb-2">NOTES</label>
                         <textarea id="modalNote" class="form-control-custom" rows="2" placeholder="Add a note..."></textarea>
                     </div>
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
->>>>>>> 7f5658bf4300b8bc8bbcc903e037ff683bbfac4a
 
                     <div class="form-group-custom mt-3 form-check form-switch" id="modalRecurringContainer">
                         <input class="form-check-input" type="checkbox" id="modalRecurring">
                         <label class="form-check-label text-muted fw-bold ms-2" for="modalRecurring">Is this a Recurring Bill?</label>
                     </div>
-<<<<<<< HEAD
-=======
-=======
->>>>>>> cb5b015095060830f9f8aab88f71fdd31b2be89c
->>>>>>> 7f5658bf4300b8bc8bbcc903e037ff683bbfac4a
                 </div>
             </div>
         </div>
@@ -267,24 +215,11 @@
             document.getElementById('modalAmount').value = '';
             document.getElementById('modalNote').value = '';
             document.getElementById('modalDestination').value = '';
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
->>>>>>> 7f5658bf4300b8bc8bbcc903e037ff683bbfac4a
             document.getElementById('modalRecurring').checked = false;
             toggleModalType();
         }
 
         function populateModalForm(id, type, amount, category, note, destination, isRecurring) {
-<<<<<<< HEAD
-=======
-=======
-            toggleModalType();
-        }
-
-        function populateModalForm(id, type, amount, category, note, destination) {
->>>>>>> cb5b015095060830f9f8aab88f71fdd31b2be89c
->>>>>>> 7f5658bf4300b8bc8bbcc903e037ff683bbfac4a
             globalEditId = id;
             if (type === 'Expense') document.getElementById('toggleExpense').checked = true;
             else if (type === 'Transfer') document.getElementById('toggleTransfer').checked = true;
@@ -294,14 +229,7 @@
             document.getElementById('modalCategory').value = category;
             document.getElementById('modalNote').value = note || "";
             document.getElementById('modalDestination').value = destination || "";
-<<<<<<< HEAD
             document.getElementById('modalRecurring').checked = isRecurring === true || isRecurring === 'true';
-=======
-<<<<<<< HEAD
-            document.getElementById('modalRecurring').checked = isRecurring === true || isRecurring === 'true';
-=======
->>>>>>> cb5b015095060830f9f8aab88f71fdd31b2be89c
->>>>>>> 7f5658bf4300b8bc8bbcc903e037ff683bbfac4a
             
             toggleModalType();
             
@@ -323,14 +251,7 @@
             }
 
             document.getElementById('modalDestContainer').style.display = isTransfer ? 'flex' : 'none';
-<<<<<<< HEAD
             document.getElementById('modalRecurringContainer').style.display = isExpense ? 'block' : 'none';
-=======
-<<<<<<< HEAD
-            document.getElementById('modalRecurringContainer').style.display = isExpense ? 'block' : 'none';
-=======
->>>>>>> cb5b015095060830f9f8aab88f71fdd31b2be89c
->>>>>>> 7f5658bf4300b8bc8bbcc903e037ff683bbfac4a
         }
 
         async function saveGlobalTransaction() {
@@ -341,14 +262,7 @@
             const category = document.getElementById('modalCategory').value;
             const note = document.getElementById('modalNote').value;
             const destination = document.getElementById('modalDestination').value;
-<<<<<<< HEAD
             const isRecurring = document.getElementById('modalRecurring').checked;
-=======
-<<<<<<< HEAD
-            const isRecurring = document.getElementById('modalRecurring').checked;
-=======
->>>>>>> cb5b015095060830f9f8aab88f71fdd31b2be89c
->>>>>>> 7f5658bf4300b8bc8bbcc903e037ff683bbfac4a
 
             if (!amount || parseFloat(amount) <= 0) {
                 Swal.fire('Warning', 'Please enter a valid amount.', 'warning');
@@ -365,17 +279,8 @@
                         category: category,
                         amount: parseFloat(amount),
                         note: note,
-<<<<<<< HEAD
                         destination: destination,
                         isRecurring: isRecurring
-=======
-<<<<<<< HEAD
-                        destination: destination,
-                        isRecurring: isRecurring
-=======
-                        destination: destination
->>>>>>> cb5b015095060830f9f8aab88f71fdd31b2be89c
->>>>>>> 7f5658bf4300b8bc8bbcc903e037ff683bbfac4a
                     })
                 });
 

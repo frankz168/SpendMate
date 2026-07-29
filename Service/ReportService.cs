@@ -23,7 +23,7 @@ public class ReportService
         _logger = logger;
     }
 
-    public void SendReport(string type)
+    public void SendReport(string type, int userId)
     {
         var sw = Stopwatch.StartNew();
 
@@ -55,10 +55,10 @@ public class ReportService
             }
 
             // ================= TOTAL (Expenses Only for Budget)
-            decimal total = _transactionRepo.GetTotalByType(1, from, to, "Expense");
+            decimal total = _transactionRepo.GetTotalByType(userId, from, to, "Expense");
 
             // ================= DETAIL
-            var data = _repo.GetReportData(type);
+            var data = _repo.GetReportData(type, userId);
 
             // ================= BUDGET
             decimal budget = _config.GetDecimal("MonthlyBudget");

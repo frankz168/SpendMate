@@ -1,128 +1,257 @@
 @{
-    ViewBag.Title = "SpendMate Report";
+    ViewBag.Title = "Transaction Report";
 }
 
-<div class="container mt-4">
+<!-- Page Header -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h3 class="fw-bold mb-1">Transaction Report</h3>
+        <p class="text-muted mb-0">Analyze and export your financial records.</p>
+    </div>
+</div>
 
-    <h2>📧 SpendMate Email Report</h2>
+<!-- Filters & Summary Cards -->
+<div class="row g-4 mb-4">
+    <div class="col-md-8">
+        <div class="theme-card h-100">
+            <h5 class="fw-bold mb-4">Filter Options</h5>
+            <div class="row g-3">
+                <div class="col-md-5">
+                    <label class="form-label text-muted">From Date</label>
+                    <input type="date" id="dateFrom" class="form-control-custom" />
+                </div>
+                <div class="col-md-5">
+                    <label class="form-label text-muted">To Date</label>
+                    <input type="date" id="dateTo" class="form-control-custom" />
+                </div>
+                <div class="col-md-2 d-flex align-items-end">
+                    <button class="btn btn-primary-custom w-100" onclick="loadReport()">Filter</button>
+                </div>
+            </div>
+            <div class="mt-4 pt-4 border-top" style="border-color: var(--border-color) !important;">
+                 <button class="btn btn-sm btn-outline-light me-2" onclick="exportExcel()">📥 Export to Excel</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="theme-card h-100">
+            <h5 class="fw-bold mb-4">Automated Reports</h5>
+            <p class="text-muted small mb-3">Send manual reports to your email instantly.</p>
+            <div class="d-grid gap-2">
+                <button class="btn btn-sm btn-outline-primary" onclick="send('daily', this)">📅 Send Daily Report</button>
+                <button class="btn btn-sm btn-outline-success" onclick="send('weekly', this)">📆 Send Weekly Report</button>
+                <button class="btn btn-sm btn-outline-warning" onclick="send('monthly', this)">🗓️ Send Monthly Report</button>
+            </div>
+        </div>
+    </div>
+</div>
 
-    <p class="text-muted">Send manual report by clicking button below</p>
-
-    <button class="btn btn-primary m-2" onclick="send('daily', this)">📅 Daily</button>
-    <button class="btn btn-success m-2" onclick="send('weekly', this)">📆 Weekly</button>
-    <button class="btn btn-warning m-2" onclick="send('monthly', this)">🗓️ Monthly</button>
-
+<!-- Data Table -->
+<div class="theme-card mb-4">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0" id="reportTable">
+            <thead style="background-color: rgba(255, 255, 255, 0.05); border-bottom: 2px solid var(--border-color);">
+                <tr>
+                    <th class="border-0 text-muted ps-4 py-3" style="font-weight: 600; font-size: 13px;">Date</th>
+                    <th class="border-0 text-muted py-3" style="font-weight: 600; font-size: 13px;">Type</th>
+                    <th class="border-0 text-muted py-3" style="font-weight: 600; font-size: 13px;">Category</th>
+                    <th class="border-0 text-muted py-3" style="font-weight: 600; font-size: 13px;">Destination</th>
+                    <th class="border-0 text-muted text-end py-3 pe-4" style="font-weight: 600; font-size: 13px;">Amount</th>
+                </tr>
+            </thead>
+            <tbody id="reportTbody">
+                <tr><td colspan="5" class="text-center text-muted py-4">Select dates and click Filter to load data.</td></tr>
+            </tbody>
+            <tfoot style="border-top: 2px solid var(--border-color);">
+                <tr>
+                    <td colspan="4" class="text-end text-muted fw-bold py-3">TOTAL INCOME:</td>
+                    <td class="text-end fw-bold text-success-custom py-3 pe-4" id="totalIncome">Rp 0</td>
+                </tr>
+                <tr>
+                    <td colspan="4" class="text-end text-muted fw-bold py-3">TOTAL EXPENSE:</td>
+                    <td class="text-end fw-bold text-danger-custom py-3 pe-4" id="totalExpense">Rp 0</td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
 </div>
 
 <!-- ================= PREMIUM LOADING ================= -->
 <div id="loadingOverlay" class="loading-overlay">
     <div class="loading-box">
         <div class="spinner"></div>
-        <div id="loadingText">Sending...</div>
+        <div id="loadingText">Processing...</div>
     </div>
 </div>
 
+@section Scripts {
 <script>
-let isSending = false;
+    document.addEventListener("DOMContentLoaded", function() {
+        const today = new Date();
+        const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
+        
+        document.getElementById("dateTo").value = today.toISOString().split('T')[0];
+        
+        // Add one day to to-date so that it includes the whole day correctly for local time
+        // Actually for HTML date inputs, standard YYYY-MM-DD string is fine.
+        document.getElementById("dateFrom").value = new Date(today.getTime() - (today.getTimezoneOffset() * 60000)).toISOString().split('T')[0].substring(0, 8) + "01";
+        
+        // Better way to set local dates
+        const localNow = new Date(today.getTime() - (today.getTimezoneOffset() * 60000));
+        document.getElementById("dateTo").value = localNow.toISOString().split('T')[0];
+        
+        const localFirst = new Date(today.getFullYear(), today.getMonth(), 1);
+        document.getElementById("dateFrom").value = new Date(localFirst.getTime() - (localFirst.getTimezoneOffset() * 60000)).toISOString().split('T')[0];
 
-async function send(type, btn) {
+        loadReport();
+    });
 
-    if (isSending) return; // prevent double click
-    isSending = true;
+    async function loadReport() {
+        const from = document.getElementById("dateFrom").value;
+        const to = document.getElementById("dateTo").value;
 
-    const overlay = document.getElementById("loadingOverlay");
-    const text = document.getElementById("loadingText");
+        if (!from || !to) {
+            if (typeof showToast === 'function') showToast('warning', 'Please select a date range.');
+            return;
+        }
 
-    if (btn) btn.disabled = true;
+        const tbody = document.getElementById("reportTbody");
+        tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted py-4"><div class="spinner-border spinner-border-sm text-primary" role="status"></div> Loading...</td></tr>';
 
-    text.innerText = "Sending " + type + " report...";
-    overlay.classList.add("active");
+        try {
+            const response = await fetch(`/Transaction/GetData?from=${from}&to=${to}`);
+            if (!response.ok) throw new Error("Failed to load data");
 
-    try {
-        const response = await fetch('/Report/Send', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: 'type=' + type
-        });
+            const data = await response.json();
+            
+            let html = '';
+            let tIncome = 0;
+            let tExpense = 0;
 
-        if (!response.ok) throw new Error();
+            if (data.length === 0) {
+                html = '<tr><td colspan="5" class="text-center text-muted py-4">No transactions found for this period.</td></tr>';
+            } else {
+                data.forEach(x => {
+                    const dateObj = new Date(x.createdate);
+                    const formattedDate = dateObj.toLocaleString('id-ID', { year: 'numeric', month: 'short', day: '2-digit', hour: '2-digit', minute: '2-digit' });
+                    const formattedAmount = new Intl.NumberFormat('id-ID').format(x.amount);
+                    
+                    const typeBadge = x.type === 'Income' 
+                        ? `<span class="badge bg-success-custom bg-opacity-25 text-success-custom">Income</span>`
+                        : (x.type === 'Expense' ? `<span class="badge bg-danger-custom bg-opacity-25 text-danger-custom">Expense</span>` : `<span class="badge bg-warning bg-opacity-25 text-warning">Transfer</span>`);
+                    
+                    const amountClass = x.type === 'Income' ? 'text-success-custom' : (x.type === 'Expense' ? 'text-danger-custom' : 'text-warning');
+                    
+                    if (x.type === 'Income') tIncome += x.amount;
+                    if (x.type === 'Expense') tExpense += x.amount;
 
-        text.innerText = "✅ Email sent successfully";
+                    html += `
+                        <tr>
+                            <td class="text-muted ps-4">${formattedDate}</td>
+                            <td>${typeBadge}</td>
+                            <td class="text-dark fw-bold">${x.category}</td>
+                            <td class="text-muted">${x.destination || '-'}</td>
+                            <td class="text-end fw-bold ${amountClass} pe-4">Rp ${formattedAmount}</td>
+                        </tr>
+                    `;
+                });
+            }
 
-    } catch (err) {
+            tbody.innerHTML = html;
+            
+            document.getElementById("totalIncome").innerText = 'Rp ' + new Intl.NumberFormat('id-ID').format(tIncome);
+            document.getElementById("totalExpense").innerText = 'Rp ' + new Intl.NumberFormat('id-ID').format(tExpense);
 
-        text.innerText = "❌ Failed to send email";
-
+        } catch (err) {
+            console.error(err);
+            tbody.innerHTML = '<tr><td colspan="5" class="text-center text-danger py-4">Failed to load data.</td></tr>';
+        }
     }
 
-    setTimeout(() => {
-        overlay.classList.remove("active");
-        if (btn) btn.disabled = false;
-        isSending = false;
-    }, 1200);
-}
+    function exportExcel() {
+        const from = document.getElementById("dateFrom").value;
+        const to = document.getElementById("dateTo").value;
+        if (!from || !to) {
+            if (typeof showToast === 'function') showToast('warning', 'Please select a date range.');
+            return;
+        }
+        window.location.href = `/Transaction/ExportExcel?from=${from}&to=${to}`;
+    }
+
+    let isSending = false;
+    async function send(type, btn) {
+        if (isSending) return;
+        isSending = true;
+
+        const overlay = document.getElementById("loadingOverlay");
+        const text = document.getElementById("loadingText");
+        
+        if (btn) btn.disabled = true;
+        
+        text.innerText = "Sending " + type + " report...";
+        overlay.classList.add("active");
+
+        try {
+            const response = await fetch('/Report/Send', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: 'type=' + type
+            });
+
+            if (!response.ok) throw new Error();
+            text.innerText = "✅ Email sent successfully";
+        } catch (err) {
+            text.innerText = "❌ Failed to send email";
+        }
+
+        setTimeout(() => {
+            overlay.classList.remove("active");
+            if (btn) btn.disabled = false;
+            isSending = false;
+        }, 1200);
+    }
 </script>
+}
 
 <style>
 /* ================= OVERLAY ================= */
 .loading-overlay {
     position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-
-    background: rgba(0,0,0,0.4);
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(30, 41, 59, 0.7);
     backdrop-filter: blur(6px);
-
     display: flex;
     justify-content: center;
     align-items: center;
-
     z-index: 9999;
-
     opacity: 0;
     pointer-events: none;
     transition: opacity 0.25s ease;
 }
-
 .loading-overlay.active {
     opacity: 1;
     pointer-events: all;
 }
-
-/* ================= BOX ================= */
 .loading-box {
-    background: #fff;
+    background: rgba(30, 41, 59, 0.95);
+    border: 1px solid var(--border-color);
     padding: 28px 36px;
     border-radius: 14px;
     text-align: center;
-
-    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.5);
+    color: var(--text-dark);
 }
-
-/* ================= SPINNER ================= */
 .spinner {
-    width: 38px;
-    height: 38px;
-
-    border: 4px solid #eee;
-    border-top: 4px solid #00c851;
-
+    width: 38px; height: 38px;
+    border: 4px solid var(--border-color);
+    border-top: 4px solid var(--primary-accent);
     border-radius: 50%;
     animation: spin 0.9s linear infinite;
-
     margin: auto;
-    margin-bottom: 10px;
+    margin-bottom: 15px;
 }
-
-/* ================= TEXT ================= */
-#loadingText {
-    font-size: 14px;
-    color: #333;
-}
-
-/* ================= FIX RAZOR ERROR ================= */
 @@keyframes spin {
     to { transform: rotate(360deg); }
 }

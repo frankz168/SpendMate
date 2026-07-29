@@ -30,7 +30,7 @@
                 <h6 class="text-muted mb-0" style="font-size: 13px; font-weight: 600;">Income This Month</h6>
                 <span class="fs-5">💰</span>
             </div>
-            <h4 class="fw-bold text-success-custom mb-0">
+            <h4 class="fw-bold text-success-custom mb-0 animate-number" data-target="@Model.MonthlyIncome" data-prefix="Rp ">
                 Rp @Model.MonthlyIncome.ToString("N0")
             </h4>
         </div>
@@ -43,7 +43,7 @@
                 <h6 class="text-muted mb-0" style="font-size: 13px; font-weight: 600;">Expense This Month</h6>
                 <span class="fs-5">💸</span>
             </div>
-            <h4 class="fw-bold text-danger-custom mb-0">
+            <h4 class="fw-bold text-danger-custom mb-0 animate-number" data-target="@Model.MonthlyExpense" data-prefix="Rp ">
                 Rp @Model.MonthlyExpense.ToString("N0")
             </h4>
         </div>
@@ -56,7 +56,7 @@
                 <h6 class="text-muted mb-0" style="font-size: 13px; font-weight: 600;">Net Balance</h6>
                 <span class="fs-5">⚖️</span>
             </div>
-            <h4 class="fw-bold text-primary mb-0" style="color: var(--primary-green) !important;">
+            <h4 class="fw-bold text-primary mb-0 animate-number" style="color: var(--primary-green) !important;" data-target="@Model.NetBalance" data-prefix="Rp ">
                 Rp @Model.NetBalance.ToString("N0")
             </h4>
         </div>
@@ -69,7 +69,7 @@
                 <h6 class="text-muted mb-0" style="font-size: 13px; font-weight: 600;">Budget Remaining</h6>
                 <span class="fs-5">🎯</span>
             </div>
-            <h4 class="fw-bold mb-2 @(Model.RemainingBudget < 0 ? "text-danger-custom" : "")">
+            <h4 class="fw-bold mb-2 @(Model.RemainingBudget < 0 ? "text-danger-custom" : "") animate-number" data-target="@Model.RemainingBudget" data-prefix="Rp ">
                 Rp @Model.RemainingBudget.ToString("N0")
             </h4>
 
@@ -80,9 +80,9 @@
             }
 
             <div class="progress mt-auto shadow-sm" style="height: 8px; border-radius: 4px; background: #e5e7eb;">
-                <div class="progress-bar @(percent > 100 ? "bg-danger" : "bg-success")"
+                <div class="progress-bar @(percent > 100 ? "bg-danger" : "")"
                      role="progressbar"
-                     style="width:@widthValue%; background-color: var(--primary-green) !important; border-radius: 4px;">
+                     style="width:@widthValue%; @(percent <= 100 ? "background: linear-gradient(135deg, var(--primary-accent), var(--secondary-accent));" : "") border-radius: 4px;">
                 </div>
             </div>
         </div>
@@ -116,7 +116,7 @@
     <!-- BREAKDOWN TABLE -->
     <div class="col-lg-7">
         <div class="theme-card h-100 d-flex flex-column">
-            <h6 class="fw-bold text-dark mb-3" style="font-size: 16px;">📋 This Month's Expense Breakdown</h6>
+            <h6 class="fw-bold mb-3" style="font-size: 16px;">📋 This Month's Expense Breakdown</h6>
 
             @if (Model.Items != null && Model.Items.Count > 0)
             {
@@ -124,23 +124,23 @@
                     <table class="table align-middle mb-0 border-0">
                         <thead>
                             <tr>
-                                <th class="border-0 text-muted" style="font-weight: 600; font-size: 13px;">Category</th>
-                                <th class="border-0 text-end text-muted" style="font-weight: 600; font-size: 13px;">Total (Rp)</th>
-                                <th class="border-0 text-center text-muted" style="font-weight: 600; font-size: 13px;">Action</th>
+                                <th class="border-0" style="font-weight: 600; font-size: 13px; color: var(--text-muted);">Category</th>
+                                <th class="border-0 text-end" style="font-weight: 600; font-size: 13px; color: var(--text-muted);">Total (Rp)</th>
+                                <th class="border-0 text-center" style="font-weight: 600; font-size: 13px; color: var(--text-muted);">Action</th>
                             </tr>
                         </thead>
                         <tbody>
                             @foreach (var item in Model.Items)
                             {
                                 <tr>
-                                    <td class="fw-bold text-dark py-3 border-bottom" style="border-color: var(--border-color) !important;">
+                                    <td class="fw-bold py-3 border-bottom" style="border-color: var(--border-color) !important; color: var(--text-dark);">
                                         <span class="fs-5 me-3">@GetIcon(item.Category)</span> @item.Category
                                     </td>
                                     <td class="text-end fw-bold py-3 border-bottom" style="border-color: var(--border-color) !important;">
                                         @item.Total.ToString("N0")
                                     </td>
                                     <td class="text-center py-3 border-bottom" style="border-color: var(--border-color) !important;">
-                                        <button class="btn btn-sm btn-light fw-bold" style="color: var(--primary-green); border-radius: 8px;" onclick="openCategory('@item.Category')">
+                                        <button class="btn btn-sm fw-bold" style="background-color: rgba(255,255,255,0.1); color: var(--text-dark); border-radius: 8px;" onclick="openCategory('@item.Category')">
                                             View Details ➔
                                         </button>
                                     </td>
@@ -193,10 +193,10 @@
         if(labels.length === 0) return;
 
         const ctx = document.getElementById('expenseChart').getContext('2d');
-        const textColor = '#064e3b'; // var(--text-dark)
+        const textColor = '#f8fafc'; // White text for dark mode
 
         // Vibrant colors matching the cool theme
-        const bgColors = ['#10b981', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6', '#14b8a6'];
+        const bgColors = ['#6366f1', '#8b5cf6', '#0ea5e9', '#d946ef', '#f43f5e', '#14b8a6'];
 
         if (myChart) myChart.destroy();
 
@@ -215,6 +215,12 @@
                 responsive: true,
                 maintainAspectRatio: false,
                 cutout: '65%',
+                animation: {
+                    animateScale: true,
+                    animateRotate: true,
+                    duration: 1500,
+                    easing: 'easeOutQuart'
+                },
                 plugins: {
                     legend: {
                         position: 'right',
@@ -251,6 +257,34 @@
     document.addEventListener("DOMContentLoaded", () => {
         initChart();
         initTrendChart();
+        
+        // NUMBER ANIMATION
+        const animateValue = (obj, start, end, duration, prefix) => {
+            let startTimestamp = null;
+            const step = (timestamp) => {
+                if (!startTimestamp) startTimestamp = timestamp;
+                const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+                
+                // easeOutExpo
+                const easeProgress = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress);
+                
+                const current = start + (end - start) * easeProgress;
+                obj.innerHTML = prefix + new Intl.NumberFormat('id-ID').format(Math.round(current));
+                
+                if (progress < 1) {
+                    window.requestAnimationFrame(step);
+                } else {
+                    obj.innerHTML = prefix + new Intl.NumberFormat('id-ID').format(end);
+                }
+            };
+            window.requestAnimationFrame(step);
+        };
+
+        document.querySelectorAll('.animate-number').forEach(el => {
+            const target = parseFloat(el.getAttribute('data-target')) || 0;
+            const prefix = el.getAttribute('data-prefix') || 'Rp ';
+            animateValue(el, 0, target, 1500, prefix);
+        });
     });
 
     function initTrendChart() {
@@ -271,13 +305,13 @@
                     {
                         label: 'Income',
                         data: incomeData,
-                        backgroundColor: '#10b981', 
+                        backgroundColor: '#6366f1', 
                         borderRadius: 4
                     },
                     {
                         label: 'Expense',
                         data: expenseData,
-                        backgroundColor: '#ef4444',
+                        backgroundColor: '#f43f5e',
                         borderRadius: 4
                     }
                 ]
@@ -285,10 +319,17 @@
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
+                animation: {
+                    y: {
+                        duration: 1500,
+                        easing: 'easeOutQuart'
+                    }
+                },
                 plugins: {
                     legend: {
                         position: 'top',
                         labels: {
+                            color: '#f8fafc',
                             font: { family: "'Inter', sans-serif", size: 13, weight: '500' }
                         }
                     },
@@ -302,9 +343,15 @@
                     }
                 },
                 scales: {
+                    x: {
+                        ticks: { color: '#94a3b8' },
+                        grid: { color: 'rgba(255,255,255,0.05)' }
+                    },
                     y: {
                         beginAtZero: true,
+                        grid: { color: 'rgba(255,255,255,0.05)' },
                         ticks: {
+                            color: '#94a3b8',
                             callback: function(value) {
                                 if (value === 0) return '0';
                                 return 'Rp ' + (value / 1000) + 'k';
@@ -321,13 +368,23 @@
 @functions {
     public string GetIcon(string category)
     {
-        return category switch
-        {
-            "Food" => "🍽️",
-            "Transport" => "🚗",
-            "Shopping" => "🛍️",
-            "Salary" => "💰",
-            _ => "📦"
-        };
+        var cat = category?.ToUpperInvariant() ?? "";
+        if (cat.Contains("DINING") || cat.Contains("FOOD") || cat.Contains("EAT")) return "🍽️";
+        if (cat.Contains("TRANSPORT") || cat.Contains("GAS") || cat.Contains("CAR")) return "🚗";
+        if (cat.Contains("SHOPPING")) return "🛍️";
+        if (cat.Contains("GROCERIES") || cat.Contains("GROCERY")) return "🛒";
+        if (cat.Contains("ELECTRIC") || cat.Contains("PLN")) return "⚡";
+        if (cat.Contains("WATER") || cat.Contains("PAM")) return "💧";
+        if (cat.Contains("PARENTS") || cat.Contains("FAMILY")) return "👨‍👩‍👧‍👦";
+        if (cat.Contains("INTERNET") || cat.Contains("KUOTA") || cat.Contains("WIFI")) return "🌐";
+        if (cat.Contains("LAUNDRY") || cat.Contains("WASH")) return "🧺";
+        if (cat.Contains("TABUNGAN") || cat.Contains("INVEST") || cat.Contains("DANA")) return "📈";
+        if (cat.Contains("ENSURANCE") || cat.Contains("INSURANCE")) return "🛡️";
+        if (cat.Contains("KAKAVEST")) return "💰";
+        if (cat.Contains("GOLD") || cat.Contains("ANTAM")) return "🥇";
+        if (cat.Contains("RECREATION") || cat.Contains("HOLIDAY") || cat.Contains("VACATION")) return "🏖️";
+        if (cat.Contains("SALARY") || cat.Contains("INCOME")) return "💵";
+        if (cat.Contains("BONUS") || cat.Contains("GIFT")) return "🎁";
+        return "📦";
     }
 }

@@ -19,8 +19,7 @@ public class ReportController : BaseController
     [HttpPost]
     public IActionResult Send(string type)
     {
-        // string emailTo = "franky.sutanto93@gmail.com";
-        _service.SendReport(type);
+        _service.SendReport(type, GetUserId());
         return Ok();
     }
 }

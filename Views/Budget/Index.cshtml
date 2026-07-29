@@ -34,7 +34,7 @@
         <h5 class="fw-bold mt-4 mb-2 text-uppercase">@groupTitles[g]</h5>
         <div class="table-responsive mb-4">
             <table class="table table-bordered align-middle budget-table">
-                <thead class="table-success" style="background-color: #a3d9a5;">
+                <thead style="background-color: rgba(255, 255, 255, 0.05); border-bottom: 2px solid var(--border-color);">
                     <tr>
                         <th style="width: 35%;">@groupHeaders[g]</th>
                         <th style="width: 20%;" class="text-end">TARGET</th>
@@ -60,7 +60,7 @@
                             </td>
                         </tr>
                     }
-                    <tr class="fw-bold table-light">
+                    <tr class="fw-bold" style="background-color: rgba(255, 255, 255, 0.05); border-top: 2px solid var(--border-color);">
                         <td>TOTAL</td>
                         <td class="text-end font-monospace">@items.Sum(x => x.TargetAmount).ToString("N0")</td>
                         <td class="text-end font-monospace">@items.Sum(x => x.ActualAmount).ToString("N0")</td>
@@ -78,8 +78,8 @@
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header d-flex justify-content-between">
-                <button class="btn btn-link text-success-custom text-decoration-none fw-bold" data-bs-dismiss="modal">Cancel</button>
-                <button class="btn btn-link text-success-custom text-decoration-none fw-bold" onclick="saveBudget()">Save</button>
+                <button class="btn btn-link text-decoration-none fw-bold" style="color: var(--text-dark);" data-bs-dismiss="modal">Cancel</button>
+                <button class="btn btn-link text-decoration-none fw-bold" style="color: var(--primary-accent);" onclick="saveBudget()">Save</button>
             </div>
             <div class="modal-body pt-0">
                 <div class="text-center mb-4">
@@ -107,18 +107,21 @@
 
 <style>
     .bg-warning-light {
-        background-color: #ffeb3b !important; 
+        background-color: rgba(99, 102, 241, 0.15) !important; 
     }
     .budget-table th {
-        color: #0f3d21;
+        border-bottom: 2px solid var(--border-color) !important;
+        background-color: rgba(255,255,255,0.05);
+        color: var(--text-muted);
         font-size: 13px;
         letter-spacing: 0.5px;
     }
     .budget-table td {
-        border-color: #dee2e6;
+        border-color: var(--border-color) !important;
+        color: var(--text-dark);
     }
     body.dark-mode .bg-warning-light {
-        background-color: #857008 !important;
+        background-color: rgba(99, 102, 241, 0.2) !important;
     }
 </style>
 

@@ -66,7 +66,7 @@ public class ReportSchedulerService : BackgroundService
         {
             _logger.LogInformation("🔥 Sending DAILY report...");
 
-            service.SendReport("daily");
+            service.SendReport("daily", 1);
 
             _lastDailyRun = now;
 
@@ -89,7 +89,7 @@ public class ReportSchedulerService : BackgroundService
         {
             _logger.LogInformation("🔥 Sending WEEKLY report...");
 
-            service.SendReport("weekly");
+            service.SendReport("weekly", 1);
 
             _lastWeeklyRun = now;
 
@@ -111,7 +111,7 @@ public class ReportSchedulerService : BackgroundService
         {
             _logger.LogInformation("🔥 Sending MONTHLY report...");
 
-            service.SendReport("monthly");
+            service.SendReport("monthly", 1);
 
             _lastMonthlyRun = now;
 

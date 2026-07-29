@@ -7,7 +7,7 @@
 <div class="d-flex justify-content-between align-items-center mt-2 mb-4">
     <div class="page-title mb-0">💸 All Transactions</div>
     <div class="d-flex gap-2">
-        <button class="btn btn-sm text-dark bg-white fw-bold shadow-sm" style="border-radius: 8px;" onclick="exportExcel()">⬇️ Export Excel</button>
+        <button class="btn btn-sm fw-bold shadow-sm" style="background-color: rgba(255,255,255,0.1); color: var(--text-dark); border-radius: 8px;" onclick="exportExcel()">⬇️ Export Excel</button>
     </div>
 </div>
 
@@ -26,9 +26,9 @@
         </div>
         <div class="col-md-4">
             <div class="d-flex gap-2">
-                <button class="btn text-white fw-bold shadow-sm" style="background-color: var(--primary-green); border-radius: 8px;" onclick="loadData()">Apply</button>
-                <button class="btn bg-white text-dark fw-bold shadow-sm border" style="border-radius: 8px;" onclick="setThisMonth()">This Month</button>
-                <button class="btn bg-white text-dark fw-bold shadow-sm border" style="border-radius: 8px;" onclick="setRange(7)">Last 7 Days</button>
+                <button class="btn text-white fw-bold shadow-sm" style="background-color: var(--primary-accent); border-radius: 8px;" onclick="loadData()">Apply</button>
+                <button class="btn fw-bold shadow-sm border" style="background-color: rgba(255,255,255,0.1); color: var(--text-dark); border-color: var(--border-color) !important; border-radius: 8px;" onclick="setThisMonth()">This Month</button>
+                <button class="btn fw-bold shadow-sm border" style="background-color: rgba(255,255,255,0.1); color: var(--text-dark); border-color: var(--border-color) !important; border-radius: 8px;" onclick="setRange(7)">Last 7 Days</button>
             </div>
         </div>
         <div class="col-md-2 ms-auto">
@@ -51,7 +51,7 @@
 <div class="theme-card p-0 overflow-hidden mb-5">
     <div class="table-responsive">
         <table class="table align-middle mb-0 border-0">
-            <thead style="background-color: #f8fafc;">
+            <thead style="background-color: rgba(255, 255, 255, 0.05); border-bottom: 2px solid var(--border-color);">
                 <tr>
                     <th class="border-0 text-muted ps-4 py-3" style="font-weight: 600; font-size: 13px;">Time</th>
                     <th class="border-0 text-muted py-3" style="font-weight: 600; font-size: 13px;">Type</th>
@@ -62,10 +62,10 @@
                 </tr>
             </thead>
             <tbody id="transactionList"></tbody>
-            <tfoot style="background-color: #f8fafc; border-top: 2px solid var(--border-color);">
+            <tfoot style="background-color: rgba(255, 255, 255, 0.05); border-top: 2px solid var(--border-color);">
                 <tr>
-                    <td colspan="4" class="text-end fw-bold text-dark py-3">TOTAL RECORDED:</td>
-                    <td class="text-end fw-bold text-primary py-3" style="color: var(--primary-green) !important;" id="totalAmount">Rp 0</td>
+                    <td colspan="4" class="text-end fw-bold py-3" style="color: var(--text-dark);">TOTAL RECORDED:</td>
+                    <td class="text-end fw-bold py-3" style="color: var(--primary-accent) !important;" id="totalAmount">Rp 0</td>
                     <td></td>
                 </tr>
             </tfoot>
@@ -74,9 +74,9 @@
 
     <!-- PAGINATION -->
     <div class="d-flex justify-content-between align-items-center p-3 border-top" style="border-color: var(--border-color) !important;">
-        <button class="btn btn-sm bg-white text-dark fw-bold border shadow-sm" style="border-radius: 8px;" onclick="prevPage()">◀ Prev</button>
-        <div id="pageInfo" class="fw-bold text-dark"></div>
-        <button class="btn btn-sm bg-white text-dark fw-bold border shadow-sm" style="border-radius: 8px;" onclick="nextPage()">Next ▶</button>
+        <button class="btn btn-sm fw-bold border shadow-sm" style="background-color: rgba(255,255,255,0.1); color: var(--text-dark); border-color: var(--border-color) !important; border-radius: 8px;" onclick="prevPage()">◀ Prev</button>
+        <div id="pageInfo" class="fw-bold" style="color: var(--text-dark);"></div>
+        <button class="btn btn-sm fw-bold border shadow-sm" style="background-color: rgba(255,255,255,0.1); color: var(--text-dark); border-color: var(--border-color) !important; border-radius: 8px;" onclick="nextPage()">Next ▶</button>
     </div>
 </div>
 
@@ -152,7 +152,7 @@ function renderTable() {
                         ${x.type}
                     </span>
                 </td>
-                <td class="fw-bold text-dark">${catDest}</td>
+                <td class="fw-bold" style="color: var(--text-dark);">${catDest}</td>
                 <td class="text-muted text-truncate" style="max-width:150px">${x.note ?? "-"}</td>
                 <td class="text-end fw-bold" style="color: ${badgeColor};">Rp ${format(x.amount)}</td>
                 <td class="text-center pe-4">
@@ -225,7 +225,7 @@ async function deleteTransaction(id) {
 
     try {
         await fetch('/Transaction/Delete?id=' + id, { method: 'POST' });
-        Swal.fire({ icon: "success", title: "Deleted", timer: 1000, showConfirmButton: false });
+        showToast("success", "Transaction deleted!");
         loadData();
     } catch (err) {
         Swal.fire("Error", "Failed to delete data", "error");
@@ -250,7 +250,25 @@ function formatTime(date) {
 }
 
 function icon(cat) {
-    return cat === "Food" ? "🍽️" : cat === "Transport" ? "🚗" : cat === "Shopping" ? "🛍️" : cat === "Salary" ? "💰" : "📦";
+    if (!cat) return "📦";
+    cat = cat.toUpperCase();
+    if (cat.includes("DINING") || cat.includes("FOOD") || cat.includes("EAT")) return "🍽️";
+    if (cat.includes("TRANSPORT") || cat.includes("GAS") || cat.includes("CAR")) return "🚗";
+    if (cat.includes("SHOPPING")) return "🛍️";
+    if (cat.includes("GROCERIES") || cat.includes("GROCERY")) return "🛒";
+    if (cat.includes("ELECTRIC") || cat.includes("PLN")) return "⚡";
+    if (cat.includes("WATER") || cat.includes("PAM")) return "💧";
+    if (cat.includes("PARENTS") || cat.includes("FAMILY")) return "👨‍👩‍👧‍👦";
+    if (cat.includes("INTERNET") || cat.includes("KUOTA") || cat.includes("WIFI")) return "🌐";
+    if (cat.includes("LAUNDRY") || cat.includes("WASH")) return "🧺";
+    if (cat.includes("TABUNGAN") || cat.includes("INVEST") || cat.includes("DANA")) return "📈";
+    if (cat.includes("ENSURANCE") || cat.includes("INSURANCE")) return "🛡️";
+    if (cat.includes("KAKAVEST")) return "💰";
+    if (cat.includes("GOLD") || cat.includes("ANTAM")) return "🥇";
+    if (cat.includes("RECREATION") || cat.includes("HOLIDAY") || cat.includes("VACATION")) return "🏖️";
+    if (cat.includes("SALARY") || cat.includes("INCOME")) return "💵";
+    if (cat.includes("BONUS") || cat.includes("GIFT")) return "🎁";
+    return "📦";
 }
 
 function exportExcel() {

@@ -44,7 +44,7 @@ public class DashboardService
         vm.RemainingBudget = vm.Budget - vm.MonthlyExpense;
 
         // ================= BREAKDOWN (THIS MONTH EXPENSES)
-        vm.Items = _reportRepo.GetReportData("monthly"); 
+        vm.Items = _reportRepo.GetReportData("monthly", userId); 
 
         // ================= TREND (LAST 6 MONTHS)
         vm.TrendItems = _dashRepo.Get6MonthTrend(userId);

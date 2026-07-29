@@ -210,13 +210,24 @@
 @functions {
     public string GetIcon(string category)
     {
-        return category switch
-        {
-            "Food" => "🍽️",
-            "Transport" => "🚗",
-            "Shopping" => "🛍️",
-            _ => "📦"
-        };
+        var cat = category?.ToUpperInvariant() ?? "";
+        if (cat.Contains("DINING") || cat.Contains("FOOD") || cat.Contains("EAT")) return "🍽️";
+        if (cat.Contains("TRANSPORT") || cat.Contains("GAS") || cat.Contains("CAR")) return "🚗";
+        if (cat.Contains("SHOPPING")) return "🛍️";
+        if (cat.Contains("GROCERIES") || cat.Contains("GROCERY")) return "🛒";
+        if (cat.Contains("ELECTRIC") || cat.Contains("PLN")) return "⚡";
+        if (cat.Contains("WATER") || cat.Contains("PAM")) return "💧";
+        if (cat.Contains("PARENTS") || cat.Contains("FAMILY")) return "👨‍👩‍👧‍👦";
+        if (cat.Contains("INTERNET") || cat.Contains("KUOTA") || cat.Contains("WIFI")) return "🌐";
+        if (cat.Contains("LAUNDRY") || cat.Contains("WASH")) return "🧺";
+        if (cat.Contains("TABUNGAN") || cat.Contains("INVEST") || cat.Contains("DANA")) return "📈";
+        if (cat.Contains("ENSURANCE") || cat.Contains("INSURANCE")) return "🛡️";
+        if (cat.Contains("KAKAVEST")) return "💰";
+        if (cat.Contains("GOLD") || cat.Contains("ANTAM")) return "🥇";
+        if (cat.Contains("RECREATION") || cat.Contains("HOLIDAY") || cat.Contains("VACATION")) return "🏖️";
+        if (cat.Contains("SALARY") || cat.Contains("INCOME")) return "💵";
+        if (cat.Contains("BONUS") || cat.Contains("GIFT")) return "🎁";
+        return "📦";
     }
     public string GetTypeBadge(string type)
     {

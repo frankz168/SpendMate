@@ -14,7 +14,7 @@ public class ReportRepository
         _logger = logger;
     }
 
-    public List<ReportItem> GetReportData(string type)
+    public List<ReportItem> GetReportData(string type, int userId)
     {
         try
         {
@@ -22,9 +22,9 @@ public class ReportRepository
 
             using var conn = _db.CreateConnection();
 
-            var sql = "SELECT * FROM spendmate_report_getdata(@Type::VARCHAR);";
+            var sql = "SELECT * FROM spendmate_report_getdata(@Type::VARCHAR, @UserId);";
             
-            var result = conn.Query<ReportItem>(sql, new { Type = type }).ToList();
+            var result = conn.Query<ReportItem>(sql, new { Type = type, UserId = userId }).ToList();
 
             _logger.LogInformation(
                 "📦 [Repo] GetReportData DONE: {Type}, Count={Count}",

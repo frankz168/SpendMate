@@ -55,11 +55,117 @@
             <div class="d-flex justify-content-between align-items-center mb-2">
                 <h6 class="text-muted mb-0" style="font-size: 13px; font-weight: 600;">Net Balance</h6>
                 <span class="fs-5">⚖️</span>
+<<<<<<< HEAD
+=======
             </div>
             <h4 class="fw-bold text-primary mb-0" style="color: var(--primary-green) !important;">
                 Rp @Model.NetBalance.ToString("N0")
             </h4>
         </div>
+    </div>
+
+    <!-- BUDGET REMAINING -->
+    <div class="col-md-3">
+        <div class="theme-card h-100 d-flex flex-column justify-content-center">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <h6 class="text-muted mb-0" style="font-size: 13px; font-weight: 600;">Budget Remaining</h6>
+                <span class="fs-5">🎯</span>
+            </div>
+            <h4 class="fw-bold mb-2 @(Model.RemainingBudget < 0 ? "text-danger-custom" : "")">
+                Rp @Model.RemainingBudget.ToString("N0")
+            </h4>
+
+            @{
+                var percent = Model.Budget == 0 ? 0m : (decimal)Model.MonthlyExpense / (decimal)Model.Budget * 100m;
+                var percentSafe = percent > 100 ? 100 : percent;
+                var widthValue = percentSafe.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture);
+            }
+
+            <div class="progress mt-auto shadow-sm" style="height: 8px; border-radius: 4px; background: #e5e7eb;">
+                <div class="progress-bar @(percent > 100 ? "bg-danger" : "bg-success")"
+                     role="progressbar"
+                     style="width:@widthValue%; background-color: var(--primary-green) !important; border-radius: 4px;">
+                </div>
+>>>>>>> cb5b015095060830f9f8aab88f71fdd31b2be89c
+            </div>
+            <h4 class="fw-bold text-primary mb-0" style="color: var(--primary-green) !important;">
+                Rp @Model.NetBalance.ToString("N0")
+            </h4>
+        </div>
+<<<<<<< HEAD
+=======
+    </div>
+
+</div>
+
+<!-- MAIN DASHBOARD AREA -->
+<div class="row g-4 mb-5">
+    
+    <!-- CHART -->
+    <div class="col-lg-5">
+        <div class="theme-card h-100 d-flex flex-column">
+            <h6 class="fw-bold text-dark mb-4" style="font-size: 16px;">🍩 Today's Expense Distribution</h6>
+            @if (Model.Items != null && Model.Items.Count > 0)
+            {
+                <div class="flex-grow-1 d-flex justify-content-center align-items-center" style="position: relative; height: 250px;">
+                    <canvas id="expenseChart"></canvas>
+                </div>
+            }
+            else
+            {
+                <div class="flex-grow-1 d-flex flex-column justify-content-center align-items-center text-muted">
+                    <span class="fs-1 mb-2">💤</span>
+                    <p>No expenses recorded today.</p>
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- BREAKDOWN TABLE -->
+    <div class="col-lg-7">
+        <div class="theme-card h-100 d-flex flex-column">
+            <h6 class="fw-bold text-dark mb-3" style="font-size: 16px;">📋 Today's Expense Breakdown</h6>
+
+            @if (Model.Items != null && Model.Items.Count > 0)
+            {
+                <div class="table-responsive">
+                    <table class="table align-middle mb-0 border-0">
+                        <thead>
+                            <tr>
+                                <th class="border-0 text-muted" style="font-weight: 600; font-size: 13px;">Category</th>
+                                <th class="border-0 text-end text-muted" style="font-weight: 600; font-size: 13px;">Total (Rp)</th>
+                                <th class="border-0 text-center text-muted" style="font-weight: 600; font-size: 13px;">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model.Items)
+                            {
+                                <tr>
+                                    <td class="fw-bold text-dark py-3 border-bottom" style="border-color: var(--border-color) !important;">
+                                        <span class="fs-5 me-3">@GetIcon(item.Category)</span> @item.Category
+                                    </td>
+                                    <td class="text-end fw-bold py-3 border-bottom" style="border-color: var(--border-color) !important;">
+                                        @item.Total.ToString("N0")
+                                    </td>
+                                    <td class="text-center py-3 border-bottom" style="border-color: var(--border-color) !important;">
+                                        <button class="btn btn-sm btn-light fw-bold" style="color: var(--primary-green); border-radius: 8px;" onclick="openCategory('@item.Category')">
+                                            View Details ➔
+                                        </button>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="flex-grow-1 d-flex flex-column justify-content-center align-items-center text-muted">
+                    <p class="mb-0">Your wallet is taking a rest today.</p>
+                </div>
+            }
+        </div>
+>>>>>>> cb5b015095060830f9f8aab88f71fdd31b2be89c
     </div>
 
     <!-- BUDGET REMAINING -->
@@ -250,7 +356,10 @@
 
     document.addEventListener("DOMContentLoaded", () => {
         initChart();
+<<<<<<< HEAD
         initTrendChart();
+=======
+>>>>>>> cb5b015095060830f9f8aab88f71fdd31b2be89c
     });
 
     function initTrendChart() {

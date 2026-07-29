@@ -202,7 +202,11 @@ async function editTransaction(id) {
         const x = await res.json();
         
         if (typeof populateModalForm === 'function') {
+<<<<<<< HEAD
             populateModalForm(x.id, x.type, x.amount, x.category, x.note, x.destination, x.isRecurring);
+=======
+            populateModalForm(x.id, x.type, x.amount, x.category, x.note, x.destination);
+>>>>>>> cb5b015095060830f9f8aab88f71fdd31b2be89c
         } else {
             console.error("populateModalForm function not found in layout.");
         }

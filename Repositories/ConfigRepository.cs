@@ -13,10 +13,19 @@ public class ConfigRepository
     {
         using var conn = _db.CreateConnection();
         var value = conn.QueryFirstOrDefault<string>(
-            "SELECT get_config_value(@Key::VARCHAR);",
+            "SELECT spendmate_config_getvalue(@Key::VARCHAR);",
             new { Key = key }
         );
         return string.IsNullOrEmpty(value) ? defaultValue : value;
+    }
+
+    public void SetString(string key, string value)
+    {
+        using var conn = _db.CreateConnection();
+        conn.Execute(
+            "UPDATE tbl_settings_config SET configvalue = @Value WHERE configkey = @Key",
+            new { Key = key, Value = value }
+        );
     }
 
     public decimal GetDecimal(string key, decimal defaultValue = 0)

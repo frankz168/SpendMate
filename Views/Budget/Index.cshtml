@@ -1,0 +1,174 @@
+@model List<SpendMate.Models.MonthlyBudget>
+
+@{
+    ViewData["Title"] = "Monthly Recap";
+    var groups = new[] { "Fixed", "Savings", "Variable" };
+    var groupTitles = new Dictionary<string, string> {
+        { "Fixed", "FIXED EXPENSES" },
+        { "Savings", "TABUNGAN, INVESTATION, DANA DARURAT" },
+        { "Variable", "PENGELUARAN FLEKSIBLE / KEINGINAN" }
+    };
+    var groupHeaders = new Dictionary<string, string> {
+        { "Fixed", "POS PENGELUARAN" },
+        { "Savings", "POS TABUNGAN" },
+        { "Variable", "PENGELUARAN" }
+    };
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div class="d-flex align-items-center gap-3">
+        <h2 class="page-title mb-0">Monthly Recap</h2>
+        <input type="month" id="monthPicker" class="form-control-custom shadow-none border" style="padding: 8px 12px; min-width: 180px;" value="@ViewBag.Year-@ViewBag.Month.ToString("D2")" onchange="changeMonth()" />
+    </div>
+    <div class="d-flex gap-2">
+        <a href="/Budget/ExportExcel?year=@ViewBag.Year&month=@ViewBag.Month" class="btn btn-sm text-dark bg-white fw-bold shadow-sm border align-content-center" style="border-radius: 8px;">⬇️ Export Excel</a>
+        <a href="/Settings" class="btn btn-sm btn-primary shadow-sm fw-bold align-content-center">⚙️ Manage Categories</a>
+    </div>
+</div>
+
+<div class="theme-card p-4">
+    @foreach(var g in groups)
+    {
+        var items = Model.Where(x => x.GroupType == g).ToList();
+        
+        <h5 class="fw-bold mt-4 mb-2 text-uppercase">@groupTitles[g]</h5>
+        <div class="table-responsive mb-4">
+            <table class="table table-bordered align-middle budget-table">
+                <thead class="table-success" style="background-color: #a3d9a5;">
+                    <tr>
+                        <th style="width: 35%;">@groupHeaders[g]</th>
+                        <th style="width: 20%;" class="text-end">TARGET</th>
+                        <th style="width: 20%;" class="text-end">REALISASI</th>
+                        <th style="width: 20%;" class="text-end">SELISIH</th>
+                        <th style="width: 5%;" class="text-center">PAID</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach(var item in items)
+                    {
+                        var selisih = item.TargetAmount - item.ActualAmount;
+                        var rowClass = item.IsPaid ? "bg-warning-light" : ""; 
+
+                        <tr class="@rowClass transition-row" style="cursor: pointer;" onclick="openEditModal(@item.Id, '@item.GroupType', '@item.Category', @item.TargetAmount, @item.IsPaid.ToString().ToLower())">
+                            <td class="fw-bold">@item.Category</td>
+                            <td class="text-end text-muted font-monospace">@item.TargetAmount.ToString("N0")</td>
+                            <td class="text-end font-monospace">@item.ActualAmount.ToString("N0")</td>
+                            <td class="text-end font-monospace @(selisih < 0 ? "text-danger" : "text-success")">@selisih.ToString("N0")</td>
+                            <td class="text-center">
+                                @if(item.IsPaid) { <span class="badge bg-warning text-dark">Yes</span> }
+                                else { <span class="badge bg-secondary">No</span> }
+                            </td>
+                        </tr>
+                    }
+                    <tr class="fw-bold table-light">
+                        <td>TOTAL</td>
+                        <td class="text-end font-monospace">@items.Sum(x => x.TargetAmount).ToString("N0")</td>
+                        <td class="text-end font-monospace">@items.Sum(x => x.ActualAmount).ToString("N0")</td>
+                        <td class="text-end font-monospace">@items.Sum(x => (x.TargetAmount - x.ActualAmount)).ToString("N0")</td>
+                        <td></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+
+<!-- Modal for Edit -->
+<div class="modal fade custom-modal" id="budgetModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header d-flex justify-content-between">
+                <button class="btn btn-link text-success-custom text-decoration-none fw-bold" data-bs-dismiss="modal">Cancel</button>
+                <button class="btn btn-link text-success-custom text-decoration-none fw-bold" onclick="saveBudget()">Save</button>
+            </div>
+            <div class="modal-body pt-0">
+                <div class="text-center mb-4">
+                    <small class="text-muted fw-bold">EDIT BUDGET ITEM</small>
+                </div>
+                
+                <input type="hidden" id="bGroup" />
+                <input type="hidden" id="bCategory" />
+
+                <div class="form-group-custom mb-3 border-bottom pb-2">
+                    <label class="text-muted mb-1">Target Amount for <span id="lblCategory" class="fw-bold text-dark"></span></label>
+                    <input type="number" id="bTarget" class="form-control-custom w-100 bg-transparent text-dark shadow-none p-0 fs-4 fw-bold" placeholder="0" />
+                </div>
+
+                <div class="form-check mt-3">
+                    <input class="form-check-input" type="checkbox" id="bIsPaid">
+                    <label class="form-check-label text-dark fw-bold" for="bIsPaid">
+                        Paid by Franky (Highlight Yellow)
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .bg-warning-light {
+        background-color: #ffeb3b !important; 
+    }
+    .budget-table th {
+        color: #0f3d21;
+        font-size: 13px;
+        letter-spacing: 0.5px;
+    }
+    .budget-table td {
+        border-color: #dee2e6;
+    }
+    body.dark-mode .bg-warning-light {
+        background-color: #857008 !important;
+    }
+</style>
+
+<script>
+    const currentYear = @ViewBag.Year;
+    const currentMonth = @ViewBag.Month;
+
+    function openEditModal(id, group, category, target, isPaid) {
+        document.getElementById('bGroup').value = group;
+        document.getElementById('bCategory').value = category;
+        document.getElementById('lblCategory').innerText = category;
+        document.getElementById('bTarget').value = target;
+        document.getElementById('bIsPaid').checked = isPaid;
+        new bootstrap.Modal(document.getElementById('budgetModal')).show();
+    }
+
+    async function saveBudget() {
+        const group = document.getElementById('bGroup').value;
+        const cat = document.getElementById('bCategory').value;
+        const target = document.getElementById('bTarget').value;
+        const isPaid = document.getElementById('bIsPaid').checked;
+
+        try {
+            const res = await fetch('/Budget/Save', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    year: currentYear,
+                    month: currentMonth,
+                    groupType: group,
+                    category: cat,
+                    targetAmount: target ? parseFloat(target) : 0,
+                    isPaid: isPaid
+                })
+            });
+
+            if(!res.ok) throw new Error('Save failed');
+
+            window.location.reload();
+
+        } catch (e) {
+            Swal.fire('Error', 'Failed to save budget item.', 'error');
+        }
+    }
+
+    function changeMonth() {
+        const val = document.getElementById('monthPicker').value;
+        if (val) {
+            const parts = val.split('-');
+            window.location.href = `/Budget?year=${parts[0]}&month=${parseInt(parts[1])}`;
+        }
+    }
+</script>

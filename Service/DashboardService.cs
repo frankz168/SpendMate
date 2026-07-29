@@ -3,15 +3,18 @@ public class DashboardService
     private readonly TransactionRepository _repo;
     private readonly ReportRepository _reportRepo;
     private readonly ConfigRepository _config;
+    private readonly DashboardRepository _dashRepo;
 
     public DashboardService(
         TransactionRepository repo,
         ReportRepository reportRepo,
-        ConfigRepository config)
+        ConfigRepository config,
+        DashboardRepository dashRepo)
     {
         _repo = repo;
         _reportRepo = reportRepo;
         _config = config;
+        _dashRepo = dashRepo;
     }
 
     public DailySummaryVM GetDailySummary(int userId)
@@ -40,8 +43,11 @@ public class DashboardService
         vm.Budget = _config.GetDecimal("MonthlyBudget", 0);
         vm.RemainingBudget = vm.Budget - vm.MonthlyExpense;
 
-        // ================= BREAKDOWN (TODAY EXPENSES)
-        vm.Items = _reportRepo.GetReportData("daily"); // Asumsi ReportRepository masih dipakai untuk expense harian
+        // ================= BREAKDOWN (THIS MONTH EXPENSES)
+        vm.Items = _reportRepo.GetReportData("monthly"); 
+
+        // ================= TREND (LAST 6 MONTHS)
+        vm.TrendItems = _dashRepo.Get6MonthTrend(userId);
 
         return vm;
     }

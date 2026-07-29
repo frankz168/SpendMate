@@ -1,0 +1,14 @@
+ALTER FUNCTION delete_transaction(integer, integer) RENAME TO spendmate_transaction_delete;
+ALTER FUNCTION get_all_for_export(integer, timestamp without time zone, timestamp without time zone) RENAME TO spendmate_transaction_exportall;
+ALTER FUNCTION get_categories() RENAME TO spendmate_master_getcategories;
+ALTER FUNCTION get_config_value(character varying) RENAME TO spendmate_config_getvalue;
+ALTER FUNCTION get_daily_summary(integer) RENAME TO spendmate_dashboard_getdailysummary;
+ALTER FUNCTION get_daily_total(integer) RENAME TO spendmate_dashboard_getdailytotal;
+ALTER FUNCTION get_monthly_recap(integer, integer, integer) RENAME TO spendmate_budget_getmonthlyrecap;
+ALTER FUNCTION get_report_data(character varying) RENAME TO spendmate_report_getdata;
+ALTER FUNCTION get_total_by_type(integer, timestamp without time zone, timestamp without time zone, character varying) RENAME TO spendmate_transaction_gettotalbytype;
+ALTER FUNCTION get_transaction_by_id(integer, integer) RENAME TO spendmate_transaction_getbyid;
+ALTER FUNCTION get_transactions(integer, timestamp without time zone, timestamp without time zone) RENAME TO spendmate_transaction_getlist;
+ALTER FUNCTION insert_transaction(integer, character varying, numeric, character varying, character varying, text) RENAME TO spendmate_transaction_insert;
+ALTER FUNCTION save_monthly_budget(integer, integer, integer, character varying, character varying, numeric, boolean) RENAME TO spendmate_budget_save_monthly;
+ALTER FUNCTION update_transaction(integer, integer, character varying, numeric, character varying, character varying, text) RENAME TO spendmate_transaction_update;

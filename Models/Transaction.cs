@@ -21,4 +21,6 @@ public class Transaction
     public string? Note { get; set; }
 
     public DateTime Createdate { get; set; } 
+
+    public bool IsRecurring { get; set; }
 }

@@ -22,7 +22,7 @@ public class ReportRepository
 
             using var conn = _db.CreateConnection();
 
-            var sql = "SELECT * FROM get_report_data(@Type::VARCHAR);";
+            var sql = "SELECT * FROM spendmate_report_getdata(@Type::VARCHAR);";
             
             var result = conn.Query<ReportItem>(sql, new { Type = type }).ToList();
 

@@ -15,4 +15,5 @@ public class DailySummaryVM
     public decimal RemainingBudget { get; set; } // Budget - MonthlyExpense
 
     public List<ReportItem> Items { get; set; } = new List<ReportItem>();
+    public List<SpendMate.Models.TrendItem> TrendItems { get; set; } = new List<SpendMate.Models.TrendItem>();
 }

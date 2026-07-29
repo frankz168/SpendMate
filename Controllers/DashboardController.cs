@@ -1,7 +1,9 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using OfficeOpenXml;
 
-public class DashboardController : Controller
+[Authorize]
+public class DashboardController : BaseController
 {
     private readonly DashboardService _service;
 
@@ -12,7 +14,7 @@ public class DashboardController : Controller
 
     public IActionResult Index()
     {
-        var vm = _service.GetDailySummary(1);
+        var vm = _service.GetDailySummary(GetUserId());
         return View(vm);
     }
 }

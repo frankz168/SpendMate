@@ -25,7 +25,7 @@ public class TransactionRepository
             using var conn = _db.CreateConnection();
 
             var result = conn.ExecuteScalar<decimal>(
-                "SELECT get_daily_total(@UserId);",
+                "SELECT spendmate_dashboard_getdailytotal(@UserId);",
                 new { UserId = userId }
             );
 
@@ -55,7 +55,7 @@ public class TransactionRepository
             using var conn = _db.CreateConnection();
 
             var data = conn.Query(
-                "SELECT * FROM get_daily_summary(@UserId);",
+                "SELECT * FROM spendmate_dashboard_getdailysummary(@UserId);",
                 new { UserId = userId }
             ).ToList();
 
@@ -85,7 +85,7 @@ public class TransactionRepository
             using var conn = _db.CreateConnection();
 
             var data = conn.Query<Transaction>(
-                "SELECT * FROM get_transactions(@UserId, @FromDate, @ToDate);",
+                "SELECT * FROM spendmate_transaction_getlist(@UserId, @FromDate::timestamp, @ToDate::timestamp);",
                 new
                 {
                     UserId = userId,
@@ -117,7 +117,7 @@ public class TransactionRepository
             using var conn = _db.CreateConnection();
 
             var data = conn.QueryFirstOrDefault<Transaction>(
-                "SELECT * FROM get_transaction_by_id(@id, @UserId);",
+                "SELECT * FROM spendmate_transaction_getbyid(@id, @UserId);",
                 new { id, UserId = userId });
 
             _logger.LogInformation(
@@ -141,9 +141,19 @@ public class TransactionRepository
         {
             using var conn = _db.CreateConnection();
 
-            conn.Execute(
-                "SELECT insert_transaction(@UserId, @Type::VARCHAR, @Amount, @Category::VARCHAR, @Destination::VARCHAR, @Note::TEXT);",
-                model);
+            var id = conn.ExecuteScalar<int>(
+                "SELECT spendmate_transaction_insert(@UserId, @Type, @Amount, @Category, @Destination, @Note, @IsRecurring);",
+                new
+                {
+                    UserId = model.UserId,
+                    Type = model.Type,
+                    Amount = model.Amount,
+                    Category = model.Category,
+                    Destination = model.Destination,
+                    Note = model.Note,
+                    IsRecurring = model.IsRecurring
+                }
+            );
 
             _logger.LogInformation(
                 "Insert Transaction | UserId={UserId}, Type={Type}, Amount={Amount}, Category={Category}",
@@ -165,8 +175,19 @@ public class TransactionRepository
             using var conn = _db.CreateConnection();
 
             conn.Execute(
-                "SELECT update_transaction(@Id, @UserId, @Type::VARCHAR, @Amount, @Category::VARCHAR, @Destination::VARCHAR, @Note::TEXT);",
-                model);
+                "SELECT spendmate_transaction_update(@Id, @UserId, @Type, @Amount, @Category, @Destination, @Note, @IsRecurring);",
+                new
+                {
+                    Id = model.Id,
+                    UserId = model.UserId,
+                    Type = model.Type,
+                    Amount = model.Amount,
+                    Category = model.Category,
+                    Destination = model.Destination,
+                    Note = model.Note,
+                    IsRecurring = model.IsRecurring
+                }
+            );
 
             _logger.LogInformation(
                 "Update Transaction | Id={Id}, UserId={UserId}",
@@ -188,7 +209,7 @@ public class TransactionRepository
             using var conn = _db.CreateConnection();
 
             conn.Execute(
-                "SELECT delete_transaction(@id, @UserId);",
+                "SELECT spendmate_transaction_delete(@id, @UserId);",
                 new { id, UserId = userId });
 
             _logger.LogInformation(
@@ -213,7 +234,7 @@ public class TransactionRepository
             using var conn = _db.CreateConnection();
 
             var data = conn.Query(
-                "SELECT * FROM get_all_for_export(@UserId, @FromDate, @ToDate);",
+                "SELECT * FROM spendmate_transaction_exportall(@UserId, @FromDate::timestamp, @ToDate::timestamp);",
                 new
                 {
                     UserId = userId,
@@ -245,7 +266,7 @@ public class TransactionRepository
         var toInclusive = to.Date.AddDays(1);
 
         return conn.ExecuteScalar<decimal>(
-            "SELECT get_total_by_type(@UserId, @From, @To, @Type::VARCHAR);",
+            "SELECT spendmate_transaction_gettotalbytype(@UserId, @From::timestamp, @To::timestamp, @Type::VARCHAR);",
             new
             {
                 UserId = userId,

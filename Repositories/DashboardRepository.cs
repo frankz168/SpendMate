@@ -28,7 +28,7 @@ public class DashboardRepository
             using var conn = _db.CreateConnection();
 
             var result = conn.ExecuteScalar<decimal>(
-                "SELECT get_daily_total(@UserId);",
+                "SELECT spendmate_dashboard_getdailytotal(@UserId);",
                 new { UserId = userId }
             );
 
@@ -63,7 +63,7 @@ public class DashboardRepository
             using var conn = _db.CreateConnection();
 
             var result = conn.Query<DailyItemVM>(
-                "SELECT * FROM get_daily_summary(@UserId);",
+                "SELECT * FROM spendmate_dashboard_getdailysummary(@UserId);",
                 new { UserId = userId }
             ).ToList();
 
@@ -83,5 +83,14 @@ public class DashboardRepository
 
             throw;
         }
+    }
+
+    public List<SpendMate.Models.TrendItem> Get6MonthTrend(int userId)
+    {
+        using var conn = _db.CreateConnection();
+        return conn.Query<SpendMate.Models.TrendItem>(
+            "SELECT month, income, expense FROM spendmate_dashboard_get6monthtrend(@UserId);",
+            new { UserId = userId }
+        ).ToList();
     }
 }

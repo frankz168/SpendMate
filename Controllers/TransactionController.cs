@@ -1,7 +1,9 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using OfficeOpenXml;
 
-public class TransactionController : Controller
+[Authorize]
+public class TransactionController : BaseController
 {
     private readonly TransactionService _service;
 
@@ -18,21 +20,21 @@ public class TransactionController : Controller
    [HttpGet]
     public IActionResult GetData(DateTime from, DateTime to)
     {
-        var result = _service.GetTransactions(1, from, to);
+        var result = _service.GetTransactions(GetUserId(), from, to);
         return Json(result);
     }
 
     [HttpGet]
     public IActionResult GetById(int id)
     {
-        var data = _service.GetById(id, 1);
+        var data = _service.GetById(id, GetUserId());
         return Json(data);
     }
 
     [HttpPost]
     public IActionResult Save([FromBody] Transaction model)
     {
-        model.UserId = 1;
+        model.UserId = GetUserId();
         _service.Save(model);
         return Ok();
     }
@@ -40,7 +42,7 @@ public class TransactionController : Controller
     [HttpPost]
     public IActionResult Delete(int id)
     {
-        _service.Delete(id, 1);
+        _service.Delete(id, GetUserId());
         return Ok();
     }
 
@@ -49,7 +51,7 @@ public class TransactionController : Controller
     {
         ExcelPackage.License.SetNonCommercialOrganization("SpendMate");
 
-        var data = _service.Export(1, from, to);
+        var data = _service.Export(GetUserId(), from, to);
 
         using var package = new ExcelPackage();
         var ws = package.Workbook.Worksheets.Add("Transactions");
@@ -101,7 +103,7 @@ public class TransactionController : Controller
     [HttpGet]
     public IActionResult List(DateTime from, DateTime to, string category)
     {
-        var data = _service.GetTransactions(1, from, to);
+        var data = _service.GetTransactions(GetUserId(), from, to);
 
         if (!string.IsNullOrEmpty(category))
             data = data.Where(x => x.Category == category);

@@ -1,5 +1,6 @@
 using Serilog;
 using System.IO;
+using Microsoft.AspNetCore.Authentication.Cookies;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -29,6 +30,14 @@ builder.Host.UseSerilog();
 
 builder.Services.AddControllersWithViews();
 
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(options =>
+    {
+        options.LoginPath = "/Auth/Login";
+        options.LogoutPath = "/Auth/Logout";
+        options.ExpireTimeSpan = TimeSpan.FromDays(30);
+    });
+
 // DB & CONFIG
 builder.Services.AddSingleton<DbConnectionFactory>();
 builder.Services.AddScoped<ConfigRepository>();
@@ -37,9 +46,16 @@ builder.Services.AddScoped<ConfigRepository>();
 builder.Services.AddScoped<DashboardRepository>();
 builder.Services.AddScoped<DashboardService>();
 
+// USER
+builder.Services.AddScoped<UserRepository>();
+
 // TRANSACTION
 builder.Services.AddScoped<TransactionRepository>();
 builder.Services.AddScoped<TransactionService>();
+
+// BUDGET & MASTER DATA
+builder.Services.AddScoped<BudgetRepository>();
+builder.Services.AddScoped<CategoryRepository>();
 
 // REPORT + EMAIL
 builder.Services.AddScoped<EmailService>();
@@ -66,6 +82,7 @@ if (!app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseRouting();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapStaticAssets();

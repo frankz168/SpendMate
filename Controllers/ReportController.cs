@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
-public class ReportController : Controller
+[Authorize]
+public class ReportController : BaseController
 {
     private readonly ReportService _service;
 

@@ -6,205 +6,199 @@
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-<div class="container mt-4">
+<div class="page-title mt-2">📊 Dashboard</div>
+<p class="text-muted mb-4">Welcome back! Here is your financial overview.</p>
 
-    <!-- HEADER -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
+<!-- WARNING ALERT -->
+@if (Model.RemainingBudget < 0)
+{
+    <div class="alert alert-danger shadow-sm border-0 d-flex align-items-center mb-4" role="alert" style="border-radius: 12px;">
+        <span class="fs-4 me-3">⚠️</span>
         <div>
-            <h2 class="fw-bold mb-0">📊 Dashboard</h2>
-            <p class="text-muted mb-0">Welcome back! Here is your financial overview.</p>
+            <strong>Warning!</strong> You have exceeded your monthly expense budget by <b>Rp @Math.Abs(Model.RemainingBudget).ToString("N0")</b>.
         </div>
-        <button class="btn btn-outline-dark shadow-sm d-flex align-items-center gap-2" onclick="toggleDarkMode()">
-            <span id="themeIcon">🌙</span> <span class="d-none d-md-inline">Toggle Theme</span>
-        </button>
+    </div>
+}
+
+<!-- KEY METRICS ROW -->
+<div class="row g-4 mb-4">
+    
+    <!-- MONTHLY INCOME -->
+    <div class="col-md-3">
+        <div class="theme-card h-100 d-flex flex-column justify-content-center">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <h6 class="text-muted mb-0" style="font-size: 13px; font-weight: 600;">Income This Month</h6>
+                <span class="fs-5">💰</span>
+            </div>
+            <h4 class="fw-bold text-success-custom mb-0">
+                Rp @Model.MonthlyIncome.ToString("N0")
+            </h4>
+        </div>
     </div>
 
-    <!-- WARNING ALERT -->
-    @if (Model.RemainingBudget < 0)
-    {
-        <div class="alert alert-danger shadow-sm border-0 d-flex align-items-center" role="alert">
-            <span class="fs-4 me-3">⚠️</span>
-            <div>
-                <strong>Warning!</strong> You have exceeded your monthly expense budget by <b>Rp @Math.Abs(Model.RemainingBudget).ToString("N0")</b>.
+    <!-- MONTHLY EXPENSE -->
+    <div class="col-md-3">
+        <div class="theme-card h-100 d-flex flex-column justify-content-center">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <h6 class="text-muted mb-0" style="font-size: 13px; font-weight: 600;">Expense This Month</h6>
+                <span class="fs-5">💸</span>
             </div>
+            <h4 class="fw-bold text-danger-custom mb-0">
+                Rp @Model.MonthlyExpense.ToString("N0")
+            </h4>
         </div>
-    }
-
-    <!-- KEY METRICS ROW -->
-    <div class="row g-3 mb-4">
-        
-        <!-- MONTHLY INCOME -->
-        <div class="col-md-3">
-            <div class="card h-100 shadow-sm theme-card metric-card border-success border-bottom border-3">
-                <div class="card-body d-flex flex-column justify-content-center">
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-                        <h6 class="text-muted mb-0">Income This Month</h6>
-                        <span class="fs-5">💰</span>
-                    </div>
-                    <h4 class="fw-bold text-success mb-0">
-                        Rp @Model.MonthlyIncome.ToString("N0")
-                    </h4>
-                </div>
-            </div>
-        </div>
-
-        <!-- MONTHLY EXPENSE -->
-        <div class="col-md-3">
-            <div class="card h-100 shadow-sm theme-card metric-card border-danger border-bottom border-3">
-                <div class="card-body d-flex flex-column justify-content-center">
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-                        <h6 class="text-muted mb-0">Expense This Month</h6>
-                        <span class="fs-5">💸</span>
-                    </div>
-                    <h4 class="fw-bold text-danger mb-0">
-                        Rp @Model.MonthlyExpense.ToString("N0")
-                    </h4>
-                </div>
-            </div>
-        </div>
-
-        <!-- NET BALANCE -->
-        <div class="col-md-3">
-            <div class="card h-100 shadow-sm theme-card metric-card border-primary border-bottom border-3">
-                <div class="card-body d-flex flex-column justify-content-center">
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-                        <h6 class="text-muted mb-0">Net Balance</h6>
-                        <span class="fs-5">⚖️</span>
-                    </div>
-                    <h4 class="fw-bold text-primary mb-0">
-                        Rp @Model.NetBalance.ToString("N0")
-                    </h4>
-                </div>
-            </div>
-        </div>
-
-        <!-- BUDGET REMAINING -->
-        <div class="col-md-3">
-            <div class="card h-100 shadow-sm theme-card metric-card @(Model.RemainingBudget < 0 ? "border-danger" : "border-info") border-bottom border-3">
-                <div class="card-body d-flex flex-column justify-content-center">
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-                        <h6 class="text-muted mb-0">Budget Remaining</h6>
-                        <span class="fs-5">🎯</span>
-                    </div>
-                    <h4 class="fw-bold mb-2 @(Model.RemainingBudget < 0 ? "text-danger" : "")">
-                        Rp @Model.RemainingBudget.ToString("N0")
-                    </h4>
-
-                    @{
-                        var percent = Model.Budget == 0 ? 0m : (decimal)Model.MonthlyExpense / (decimal)Model.Budget * 100m;
-                        var percentSafe = percent > 100 ? 100 : percent;
-                        var widthValue = percentSafe.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture);
-                    }
-
-                    <div class="progress mt-auto premium-progress shadow-sm">
-                        <div class="progress-bar premium-bar @(percent > 100 ? "danger" : "normal")"
-                             role="progressbar"
-                             style="width:@widthValue%">
-                        </div>
-                        <div class="progress-text">
-                            @percent.ToString("0")%
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
     </div>
 
-    <!-- MAIN DASHBOARD AREA -->
-    <div class="row g-4 mb-4">
-        
-        <!-- CHART -->
-        <div class="col-lg-5">
-            <div class="card h-100 shadow-sm theme-card">
-                <div class="card-body d-flex flex-column">
-                    <h5 class="fw-bold mb-4">🍩 Today's Expense Distribution</h5>
-                    @if (Model.Items != null && Model.Items.Count > 0)
-                    {
-                        <div class="flex-grow-1 d-flex justify-content-center align-items-center" style="position: relative; height: 250px;">
-                            <canvas id="expenseChart"></canvas>
-                        </div>
-                    }
-                    else
-                    {
-                        <div class="flex-grow-1 d-flex flex-column justify-content-center align-items-center text-muted">
-                            <span class="fs-1 mb-2">💤</span>
-                            <p>No expenses recorded today.</p>
-                        </div>
-                    }
-                </div>
+    <!-- NET BALANCE -->
+    <div class="col-md-3">
+        <div class="theme-card h-100 d-flex flex-column justify-content-center">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <h6 class="text-muted mb-0" style="font-size: 13px; font-weight: 600;">Net Balance</h6>
+                <span class="fs-5">⚖️</span>
             </div>
+            <h4 class="fw-bold text-primary mb-0" style="color: var(--primary-green) !important;">
+                Rp @Model.NetBalance.ToString("N0")
+            </h4>
         </div>
-
-        <!-- BREAKDOWN TABLE -->
-        <div class="col-lg-7">
-            <div class="card h-100 shadow-sm theme-card">
-                <div class="card-body d-flex flex-column">
-                    <h5 class="fw-bold mb-3">📋 Today's Expense Breakdown</h5>
-
-                    @if (Model.Items != null && Model.Items.Count > 0)
-                    {
-                        <div class="table-responsive">
-                            <table class="table table-hover align-middle mb-0">
-                                <thead class="table-light">
-                                    <tr>
-                                        <th class="border-0 rounded-start text-muted">Category</th>
-                                        <th class="border-0 text-end text-muted">Total (Rp)</th>
-                                        <th class="border-0 rounded-end text-center text-muted">Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach (var item in Model.Items)
-                                    {
-                                        <tr class="transition-row">
-                                            <td class="fw-semibold py-3">
-                                                <span class="fs-5 me-2">@GetIcon(item.Category)</span> @item.Category
-                                            </td>
-                                            <td class="text-end fw-bold font-monospace py-3">
-                                                @item.Total.ToString("N0")
-                                            </td>
-                                            <td class="text-center py-3">
-                                                <button class="btn btn-sm btn-light shadow-sm text-primary fw-bold" onclick="openCategory('@item.Category')">
-                                                    View Details ➔
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    }
-                                </tbody>
-                            </table>
-                        </div>
-                    }
-                    else
-                    {
-                        <div class="flex-grow-1 d-flex flex-column justify-content-center align-items-center text-muted">
-                            <p class="mb-0">Your wallet is taking a rest today.</p>
-                        </div>
-                    }
-                </div>
-            </div>
-        </div>
-
     </div>
 
+    <!-- BUDGET REMAINING -->
+    <div class="col-md-3">
+        <div class="theme-card h-100 d-flex flex-column justify-content-center">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <h6 class="text-muted mb-0" style="font-size: 13px; font-weight: 600;">Budget Remaining</h6>
+                <span class="fs-5">🎯</span>
+            </div>
+            <h4 class="fw-bold mb-2 @(Model.RemainingBudget < 0 ? "text-danger-custom" : "")">
+                Rp @Model.RemainingBudget.ToString("N0")
+            </h4>
+
+            @{
+                var percent = Model.Budget == 0 ? 0m : (decimal)Model.MonthlyExpense / (decimal)Model.Budget * 100m;
+                var percentSafe = percent > 100 ? 100 : percent;
+                var widthValue = percentSafe.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture);
+            }
+
+            <div class="progress mt-auto shadow-sm" style="height: 8px; border-radius: 4px; background: #e5e7eb;">
+                <div class="progress-bar @(percent > 100 ? "bg-danger" : "bg-success")"
+                     role="progressbar"
+                     style="width:@widthValue%; background-color: var(--primary-green) !important; border-radius: 4px;">
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- MAIN DASHBOARD AREA -->
+<div class="row g-4 mb-5">
+    
+    <!-- CHART -->
+    <div class="col-lg-5">
+        <div class="theme-card h-100 d-flex flex-column">
+            <h6 class="fw-bold text-dark mb-4" style="font-size: 16px;">🍩 This Month's Expense Distribution</h6>
+            @if (Model.Items != null && Model.Items.Count > 0)
+            {
+                <div class="flex-grow-1 d-flex justify-content-center align-items-center" style="position: relative; height: 250px;">
+                    <canvas id="expenseChart"></canvas>
+                </div>
+            }
+            else
+            {
+                <div class="flex-grow-1 d-flex flex-column justify-content-center align-items-center text-muted">
+                    <span class="fs-1 mb-2">💤</span>
+                    <p>No expenses recorded today.</p>
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- BREAKDOWN TABLE -->
+    <div class="col-lg-7">
+        <div class="theme-card h-100 d-flex flex-column">
+            <h6 class="fw-bold text-dark mb-3" style="font-size: 16px;">📋 This Month's Expense Breakdown</h6>
+
+            @if (Model.Items != null && Model.Items.Count > 0)
+            {
+                <div class="table-responsive">
+                    <table class="table align-middle mb-0 border-0">
+                        <thead>
+                            <tr>
+                                <th class="border-0 text-muted" style="font-weight: 600; font-size: 13px;">Category</th>
+                                <th class="border-0 text-end text-muted" style="font-weight: 600; font-size: 13px;">Total (Rp)</th>
+                                <th class="border-0 text-center text-muted" style="font-weight: 600; font-size: 13px;">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model.Items)
+                            {
+                                <tr>
+                                    <td class="fw-bold text-dark py-3 border-bottom" style="border-color: var(--border-color) !important;">
+                                        <span class="fs-5 me-3">@GetIcon(item.Category)</span> @item.Category
+                                    </td>
+                                    <td class="text-end fw-bold py-3 border-bottom" style="border-color: var(--border-color) !important;">
+                                        @item.Total.ToString("N0")
+                                    </td>
+                                    <td class="text-center py-3 border-bottom" style="border-color: var(--border-color) !important;">
+                                        <button class="btn btn-sm btn-light fw-bold" style="color: var(--primary-green); border-radius: 8px;" onclick="openCategory('@item.Category')">
+                                            View Details ➔
+                                        </button>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="flex-grow-1 d-flex flex-column justify-content-center align-items-center text-muted">
+                    <p class="mb-0">Your wallet is taking a rest today.</p>
+                </div>
+            }
+        </div>
+    </div>
+
+</div>
+
+<!-- TREND CHART (LAST 6 MONTHS) -->
+<div class="row mb-5">
+    <div class="col-12">
+        <div class="theme-card">
+            <h6 class="fw-bold text-dark mb-4" style="font-size: 16px;">📈 6-Month Income vs Expense Trend</h6>
+            @if (Model.TrendItems != null && Model.TrendItems.Count > 0)
+            {
+                <div style="position: relative; height: 350px; width: 100%;">
+                    <canvas id="trendChart"></canvas>
+                </div>
+            }
+            else
+            {
+                <div class="d-flex flex-column justify-content-center align-items-center text-muted" style="height: 350px;">
+                    <p>No historical data available.</p>
+                </div>
+            }
+        </div>
+    </div>
 </div>
 
 <!-- ================= SCRIPTS ================= -->
 <script>
     let myChart = null;
 
-    function initChart(isDark) {
+    function initChart() {
         const labels = @Html.Raw(Model.Items != null ? "[" + string.Join(",", Model.Items.Select(x => $"\"{x.Category}\"")) + "]" : "[]");
         const values = @Html.Raw(Model.Items != null ? "[" + string.Join(",", Model.Items.Select(x => x.Total.ToString(System.Globalization.CultureInfo.InvariantCulture))) + "]" : "[]");
         
         if(labels.length === 0) return;
 
         const ctx = document.getElementById('expenseChart').getContext('2d');
-        const textColor = isDark ? '#eaeaea' : '#444';
+        const textColor = '#064e3b'; // var(--text-dark)
 
-        // Vibrant colors for the doughnut chart
-        const bgColors = ['#0d6efd', '#ffc107', '#dc3545', '#198754', '#6f42c1', '#0dcaf0'];
+        // Vibrant colors matching the cool theme
+        const bgColors = ['#10b981', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6', '#14b8a6'];
 
-        if (myChart) myChart.destroy(); // Destroy previous instance if re-rendering
+        if (myChart) myChart.destroy();
 
         myChart = new Chart(ctx, {
             type: 'doughnut',
@@ -213,7 +207,7 @@
                 datasets: [{
                     data: values,
                     backgroundColor: bgColors,
-                    borderWidth: isDark ? 0 : 2,
+                    borderWidth: 0,
                     hoverOffset: 6
                 }]
             },
@@ -226,7 +220,7 @@
                         position: 'right',
                         labels: {
                             color: textColor,
-                            font: { family: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif", size: 13 }
+                            font: { family: "'Inter', sans-serif", size: 13, weight: '500' }
                         }
                     },
                     tooltip: {
@@ -245,104 +239,84 @@
     // CATEGORY DRILL DOWN
     function openCategory(category) {
         const from = new Date();
+        from.setDate(1);
         from.setHours(0,0,0,0);
 
-        const to = new Date();
+        const to = new Date(from.getFullYear(), from.getMonth() + 1, 0);
         to.setHours(23,59,59,999);
 
         window.location.href = `/Transaction/List?category=${encodeURIComponent(category)}&from=${from.toISOString()}&to=${to.toISOString()}`;
     }
 
-    // DARK MODE LOGIC
-    function toggleDarkMode() {
-        const body = document.body;
-        body.classList.toggle("dark-mode");
-        
-        const isDark = body.classList.contains("dark-mode");
-        localStorage.setItem("darkMode", isDark);
-        
-        document.getElementById("themeIcon").innerText = isDark ? "☀️" : "🌙";
-        initChart(isDark); // Re-render chart text colors
-    }
-
-    // INITIALIZATION
     document.addEventListener("DOMContentLoaded", () => {
-        const isDark = localStorage.getItem("darkMode") === "true";
-        if (isDark) {
-            document.body.classList.add("dark-mode");
-            document.getElementById("themeIcon").innerText = "☀️";
-        }
-        initChart(isDark);
+        initChart();
+        initTrendChart();
     });
 
+    function initTrendChart() {
+        const trendLabels = @Html.Raw(Model.TrendItems != null ? "[" + string.Join(",", Model.TrendItems.Select(x => $"\"{x.Month}\"")) + "]" : "[]");
+        const incomeData = @Html.Raw(Model.TrendItems != null ? "[" + string.Join(",", Model.TrendItems.Select(x => x.Income.ToString(System.Globalization.CultureInfo.InvariantCulture))) + "]" : "[]");
+        const expenseData = @Html.Raw(Model.TrendItems != null ? "[" + string.Join(",", Model.TrendItems.Select(x => x.Expense.ToString(System.Globalization.CultureInfo.InvariantCulture))) + "]" : "[]");
+
+        if(trendLabels.length === 0) return;
+
+        const ctx = document.getElementById('trendChart')?.getContext('2d');
+        if(!ctx) return;
+
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: trendLabels,
+                datasets: [
+                    {
+                        label: 'Income',
+                        data: incomeData,
+                        backgroundColor: '#10b981', 
+                        borderRadius: 4
+                    },
+                    {
+                        label: 'Expense',
+                        data: expenseData,
+                        backgroundColor: '#ef4444',
+                        borderRadius: 4
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                        labels: {
+                            font: { family: "'Inter', sans-serif", size: 13, weight: '500' }
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                let value = context.raw || 0;
+                                return context.dataset.label + ': Rp ' + new Intl.NumberFormat('id-ID').format(value);
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                if (value === 0) return '0';
+                                return 'Rp ' + (value / 1000) + 'k';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
 </script>
-
-<!-- ================= STYLE ================= -->
-<style>
-    /* BASE TRANSITIONS */
-    body { transition: background-color 0.3s ease, color 0.3s ease; }
-    .theme-card { transition: background-color 0.3s ease, border-color 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease; border-radius: 12px; }
-    
-    /* HOVER EFFECTS */
-    .metric-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important; }
-    .transition-row { transition: background-color 0.2s ease; }
-
-    /* DARK MODE RULES */
-    body.dark-mode { background: #121212; color: #eaeaea; }
-    body.dark-mode .theme-card { background: #1e1e1e; border-color: #333 !important; }
-    body.dark-mode .table { color: #eaeaea; }
-    body.dark-mode .table-light { background-color: #2a2a2a; color: #eaeaea; }
-    body.dark-mode .table-hover tbody tr:hover { background-color: #252525; color: white;}
-    body.dark-mode .text-muted { color: #a0a0a0 !important; }
-    body.dark-mode .btn-light { background: #333; color: #6ea8fe !important; border: none; }
-    body.dark-mode .btn-light:hover { background: #444; }
-    body.dark-mode .border-bottom { border-bottom-color: #333 !important; }
-
-    /* METRIC BORDER COLORS (Dark Mode Overrides) */
-    body.dark-mode .border-primary { border-bottom-color: #0d6efd !important; }
-    body.dark-mode .border-success { border-bottom-color: #198754 !important; }
-    body.dark-mode .border-warning { border-bottom-color: #ffc107 !important; }
-    body.dark-mode .border-danger { border-bottom-color: #dc3545 !important; }
-    body.dark-mode .border-info { border-bottom-color: #0dcaf0 !important; }
-
-    /* PREMIUM PROGRESS BAR */
-    .premium-progress {
-        position: relative;
-        height: 24px;
-        border-radius: 12px;
-        background: rgba(0,0,0,0.08);
-        overflow: hidden;
-    }
-    body.dark-mode .premium-progress { background: rgba(255,255,255,0.08); }
-    
-    .premium-bar {
-        height: 100%;
-        border-radius: 12px;
-        transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-    .premium-bar.normal {
-        background: linear-gradient(90deg, #00c853, #64dd17);
-        box-shadow: 0 0 10px rgba(0, 200, 83, 0.4);
-    }
-    .premium-bar.danger {
-        background: linear-gradient(90deg, #ff3d00, #ff1744);
-        box-shadow: 0 0 10px rgba(255, 23, 68, 0.4);
-    }
-
-    .progress-text {
-        position: absolute;
-        width: 100%;
-        text-align: center;
-        font-size: 12px;
-        font-weight: 700;
-        color: #fff;
-        top: 50%;
-        transform: translateY(-50%);
-        pointer-events: none;
-        text-shadow: 0 1px 3px rgba(0,0,0,0.6);
-        letter-spacing: 0.5px;
-    }
-</style>
 
 @functions {
     public string GetIcon(string category)

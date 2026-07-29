@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Dapper;
 
 public class ReportSchedulerService : BackgroundService
 {
@@ -10,6 +11,7 @@ public class ReportSchedulerService : BackgroundService
     private DateTime _lastDailyRun = DateTime.MinValue;
     private DateTime _lastWeeklyRun = DateTime.MinValue;
     private DateTime _lastMonthlyRun = DateTime.MinValue;
+    private DateTime _lastRecurringRun = DateTime.MinValue;
 
     public ReportSchedulerService(
         IServiceProvider serviceProvider,
@@ -38,6 +40,9 @@ public class ReportSchedulerService : BackgroundService
                 CheckDaily(reportService, config, now);
                 CheckWeekly(reportService, config, now);
                 CheckMonthly(reportService, config, now);
+
+                // Run recurring transaction automation
+                CheckRecurring(scope.ServiceProvider, config, now);
             }
             catch (Exception ex)
             {
@@ -111,6 +116,30 @@ public class ReportSchedulerService : BackgroundService
             _lastMonthlyRun = now;
 
             _logger.LogInformation("✅ MONTHLY report sent");
+        }
+    }
+
+    // ================= RECURRING AUTOMATION
+    private void CheckRecurring(IServiceProvider serviceProvider, ConfigRepository config, DateTime now)
+    {
+        // Run it around 10:00 AM every day
+        var time = new TimeSpan(10, 0, 0);
+        var target = now.Date.Add(time);
+
+        if (IsWithinOneMinute(now, target) &&
+            _lastRecurringRun.Date != now.Date)
+        {
+            _logger.LogInformation("🔥 Running RECURRING transaction automation...");
+
+            var db = serviceProvider.GetRequiredService<DbConnectionFactory>();
+            using var conn = db.CreateConnection();
+            
+            // Assuming UserId 1 since it's hardcoded for now, but in a real app we'd loop users
+            conn.Execute("SELECT spendmate_automation_runrecurring(1);");
+
+            _lastRecurringRun = now;
+
+            _logger.LogInformation("✅ RECURRING automation completed");
         }
     }
 

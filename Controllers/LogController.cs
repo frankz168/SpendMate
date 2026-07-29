@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
-public class LogController : Controller
+[Authorize]
+public class LogController : BaseController
 {
     private readonly string _logDir;
 

@@ -4,136 +4,80 @@
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-<div class="container mt-4">
-
-    <div class="d-flex justify-content-end mb-2 gap-2">
-       <button class="btn btn-sm btn-outline-dark" onclick="toggleDarkMode()">
-            🌙 Toggle Dark Mode
-        </button>
-        <button class="btn btn-sm btn-success" onclick="exportExcel()">⬇️ Export Excel</button>
+<div class="d-flex justify-content-between align-items-center mt-2 mb-4">
+    <div class="page-title mb-0">💸 All Transactions</div>
+    <div class="d-flex gap-2">
+        <button class="btn btn-sm text-dark bg-white fw-bold shadow-sm" style="border-radius: 8px;" onclick="exportExcel()">⬇️ Export Excel</button>
     </div>
+</div>
 
-    <div class="mb-4">
-        <h2>💸 SpendMate Transactions</h2>
-        <p class="text-muted">Manage your income, expenses, and transfers easily.</p>
-    </div>
+<p class="text-muted mb-4">Manage your income, expenses, and transfers easily.</p>
 
-    <div class="card shadow-sm mb-4 border-primary custom-card">
-        <div class="card-body">
-            <h5 class="card-title text-primary mb-3 fw-bold">➕ Add New Record</h5>
-            <div class="row g-3 align-items-end">
-
-                <div class="col-md-2">
-                    <label class="fw-bold">Type</label>
-                    <select id="type" class="form-select" onchange="toggleType()">
-                        <option value="Expense">Expense</option>
-                        <option value="Income">Income</option>
-                        <option value="Transfer">Transfer</option>
-                    </select>
-                </div>
-
-                <div class="col-md-2">
-                    <label class="fw-bold">Category</label>
-                    <select id="category" class="form-select">
-                        <option value="Food">🍽️ Food</option>
-                        <option value="Transport">🚗 Transport</option>
-                        <option value="Shopping">🛍️ Shopping</option>
-                        <option value="Salary">💰 Salary</option>
-                        <option value="Others">📦 Others</option>
-                    </select>
-                </div>
-
-                <div class="col-md-2" id="destContainer" style="display:none;">
-                    <label class="fw-bold">Destination</label>
-                    <input id="destination" class="form-control" placeholder="e.g. BCA, Wife" />
-                </div>
-
-                <div class="col-md-2">
-                    <label class="fw-bold">Amount (Rp)</label>
-                    <input id="amount" type="number" class="form-control" placeholder="50000" min="1" />
-                </div>
-
-                <div class="col-md-3">
-                    <label class="fw-bold">Note</label>
-                    <input id="note" class="form-control" placeholder="Optional notes..." />
-                </div>
-
-                <div class="col-md-1 d-grid">
-                    <button id="btnSave" class="btn btn-primary fw-bold" onclick="saveTransaction()">SAVE</button>
-                </div>
-
-            </div>
-            <small class="text-muted mt-2 d-inline-block">* Transactions are automatically recorded using current server time.</small>
+<!-- FILTERS -->
+<div class="theme-card mb-4 p-3" style="padding-bottom: 12px !important;">
+    <div class="row g-3 align-items-end">
+        <div class="col-md-2">
+            <label class="text-muted small fw-bold mb-1">From Date</label>
+            <input id="fromDate" type="date" class="form-control-custom shadow-none border" style="padding: 8px 12px;" />
         </div>
-    </div>
-
-    <div class="card shadow-sm mb-3 custom-card">
-        <div class="card-body bg-light rounded">
-            <div class="row g-2 align-items-end">
-                <div class="col-md-2">
-                    <label class="text-muted small">From Date</label>
-                    <input id="fromDate" type="date" class="form-control form-control-sm" />
-                </div>
-                <div class="col-md-2">
-                    <label class="text-muted small">To Date</label>
-                    <input id="toDate" type="date" class="form-control form-control-sm" />
-                </div>
-                <div class="col-md-4">
-                    <label class="text-muted small">&nbsp;</label>
-                    <div>
-                        <button class="btn btn-sm btn-primary" onclick="loadData()">Apply</button>
-                        <button class="btn btn-sm btn-outline-secondary" onclick="setThisMonth()">This Month</button>
-                        <button class="btn btn-sm btn-outline-secondary" onclick="setRange(7)">Last 7 Days</button>
-                    </div>
-                </div>
-                <div class="col-md-2 ms-auto">
-                    <label class="text-muted small">Search</label>
-                    <input id="searchBox" class="form-control form-control-sm" placeholder="Type note/category..." oninput="applyFilter()" />
-                </div>
-                <div class="col-md-2">
-                    <label class="text-muted small">Filter Type</label>
-                    <select id="filterType" class="form-select form-select-sm" onchange="applyFilter()">
-                        <option value="">All Types</option>
-                        <option value="Expense">Expense</option>
-                        <option value="Income">Income</option>
-                        <option value="Transfer">Transfer</option>
-                    </select>
-                </div>
+        <div class="col-md-2">
+            <label class="text-muted small fw-bold mb-1">To Date</label>
+            <input id="toDate" type="date" class="form-control-custom shadow-none border" style="padding: 8px 12px;" />
+        </div>
+        <div class="col-md-4">
+            <div class="d-flex gap-2">
+                <button class="btn text-white fw-bold shadow-sm" style="background-color: var(--primary-green); border-radius: 8px;" onclick="loadData()">Apply</button>
+                <button class="btn bg-white text-dark fw-bold shadow-sm border" style="border-radius: 8px;" onclick="setThisMonth()">This Month</button>
+                <button class="btn bg-white text-dark fw-bold shadow-sm border" style="border-radius: 8px;" onclick="setRange(7)">Last 7 Days</button>
             </div>
         </div>
-    </div>
-
-    <div class="card shadow-sm custom-card">
-        <div class="card-body p-0">
-            <table class="table table-hover table-striped mb-0">
-                <thead class="table-dark">
-                    <tr>
-                        <th class="ps-3 py-3">Time</th>
-                        <th class="py-3">Type</th>
-                        <th class="py-3">Category/Dest.</th>
-                        <th class="py-3">Note</th>
-                        <th class="py-3 text-end">Amount (Rp)</th>
-                        <th class="py-3 text-center">Action</th>
-                    </tr>
-                </thead>
-                <tbody id="transactionList"></tbody>
-                <tfoot class="table-light border-top border-2">
-                    <tr>
-                        <td colspan="4" class="text-end fw-bold">TOTAL RECORDED:</td>
-                        <td class="text-end fw-bold text-primary fs-6" id="totalAmount">Rp 0</td>
-                        <td></td>
-                    </tr>
-                </tfoot>
-            </table>
-
-            <div class="d-flex justify-content-between align-items-center p-3 border-top">
-                <button class="btn btn-sm btn-outline-dark" onclick="prevPage()">◀ Prev</button>
-                <div id="pageInfo" class="fw-bold"></div>
-                <button class="btn btn-sm btn-outline-dark" onclick="nextPage()">Next ▶</button>
-            </div>
+        <div class="col-md-2 ms-auto">
+            <label class="text-muted small fw-bold mb-1">Search</label>
+            <input id="searchBox" class="form-control-custom shadow-none border" style="padding: 8px 12px;" placeholder="Type note..." oninput="applyFilter()" />
+        </div>
+        <div class="col-md-2">
+            <label class="text-muted small fw-bold mb-1">Filter Type</label>
+            <select id="filterType" class="form-control-custom shadow-none border" style="padding: 8px 12px;" onchange="applyFilter()">
+                <option value="">All Types</option>
+                <option value="Expense">Expense</option>
+                <option value="Income">Income</option>
+                <option value="Transfer">Transfer</option>
+            </select>
         </div>
     </div>
+</div>
 
+<!-- TRANSACTION TABLE -->
+<div class="theme-card p-0 overflow-hidden mb-5">
+    <div class="table-responsive">
+        <table class="table align-middle mb-0 border-0">
+            <thead style="background-color: #f8fafc;">
+                <tr>
+                    <th class="border-0 text-muted ps-4 py-3" style="font-weight: 600; font-size: 13px;">Time</th>
+                    <th class="border-0 text-muted py-3" style="font-weight: 600; font-size: 13px;">Type</th>
+                    <th class="border-0 text-muted py-3" style="font-weight: 600; font-size: 13px;">Category/Dest.</th>
+                    <th class="border-0 text-muted py-3" style="font-weight: 600; font-size: 13px;">Note</th>
+                    <th class="border-0 text-muted text-end py-3" style="font-weight: 600; font-size: 13px;">Amount (Rp)</th>
+                    <th class="border-0 text-muted text-center py-3 pe-4" style="font-weight: 600; font-size: 13px;">Action</th>
+                </tr>
+            </thead>
+            <tbody id="transactionList"></tbody>
+            <tfoot style="background-color: #f8fafc; border-top: 2px solid var(--border-color);">
+                <tr>
+                    <td colspan="4" class="text-end fw-bold text-dark py-3">TOTAL RECORDED:</td>
+                    <td class="text-end fw-bold text-primary py-3" style="color: var(--primary-green) !important;" id="totalAmount">Rp 0</td>
+                    <td></td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+
+    <!-- PAGINATION -->
+    <div class="d-flex justify-content-between align-items-center p-3 border-top" style="border-color: var(--border-color) !important;">
+        <button class="btn btn-sm bg-white text-dark fw-bold border shadow-sm" style="border-radius: 8px;" onclick="prevPage()">◀ Prev</button>
+        <div id="pageInfo" class="fw-bold text-dark"></div>
+        <button class="btn btn-sm bg-white text-dark fw-bold border shadow-sm" style="border-radius: 8px;" onclick="nextPage()">Next ▶</button>
+    </div>
 </div>
 
 <script>
@@ -142,17 +86,6 @@ let allData = [];
 let filteredData = [];
 let currentPage = 1;
 const pageSize = 15;
-
-function toggleType() {
-    const t = document.getElementById("type").value;
-    const dest = document.getElementById("destContainer");
-    if(t === "Transfer") {
-        dest.style.display = "block";
-    } else {
-        dest.style.display = "none";
-        document.getElementById("destination").value = "";
-    }
-}
 
 // ================= LOAD DATA =================
 async function loadData() {
@@ -207,19 +140,24 @@ function renderTable() {
         </td></tr>`;
     } else {
         pageData.forEach(x => {
-            let badgeColor = x.type === "Income" ? "bg-success" : (x.type === "Transfer" ? "bg-info text-dark" : "bg-danger");
+            let badgeBg = x.type === "Income" ? "rgba(16, 185, 129, 0.1)" : (x.type === "Transfer" ? "#e0f2fe" : "rgba(239, 68, 68, 0.1)");
+            let badgeColor = x.type === "Income" ? "var(--primary-green)" : (x.type === "Transfer" ? "#0284c7" : "var(--danger-red)");
             let catDest = x.type === "Transfer" && x.destination ? `${icon(x.category)} ${x.destination}` : `${icon(x.category)} ${x.category}`;
 
             rows += `
-            <tr class="align-middle">
-                <td class="ps-3 text-muted">${formatTime(x.createdate)}</td>
-                <td><span class="badge ${badgeColor}">${x.type}</span></td>
-                <td class="fw-semibold">${catDest}</td>
+            <tr class="align-middle border-bottom" style="border-color: var(--border-color) !important; transition: background-color 0.2s;" onmouseover="this.style.backgroundColor='#f8fafc'" onmouseout="this.style.backgroundColor='transparent'">
+                <td class="ps-4 text-muted fw-semibold" style="font-size: 13px;">${formatTime(x.createdate)}</td>
+                <td>
+                    <span class="fw-bold" style="background-color: ${badgeBg}; color: ${badgeColor}; padding: 4px 10px; border-radius: 6px; font-size: 12px;">
+                        ${x.type}
+                    </span>
+                </td>
+                <td class="fw-bold text-dark">${catDest}</td>
                 <td class="text-muted text-truncate" style="max-width:150px">${x.note ?? "-"}</td>
-                <td class="text-end font-monospace fw-bold">Rp ${format(x.amount)}</td>
-                <td class="text-center">
-                    <button class="btn btn-sm btn-light shadow-sm text-warning mx-1" onclick="editTransaction(${x.id})">✏️</button>
-                    <button class="btn btn-sm btn-light shadow-sm text-danger mx-1" onclick="deleteTransaction(${x.id})">🗑️</button>
+                <td class="text-end fw-bold" style="color: ${badgeColor};">Rp ${format(x.amount)}</td>
+                <td class="text-center pe-4">
+                    <button class="btn btn-sm btn-light shadow-sm text-warning fw-bold mx-1" style="border-radius: 6px;" onclick="editTransaction(${x.id})">✏️</button>
+                    <button class="btn btn-sm btn-light shadow-sm text-danger fw-bold mx-1" style="border-radius: 6px;" onclick="deleteTransaction(${x.id})">🗑️</button>
                 </td>
             </tr>`;
         });
@@ -258,68 +196,16 @@ function setRange(days) {
 }
 
 // ================= CRUD =================
-async function saveTransaction() {
-    const type = document.getElementById("type").value;
-    const category = document.getElementById("category").value;
-    const amount = document.getElementById("amount").value;
-    const note = document.getElementById("note").value;
-    const destination = document.getElementById("destination").value;
-
-    if (!category || !amount || parseFloat(amount) <= 0) {
-        Swal.fire({
-            icon: "warning",
-            title: "Incomplete Data",
-            text: "Category is required and Amount must be greater than 0"
-        });
-        return;
-    }
-
-    try {
-        const response = await fetch('/Transaction/Save', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                id: editId,
-                type: type,
-                category: category,
-                destination: destination,
-                amount: parseFloat(amount),
-                note: note
-            })
-        });
-
-        if (!response.ok) throw new Error("Server error");
-
-        Swal.fire({
-            icon: "success",
-            title: editId ? "Updated!" : "Saved!",
-            timer: 1500,
-            showConfirmButton: false
-        });
-        
-        resetForm();
-        loadData();
-
-    } catch (err) {
-        Swal.fire("Error", "Failed to save transaction", "error");
-        console.error("SAVE ERROR:", err);
-    }
-}
-
 async function editTransaction(id) {
     try {
         const res = await fetch('/Transaction/GetById?id=' + id);
         const x = await res.json();
-
-        editId = x.id;
-        document.getElementById("type").value = x.type;
-        toggleType();
-        document.getElementById("category").value = x.category;
-        document.getElementById("destination").value = x.destination ?? "";
-        document.getElementById("amount").value = x.amount;
-        document.getElementById("note").value = x.note;
         
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        if (typeof populateModalForm === 'function') {
+            populateModalForm(x.id, x.type, x.amount, x.category, x.note, x.destination);
+        } else {
+            console.error("populateModalForm function not found in layout.");
+        }
     } catch (err) {
         Swal.fire("Error", "Failed to load data", "error");
     }
@@ -331,7 +217,7 @@ async function deleteTransaction(id) {
         text: "This action cannot be undone.",
         icon: "warning",
         showCancelButton: true,
-        confirmButtonColor: "#d33",
+        confirmButtonColor: "#ef4444",
         confirmButtonText: "Yes, delete it!"
     });
 
@@ -367,17 +253,6 @@ function icon(cat) {
     return cat === "Food" ? "🍽️" : cat === "Transport" ? "🚗" : cat === "Shopping" ? "🛍️" : cat === "Salary" ? "💰" : "📦";
 }
 
-function resetForm() {
-    editId = 0;
-    document.getElementById("type").value = "Expense";
-    toggleType();
-    document.getElementById("category").value = "Food";
-    document.getElementById("amount").value = "";
-    document.getElementById("note").value = "";
-    document.getElementById("destination").value = "";
-    document.getElementById("type").focus();
-}
-
 function exportExcel() {
     const from = document.getElementById("fromDate").value;
     const to = document.getElementById("toDate").value;
@@ -403,41 +278,4 @@ function updatePageInfo() {
 
 // ================= INIT =================
 setThisMonth(); 
-
-// ================= DARK MODE =================
-function toggleDarkMode() {
-    document.body.classList.toggle("dark-mode");
-    localStorage.setItem("darkMode", document.body.classList.contains("dark-mode"));
-}
-if (localStorage.getItem("darkMode") === "true") { 
-    document.body.classList.add("dark-mode"); 
-}
 </script>
-
-<style>
-    /* Premium Look */
-    .custom-card {
-        border-radius: 12px;
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
-    }
-    .btn-light {
-        background: #f8f9fa;
-        border: none;
-    }
-    .btn-light:hover {
-        background: #e2e6ea;
-    }
-
-    /* Dark Mode Styling */
-    body.dark-mode { background: #121212; color: #eaeaea; }
-    body.dark-mode .card { background: #1e1e1e; border-color: #333; }
-    body.dark-mode .table { color: #eaeaea; }
-    body.dark-mode .table-dark { background-color: #000; border-color: #444; }
-    body.dark-mode .table-light { background-color: #2a2a2a; color: #eaeaea; border-color: #444; }
-    body.dark-mode .table-hover tbody tr:hover { background-color: #252525; color: white; }
-    body.dark-mode input, body.dark-mode select { background-color: #333; color: white; border-color: #555; }
-    body.dark-mode input:focus, body.dark-mode select:focus { background-color: #444; color: white; border-color: #0d6efd; }
-    body.dark-mode .text-muted { color: #adb5bd !important; }
-    body.dark-mode .btn-light { background: #333; color: #eaeaea; }
-    body.dark-mode .btn-light:hover { background: #444; }
-</style>

@@ -183,6 +183,80 @@
             padding: 12px;
             border-radius: 10px;
         }
+
+        /* Animated Background */
+        .animated-bg {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            overflow: hidden;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.5;
+            animation: floatAnimation 20s infinite alternate ease-in-out;
+        }
+
+        .orb-1 {
+            width: 400px; height: 400px;
+            background: var(--primary-accent);
+            top: -100px; left: -100px;
+            animation-duration: 25s;
+        }
+
+        .orb-2 {
+            width: 500px; height: 500px;
+            background: var(--secondary-accent);
+            bottom: -150px; right: -100px;
+            animation-duration: 30s;
+            animation-delay: -5s;
+        }
+
+        .orb-3 {
+            width: 300px; height: 300px;
+            background: #ff453a;
+            top: 40%; left: 60%;
+            animation-duration: 20s;
+            animation-delay: -10s;
+        }
+
+        @@keyframes floatAnimation {
+            0% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(100px, -50px) scale(1.1); }
+            66% { transform: translate(-50px, 100px) scale(0.9); }
+            100% { transform: translate(50px, 50px) scale(1.05); }
+        }
+
+        .floating-icon {
+            position: absolute;
+            color: var(--text-muted);
+            opacity: 0.15;
+            animation: floatUp 15s linear infinite;
+        }
+
+        .icon-1 { font-size: 60px; left: 15%; bottom: -20%; animation-duration: 22s; animation-delay: 2s; }
+        .icon-2 { font-size: 80px; left: 85%; bottom: -20%; animation-duration: 28s; animation-delay: 0s; }
+        .icon-3 { font-size: 50px; left: 50%; bottom: -20%; animation-duration: 25s; animation-delay: 5s; }
+        .icon-4 { font-size: 70px; left: 30%; bottom: -20%; animation-duration: 20s; animation-delay: 10s; }
+        .icon-5 { font-size: 90px; left: 70%; bottom: -20%; animation-duration: 24s; animation-delay: 7s; }
+
+        @@keyframes floatUp {
+            0% { transform: translateY(0) rotate(0deg); opacity: 0; }
+            10% { opacity: 0.15; }
+            90% { opacity: 0.15; }
+            100% { transform: translateY(-120vh) rotate(360deg); opacity: 0; }
+        }
+
+        body.light-mode .orb { opacity: 0.4; }
+        body.light-mode .floating-icon { opacity: 0.1; }
+
+        .login-theme-toggle, .login-card {
+            z-index: 10;
+        }
     </style>
     <script>
         if (localStorage.getItem("lightMode") === "true") {
@@ -212,6 +286,17 @@
 </head>
 <body onload="if (localStorage.getItem('lightMode') === 'true') document.body.classList.add('light-mode');">
 
+    <!-- Animated Background -->
+    <div class="animated-bg">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
+        <div class="floating-icon icon-1"><ion-icon name="cash-outline"></ion-icon></div>
+        <div class="floating-icon icon-2"><ion-icon name="card-outline"></ion-icon></div>
+        <div class="floating-icon icon-3"><ion-icon name="wallet-outline"></ion-icon></div>
+        <div class="floating-icon icon-4"><ion-icon name="trending-up-outline"></ion-icon></div>
+        <div class="floating-icon icon-5"><ion-icon name="logo-usd"></ion-icon></div>
+    </div>
     <button class="login-theme-toggle" onclick="toggleLoginTheme()" title="Toggle Theme">
         <ion-icon id="themeIcon" name="sunny-outline"></ion-icon>
     </button>

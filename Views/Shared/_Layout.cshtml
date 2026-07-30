@@ -81,6 +81,10 @@
                    asp-controller="Log" asp-action="Index">
                     <span class="fs-5 d-flex"><ion-icon name="terminal-outline"></ion-icon></span> System Logs
                 </a>
+                <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "User" ? "active" : "")" 
+                   asp-controller="User" asp-action="Index">
+                    <span class="fs-5 d-flex"><ion-icon name="people-outline"></ion-icon></span> User Management
+                </a>
                 <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Settings" ? "active" : "")" 
                    asp-controller="Settings" asp-action="Index">
                     <span class="fs-5 d-flex"><ion-icon name="settings-outline"></ion-icon></span> Settings
@@ -310,6 +314,17 @@
                 setTimeout(() => {
                     showToast("success", "@TempData["LoginSuccess"]");
                 }, 300);
+            });
+        </script>
+    }
+
+    @if (TempData["Success"] != null)
+    {
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                setTimeout(() => {
+                    showToast("success", "@TempData["Success"]");
+                }, 100);
             });
         </script>
     }

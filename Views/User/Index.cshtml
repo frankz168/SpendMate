@@ -1,0 +1,174 @@
+@model IEnumerable<SpendMate.Models.User>
+
+@{
+    ViewData["Title"] = "User Management";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="page-title mb-0">User Management</h2>
+    <button class="btn btn-primary shadow-sm fw-bold px-4 py-2" onclick="openUserModal(0, '', '', '')">+ Add New User</button>
+</div>
+
+<div class="theme-card p-4">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0" id="usersTable">
+            <thead style="background-color: rgba(255, 255, 255, 0.05); border-bottom: 2px solid var(--border-color);">
+                <tr>
+                    <th class="py-3">Name</th>
+                    <th class="py-3">Username</th>
+                    <th class="py-3">Phone Number</th>
+                    <th class="py-3">Created Date</th>
+                    <th class="text-end py-3">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach(var user in Model)
+                {
+                    <tr>
+                        <td class="fw-bold">@user.Name</td>
+                        <td><span class="badge bg-secondary">@user.Username</span></td>
+                        <td>@user.PhoneNumber</td>
+                        <td>@user.CreateDate.ToString("dd MMM yyyy, HH:mm")</td>
+                        <td class="text-end">
+                            <button class="btn btn-sm btn-outline-primary me-2" onclick="openUserModal(@user.Id, '@user.Name', '@user.Username', '@user.PhoneNumber')">
+                                <ion-icon name="create-outline"></ion-icon>
+                            </button>
+                            <button class="btn btn-sm btn-outline-danger" onclick="deleteUser(@user.Id)">
+                                <ion-icon name="trash-outline"></ion-icon>
+                            </button>
+                        </td>
+                    </tr>
+                }
+                
+                @if(!Model.Any())
+                {
+                    <tr>
+                        <td colspan="5" class="text-center py-5 text-muted">
+                            <ion-icon name="people-outline" style="font-size: 48px; opacity: 0.5"></ion-icon>
+                            <p class="mt-2 mb-0">No users found.</p>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- User Add/Edit Modal -->
+<div class="modal fade custom-modal" id="userModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <form id="userForm" method="post" action="/User/Save">
+                <input type="hidden" name="Id" id="userId" value="0" />
+                <div class="modal-header d-flex justify-content-between border-0">
+                    <button type="button" class="btn btn-link text-success-custom text-decoration-none fw-bold" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-link text-success-custom text-decoration-none fw-bold">Save</button>
+                </div>
+                <div class="modal-body pt-0">
+                    <div class="text-center mb-4">
+                        <small class="text-muted fw-bold" id="userModalTitle">NEW USER</small>
+                    </div>
+                    
+                    <div class="form-group-custom mb-3 border-bottom pb-2">
+                        <label class="text-muted mb-1">Name</label>
+                        <input type="text" name="Name" id="userName" class="form-control-custom w-100 bg-transparent text-dark shadow-none p-0 fw-bold" required />
+                    </div>
+                    
+                    <div class="form-group-custom mb-3 border-bottom pb-2">
+                        <label class="text-muted mb-1">Username</label>
+                        <input type="text" name="Username" id="userUsername" class="form-control-custom w-100 bg-transparent text-dark shadow-none p-0 fw-bold" required />
+                    </div>
+                    
+                    <div class="form-group-custom mb-3 border-bottom pb-2">
+                        <label class="text-muted mb-1">Phone Number</label>
+                        <input type="text" name="PhoneNumber" id="userPhone" class="form-control-custom w-100 bg-transparent text-dark shadow-none p-0 fw-bold" />
+                    </div>
+                    
+                    <div class="form-group-custom mb-4 border-bottom pb-2">
+                        <label class="text-muted mb-1" id="lblPassword">Password</label>
+                        <input type="password" name="Password" id="userPassword" class="form-control-custom w-100 bg-transparent text-dark shadow-none p-0 fw-bold" placeholder="Leave blank to keep unchanged" />
+                        <small class="text-muted" id="passwordHint" style="font-size: 11px;">Required for new users.</small>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        const userModal = new bootstrap.Modal(document.getElementById('userModal'));
+
+        function openUserModal(id, name, username, phone) {
+            document.getElementById('userId').value = id;
+            document.getElementById('userName').value = name;
+            document.getElementById('userUsername').value = username;
+            document.getElementById('userPhone').value = phone;
+            document.getElementById('userPassword').value = '';
+
+            const title = document.getElementById('userModalTitle');
+            const passInput = document.getElementById('userPassword');
+            const passHint = document.getElementById('passwordHint');
+
+            if (id === 0) {
+                title.innerText = 'NEW USER';
+                passInput.required = true;
+                passInput.placeholder = 'Enter password';
+                passHint.style.display = 'block';
+            } else {
+                title.innerText = 'EDIT USER';
+                passInput.required = false;
+                passInput.placeholder = 'Leave blank to keep current password';
+                passHint.style.display = 'none';
+            }
+
+            userModal.show();
+        }
+
+        function deleteUser(id) {
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "Deleting this user will also delete ALL of their transactions permanently!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#ff453a',
+                cancelButtonColor: '#475569',
+                confirmButtonText: 'Yes, delete it!',
+                background: document.body.classList.contains('light-mode') ? '#ffffff' : '#1e293b',
+                color: document.body.classList.contains('light-mode') ? '#1c1c1e' : '#ffffff'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    fetch(`/User/Delete/${id}`, {
+                        method: 'POST'
+                    })
+                    .then(response => {
+                        if (response.ok) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Deleted!',
+                                text: 'User has been deleted.',
+                                background: document.body.classList.contains('light-mode') ? '#ffffff' : '#1e293b',
+                                color: document.body.classList.contains('light-mode') ? '#1c1c1e' : '#ffffff',
+                                showConfirmButton: false,
+                                timer: 1500
+                            }).then(() => {
+                                window.location.reload();
+                            });
+                        } else {
+                            response.text().then(text => {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Error',
+                                    text: text,
+                                    background: document.body.classList.contains('light-mode') ? '#ffffff' : '#1e293b',
+                                    color: document.body.classList.contains('light-mode') ? '#1c1c1e' : '#ffffff'
+                                });
+                            });
+                        }
+                    });
+                }
+            });
+        }
+    </script>
+}

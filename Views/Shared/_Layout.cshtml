@@ -17,6 +17,13 @@
 </head>
 
 <body>
+    <!-- Prevent Flash of Theme -->
+    <script>
+        if (localStorage.getItem("lightMode") === "true") {
+            document.body.classList.add("light-mode");
+        }
+    </script>
+
     <div class="app-container">
         <!-- MOBILE HEADER -->
         <div class="mobile-header">
@@ -30,10 +37,14 @@
         <!-- SIDEBAR -->
         <aside class="sidebar" id="appSidebar">
             <div class="d-flex justify-content-between align-items-center mb-2 mt-md-0 mt-3">
-                <h3 class="mb-0 fw-bold" style="background: linear-gradient(to right, var(--primary-accent), var(--secondary-accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">SpendMate</h3>
+                <h3 class="mb-0 fw-bold" style="color: var(--text-dark);">SpendMate</h3>
                 <button class="hamburger-btn d-md-none" onclick="toggleSidebar()">✕</button>
             </div>
             
+            <button class="btn w-100 d-flex align-items-center justify-content-center gap-2 mb-3 mt-2 shadow-sm theme-toggle-btn" onclick="toggleGlobalTheme()">
+                <span id="globalThemeIcon"><ion-icon name="sunny-outline"></ion-icon></span> Toggle Theme
+            </button>
+
             <div class="user-profile">
                 <div class="avatar">
                     @(Context.User.Identity?.Name?.Substring(0, 1).ToUpper() ?? "U")
@@ -43,8 +54,8 @@
                     <p class="role">Family Account</p>
                 </div>
                 <form action="/Auth/Logout" method="get" class="m-0 p-0">
-                    <button type="submit" class="logout-btn" title="Logout">
-                        🚪
+                    <button type="submit" class="logout-btn d-flex align-items-center" title="Logout" style="background:transparent; border:none; color: var(--text-muted); font-size: 20px;">
+                        <ion-icon name="log-out-outline"></ion-icon>
                     </button>
                 </form>
             </div>
@@ -52,23 +63,27 @@
             <nav class="d-flex flex-column gap-2 mt-4">
                 <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Dashboard" ? "active" : "")" 
                    asp-controller="Dashboard" asp-action="Index">
-                    <span class="fs-5">🏠</span> Dashboard
+                    <span class="fs-5 d-flex"><ion-icon name="home-outline"></ion-icon></span> Dashboard
                 </a>
                 <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Transaction" ? "active" : "")" 
                    asp-controller="Transaction" asp-action="Index">
-                    <span class="fs-5">📄</span> All Transactions
+                    <span class="fs-5 d-flex"><ion-icon name="document-text-outline"></ion-icon></span> All Transactions
                 </a>
                 <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Budget" ? "active" : "")" 
                    asp-controller="Budget" asp-action="Index">
-                    <span class="fs-5">📊</span> Monthly Recap
+                    <span class="fs-5 d-flex"><ion-icon name="pie-chart-outline"></ion-icon></span> Monthly Recap
                 </a>
                 <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Report" ? "active" : "")" 
                    asp-controller="Report" asp-action="Index">
-                    <span class="fs-5">⏱️</span> Reports
+                    <span class="fs-5 d-flex"><ion-icon name="time-outline"></ion-icon></span> Reports
+                </a>
+                <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Log" ? "active" : "")" 
+                   asp-controller="Log" asp-action="Index">
+                    <span class="fs-5 d-flex"><ion-icon name="terminal-outline"></ion-icon></span> System Logs
                 </a>
                 <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Settings" ? "active" : "")" 
                    asp-controller="Settings" asp-action="Index">
-                    <span class="fs-5">⚙️</span> Settings
+                    <span class="fs-5 d-flex"><ion-icon name="settings-outline"></ion-icon></span> Settings
                 </a>
             </nav>
         </aside>
@@ -82,7 +97,7 @@
     <!-- FLOATING ACTION BUTTON (Optional if they want to keep original inline form, but FAB is part of the "cool" UI. The user said "don't remove original function". The inline form has "Destination" field which I missed in the FAB. I will include the modal but ensure it has all original fields.) -->
     <!-- Actually, if I keep the inline form in Transaction page, I can just leave this out or let the FAB open the modal. I'll include the modal but make sure it works. -->
     <button class="fab" data-bs-toggle="modal" data-bs-target="#addTransactionModal" onclick="resetModalForm()">
-        +
+        <ion-icon name="add-outline"></ion-icon>
     </button>
 
     <!-- ADD TRANSACTION MODAL -->
@@ -171,6 +186,29 @@
             document.getElementById('appSidebar').classList.toggle('show');
             document.getElementById('sidebarBackdrop').classList.toggle('show');
         }
+
+        // ================= GLOBAL THEME LOGIC =================
+        function toggleGlobalTheme() {
+            const body = document.body;
+            body.classList.toggle("light-mode");
+            
+            const isLight = body.classList.contains("light-mode");
+            localStorage.setItem("lightMode", isLight);
+            
+            updateThemeIcons(isLight);
+        }
+
+        function updateThemeIcons(isLight) {
+            const icons = document.querySelectorAll("#globalThemeIcon, #themeIcon");
+            icons.forEach(el => {
+                el.innerHTML = isLight ? "<ion-icon name='moon-outline'></ion-icon>" : "<ion-icon name='sunny-outline'></ion-icon>";
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const isLight = document.body.classList.contains("light-mode");
+            updateThemeIcons(isLight);
+        });
 
         function resetModalForm() {
             globalEditId = 0;
@@ -277,5 +315,8 @@
     }
 
     @await RenderSectionAsync("Scripts", required: false)
+    <!-- Ionicons Setup -->
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
 </body>
 </html>

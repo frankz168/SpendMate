@@ -29,7 +29,7 @@
                 </div>
             </div>
             <div class="mt-4 pt-4 border-top" style="border-color: var(--border-color) !important;">
-                 <button class="btn btn-sm btn-outline-light me-2" onclick="exportExcel()">📥 Export to Excel</button>
+                 <button class="btn btn-sm btn-outline-light me-2 d-inline-flex align-items-center gap-1" onclick="exportExcel()"><ion-icon name="download-outline"></ion-icon> Export to Excel</button>
             </div>
         </div>
     </div>
@@ -39,9 +39,9 @@
             <h5 class="fw-bold mb-4">Automated Reports</h5>
             <p class="text-muted small mb-3">Send manual reports to your email instantly.</p>
             <div class="d-grid gap-2">
-                <button class="btn btn-sm btn-outline-primary" onclick="send('daily', this)">📅 Send Daily Report</button>
-                <button class="btn btn-sm btn-outline-success" onclick="send('weekly', this)">📆 Send Weekly Report</button>
-                <button class="btn btn-sm btn-outline-warning" onclick="send('monthly', this)">🗓️ Send Monthly Report</button>
+                <button class="btn btn-sm btn-outline-primary d-inline-flex align-items-center justify-content-center gap-2" onclick="send('daily', this)"><ion-icon name="calendar-outline"></ion-icon> Send Daily Report</button>
+                <button class="btn btn-sm btn-outline-success d-inline-flex align-items-center justify-content-center gap-2" onclick="send('weekly', this)"><ion-icon name="calendar-outline"></ion-icon> Send Weekly Report</button>
+                <button class="btn btn-sm btn-outline-warning d-inline-flex align-items-center justify-content-center gap-2" onclick="send('monthly', this)"><ion-icon name="calendar-outline"></ion-icon> Send Monthly Report</button>
             </div>
         </div>
     </div>

@@ -7,12 +7,9 @@
     <!-- HEADER -->
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <h2 class="fw-bold mb-1">📄 System Logs</h2>
+            <h2 class="fw-bold mb-1 d-flex align-items-center"><ion-icon name="document-text-outline" class="me-2"></ion-icon> System Logs</h2>
             <p class="text-muted mb-0">Monitor application background activities.</p>
         </div>
-        <button class="btn btn-outline-dark shadow-sm d-flex align-items-center gap-2" onclick="toggleDarkMode()">
-            <span id="themeIcon">🌙</span> <span class="d-none d-md-inline">Toggle Theme</span>
-        </button>
     </div>
 
     <!-- CONTROLS -->
@@ -25,17 +22,17 @@
             </div>
             
             <div>
-                <button class="btn btn-primary shadow-sm fw-bold" onclick="loadLog()">
-                    🔄 Refresh
+                <button class="btn btn-primary shadow-sm fw-bold d-flex align-items-center" onclick="loadLog()">
+                    <ion-icon name="refresh-outline" class="me-1"></ion-icon> Refresh
                 </button>
             </div>
             
             <div class="ms-auto d-flex gap-2">
-                <button id="btnAutoScroll" class="btn btn-secondary shadow-sm fw-bold" onclick="toggleAutoScroll()">
-                    ⏬ Auto-Scroll: ON
+                <button id="btnAutoScroll" class="btn btn-secondary shadow-sm fw-bold d-flex align-items-center" onclick="toggleAutoScroll()">
+                    <ion-icon name="arrow-down-circle-outline" class="me-1"></ion-icon> Auto-Scroll: ON
                 </button>
-                <button id="btnAutoRefresh" class="btn btn-outline-success shadow-sm fw-bold" onclick="toggleAuto()">
-                    ⏱️ Auto-Refresh: OFF
+                <button id="btnAutoRefresh" class="btn btn-outline-success shadow-sm fw-bold d-flex align-items-center" onclick="toggleAuto()">
+                    <ion-icon name="timer-outline" class="me-1"></ion-icon> Auto-Refresh: OFF
                 </button>
             </div>
 
@@ -43,7 +40,10 @@
     </div>
 
     <!-- TERMINAL WINDOW -->
-    <div class="card shadow-lg theme-card border-0 rounded-3 overflow-hidden">
+    <div class="card shadow-lg theme-card border-0 rounded-3 overflow-hidden terminal-container animate-fade-in-up">
+        
+        <!-- CRT Scanline Overlay -->
+        <div class="crt-overlay"></div>
         
         <!-- Terminal Header -->
         <div class="bg-dark text-light d-flex justify-content-between align-items-center px-3 py-2" style="border-bottom: 1px solid #333;">
@@ -71,10 +71,16 @@
     let autoScroll = true;
     let timer = null;
 
-    // ================= LOAD LOGS =================
     async function loadLog() {
         const selectEl = document.getElementById("fileSelect");
         const selected = selectEl.value;
+        const logBox = document.getElementById("logContent");
+
+        // Show cool loading effect if not in auto-refresh mode
+        if (!autoRefresh) {
+            logBox.innerHTML = '<div class="mt-4 mb-4 text-center" style="color: #00ff41;"><span class="loading-pulse fs-5">F E T C H I N G   S Y S T E M   L O G S</span><span class="cursor-blink fs-5">_</span><br><small class="text-muted mt-2 d-block">ESTABLISHING SECURE CONNECTION...</small></div>';
+            await new Promise(r => setTimeout(r, 700)); // Artificial delay for cool effect
+        }
 
         let url = '/Log/Get';
         if (selected) url += '?file=' + selected;
@@ -118,12 +124,12 @@
             timer = setInterval(loadLog, 3000);
             btn.classList.remove("btn-outline-success");
             btn.classList.add("btn-danger");
-            btn.innerHTML = "🔴 Auto-Refresh: LIVE";
+            btn.innerHTML = "<ion-icon name='ellipse' class='me-1'></ion-icon> Auto-Refresh: LIVE";
         } else {
             clearInterval(timer);
             btn.classList.remove("btn-danger");
             btn.classList.add("btn-outline-success");
-            btn.innerHTML = "⏱️ Auto-Refresh: OFF";
+            btn.innerHTML = "<ion-icon name='timer-outline' class='me-1'></ion-icon> Auto-Refresh: OFF";
         }
     }
 
@@ -134,7 +140,7 @@
         if (autoScroll) {
             btn.classList.remove("btn-outline-secondary");
             btn.classList.add("btn-secondary");
-            btn.innerHTML = "⏬ Auto-Scroll: ON";
+            btn.innerHTML = "<ion-icon name='arrow-down-circle-outline' class='me-1'></ion-icon> Auto-Scroll: ON";
             
             // Instantly scroll down when turned back on
             const logBox = document.getElementById("logContent");
@@ -142,30 +148,12 @@
         } else {
             btn.classList.remove("btn-secondary");
             btn.classList.add("btn-outline-secondary");
-            btn.innerHTML = "⏸️ Auto-Scroll: OFF";
+            btn.innerHTML = "<ion-icon name='pause-circle-outline' class='me-1'></ion-icon> Auto-Scroll: OFF";
         }
-    }
-
-    // ================= DARK MODE LOGIC =================
-    function toggleDarkMode() {
-        const body = document.body;
-        body.classList.toggle("dark-mode");
-        
-        const isDark = body.classList.contains("dark-mode");
-        localStorage.setItem("darkMode", isDark);
-        
-        document.getElementById("themeIcon").innerText = isDark ? "☀️" : "🌙";
     }
 
     // ================= INIT =================
     document.addEventListener("DOMContentLoaded", () => {
-        // Load Dark Mode Preference
-        const isDark = localStorage.getItem("darkMode") === "true";
-        if (isDark) {
-            document.body.classList.add("dark-mode");
-            document.getElementById("themeIcon").innerText = "☀️";
-        }
-
         // Initial Log Load
         loadLog();
     });
@@ -177,6 +165,48 @@
     body { transition: background-color 0.3s ease, color 0.3s ease; }
     .theme-card { transition: background-color 0.3s ease, border-color 0.3s ease; }
     
+    /* ANIMATIONS */
+    @@keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(30px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-fade-in-up {
+        animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+    
+    @@keyframes blink {
+        0%, 100% { opacity: 1; text-shadow: 0 0 8px #00ff41; }
+        50% { opacity: 0; text-shadow: none; }
+    }
+    .cursor-blink {
+        animation: blink 1s step-end infinite;
+    }
+
+    @@keyframes pulseGlow {
+        0% { text-shadow: 0 0 5px #00ff41; opacity: 0.7; }
+        50% { text-shadow: 0 0 20px #00ff41, 0 0 30px #00ff41; opacity: 1; }
+        100% { text-shadow: 0 0 5px #00ff41; opacity: 0.7; }
+    }
+    .loading-pulse {
+        animation: pulseGlow 1.5s infinite alternate;
+        font-weight: bold;
+        letter-spacing: 2px;
+    }
+    
+    /* CRT Effect */
+    .terminal-container {
+        position: relative;
+    }
+    .crt-overlay {
+        position: absolute;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+        background-size: 100% 2px, 3px 100%;
+        pointer-events: none;
+        z-index: 10;
+        opacity: 0.35;
+    }
+
     /* TERMINAL STYLING */
     .terminal-box {
         height: 550px; 

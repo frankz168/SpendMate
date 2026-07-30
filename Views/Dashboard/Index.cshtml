@@ -6,14 +6,14 @@
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-<div class="page-title mt-2">📊 Dashboard</div>
+<div class="page-title mt-2"><ion-icon name="grid-outline" style="vertical-align: -3px;"></ion-icon> Dashboard</div>
 <p class="text-muted mb-4">Welcome back! Here is your financial overview.</p>
 
 <!-- WARNING ALERT -->
 @if (Model.RemainingBudget < 0)
 {
     <div class="alert alert-danger shadow-sm border-0 d-flex align-items-center mb-4" role="alert" style="border-radius: 12px;">
-        <span class="fs-4 me-3">⚠️</span>
+        <span class="fs-4 me-3 d-flex"><ion-icon name="warning-outline"></ion-icon></span>
         <div>
             <strong>Warning!</strong> You have exceeded your monthly expense budget by <b>Rp @Math.Abs(Model.RemainingBudget).ToString("N0")</b>.
         </div>
@@ -28,7 +28,7 @@
         <div class="theme-card h-100 d-flex flex-column justify-content-center">
             <div class="d-flex justify-content-between align-items-center mb-2">
                 <h6 class="text-muted mb-0" style="font-size: 13px; font-weight: 600;">Income This Month</h6>
-                <span class="fs-5">💰</span>
+                <span class="fs-5 d-flex"><ion-icon name="wallet-outline"></ion-icon></span>
             </div>
             <h4 class="fw-bold text-success-custom mb-0 animate-number" data-target="@Model.MonthlyIncome" data-prefix="Rp ">
                 Rp @Model.MonthlyIncome.ToString("N0")
@@ -41,7 +41,7 @@
         <div class="theme-card h-100 d-flex flex-column justify-content-center">
             <div class="d-flex justify-content-between align-items-center mb-2">
                 <h6 class="text-muted mb-0" style="font-size: 13px; font-weight: 600;">Expense This Month</h6>
-                <span class="fs-5">💸</span>
+                <span class="fs-5 d-flex"><ion-icon name="cash-outline"></ion-icon></span>
             </div>
             <h4 class="fw-bold text-danger-custom mb-0 animate-number" data-target="@Model.MonthlyExpense" data-prefix="Rp ">
                 Rp @Model.MonthlyExpense.ToString("N0")
@@ -54,7 +54,7 @@
         <div class="theme-card h-100 d-flex flex-column justify-content-center">
             <div class="d-flex justify-content-between align-items-center mb-2">
                 <h6 class="text-muted mb-0" style="font-size: 13px; font-weight: 600;">Net Balance</h6>
-                <span class="fs-5">⚖️</span>
+                <span class="fs-5 d-flex"><ion-icon name="scale-outline"></ion-icon></span>
             </div>
             <h4 class="fw-bold text-primary mb-0 animate-number" style="color: var(--primary-green) !important;" data-target="@Model.NetBalance" data-prefix="Rp ">
                 Rp @Model.NetBalance.ToString("N0")
@@ -67,7 +67,7 @@
         <div class="theme-card h-100 d-flex flex-column justify-content-center">
             <div class="d-flex justify-content-between align-items-center mb-2">
                 <h6 class="text-muted mb-0" style="font-size: 13px; font-weight: 600;">Budget Remaining</h6>
-                <span class="fs-5">🎯</span>
+                <span class="fs-5 d-flex"><ion-icon name="bullseye-outline"></ion-icon></span>
             </div>
             <h4 class="fw-bold mb-2 @(Model.RemainingBudget < 0 ? "text-danger-custom" : "") animate-number" data-target="@Model.RemainingBudget" data-prefix="Rp ">
                 Rp @Model.RemainingBudget.ToString("N0")
@@ -96,7 +96,7 @@
     <!-- CHART -->
     <div class="col-lg-5">
         <div class="theme-card h-100 d-flex flex-column">
-            <h6 class="fw-bold text-dark mb-4" style="font-size: 16px;">🍩 This Month's Expense Distribution</h6>
+            <h6 class="fw-bold text-dark mb-4 d-flex align-items-center" style="font-size: 16px;"><ion-icon name="pie-chart-outline" class="me-2 fs-5"></ion-icon> This Month's Expense Distribution</h6>
             @if (Model.Items != null && Model.Items.Count > 0)
             {
                 <div class="flex-grow-1 d-flex justify-content-center align-items-center" style="position: relative; height: 250px;">
@@ -106,7 +106,7 @@
             else
             {
                 <div class="flex-grow-1 d-flex flex-column justify-content-center align-items-center text-muted">
-                    <span class="fs-1 mb-2">💤</span>
+                    <span class="fs-1 mb-2 d-flex"><ion-icon name="bed-outline"></ion-icon></span>
                     <p>No expenses recorded today.</p>
                 </div>
             }
@@ -116,7 +116,7 @@
     <!-- BREAKDOWN TABLE -->
     <div class="col-lg-7">
         <div class="theme-card h-100 d-flex flex-column">
-            <h6 class="fw-bold mb-3" style="font-size: 16px;">📋 This Month's Expense Breakdown</h6>
+            <h6 class="fw-bold mb-3 d-flex align-items-center" style="font-size: 16px;"><ion-icon name="list-outline" class="me-2 fs-5"></ion-icon> This Month's Expense Breakdown</h6>
 
             @if (Model.Items != null && Model.Items.Count > 0)
             {
@@ -134,14 +134,14 @@
                             {
                                 <tr>
                                     <td class="fw-bold py-3 border-bottom" style="border-color: var(--border-color) !important; color: var(--text-dark);">
-                                        <span class="fs-5 me-3">@GetIcon(item.Category)</span> @item.Category
+                                        <span class="fs-5 me-3 d-inline-flex" style="vertical-align: -2px;">@Html.Raw(GetIcon(item.Category))</span> @item.Category
                                     </td>
                                     <td class="text-end fw-bold py-3 border-bottom" style="border-color: var(--border-color) !important;">
                                         @item.Total.ToString("N0")
                                     </td>
                                     <td class="text-center py-3 border-bottom" style="border-color: var(--border-color) !important;">
-                                        <button class="btn btn-sm fw-bold" style="background-color: rgba(255,255,255,0.1); color: var(--text-dark); border-radius: 8px;" onclick="openCategory('@item.Category')">
-                                            View Details ➔
+                                        <button class="btn btn-sm fw-bold d-inline-flex align-items-center" style="background-color: rgba(255,255,255,0.1); color: var(--text-dark); border-radius: 8px;" onclick="openCategory('@item.Category')">
+                                            View Details <ion-icon name="arrow-forward-outline" class="ms-1"></ion-icon>
                                         </button>
                                     </td>
                                 </tr>
@@ -165,7 +165,7 @@
 <div class="row mb-5">
     <div class="col-12">
         <div class="theme-card">
-            <h6 class="fw-bold text-dark mb-4" style="font-size: 16px;">📈 6-Month Income vs Expense Trend</h6>
+            <h6 class="fw-bold text-dark mb-4 d-flex align-items-center" style="font-size: 16px;"><ion-icon name="trending-up-outline" class="me-2 fs-5"></ion-icon> 6-Month Income vs Expense Trend</h6>
             @if (Model.TrendItems != null && Model.TrendItems.Count > 0)
             {
                 <div style="position: relative; height: 350px; width: 100%;">
@@ -186,6 +186,16 @@
 <script>
     let myChart = null;
 
+    // ================= GLOBAL CHART CONFIG =================
+    const getChartColors = () => {
+        const isLight = document.body.classList.contains('light-mode');
+        return {
+            text: isLight ? '#1c1c1e' : '#f8fafc',
+            muted: isLight ? '#64748b' : '#94a3b8',
+            grid: isLight ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.05)'
+        };
+    };
+
     function initChart() {
         const labels = @Html.Raw(Model.Items != null ? "[" + string.Join(",", Model.Items.Select(x => $"\"{x.Category}\"")) + "]" : "[]");
         const values = @Html.Raw(Model.Items != null ? "[" + string.Join(",", Model.Items.Select(x => x.Total.ToString(System.Globalization.CultureInfo.InvariantCulture))) + "]" : "[]");
@@ -193,7 +203,7 @@
         if(labels.length === 0) return;
 
         const ctx = document.getElementById('expenseChart').getContext('2d');
-        const textColor = '#f8fafc'; // White text for dark mode
+        const colors = getChartColors();
 
         // Vibrant colors matching the cool theme
         const bgColors = ['#6366f1', '#8b5cf6', '#0ea5e9', '#d946ef', '#f43f5e', '#14b8a6'];
@@ -214,18 +224,20 @@
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                cutout: '65%',
-                animation: {
-                    animateScale: true,
-                    animateRotate: true,
-                    duration: 1500,
-                    easing: 'easeOutQuart'
+                cutout: '70%',
+                circumference: 0, // Start empty
+                rotation: 270,    // Start drawing from the top (12 o'clock)
+                animations: {
+                    circumference: {
+                        duration: 2000,
+                        easing: 'easeOutQuart'
+                    }
                 },
                 plugins: {
                     legend: {
                         position: 'right',
                         labels: {
-                            color: textColor,
+                            color: colors.text,
                             font: { family: "'Inter', sans-serif", size: 13, weight: '500' }
                         }
                     },
@@ -240,6 +252,14 @@
                 }
             }
         });
+
+        // Trigger the loading animation (fill from 0 to 360)
+        setTimeout(() => {
+            if (myChart) {
+                myChart.options.circumference = 360;
+                myChart.update();
+            }
+        }, 50);
     }
 
     // CATEGORY DRILL DOWN
@@ -297,6 +317,8 @@
         const ctx = document.getElementById('trendChart')?.getContext('2d');
         if(!ctx) return;
 
+        const colors = getChartColors();
+
         new Chart(ctx, {
             type: 'bar',
             data: {
@@ -329,7 +351,7 @@
                     legend: {
                         position: 'top',
                         labels: {
-                            color: '#f8fafc',
+                            color: colors.text,
                             font: { family: "'Inter', sans-serif", size: 13, weight: '500' }
                         }
                     },
@@ -344,14 +366,14 @@
                 },
                 scales: {
                     x: {
-                        ticks: { color: '#94a3b8' },
-                        grid: { color: 'rgba(255,255,255,0.05)' }
+                        ticks: { color: colors.muted },
+                        grid: { color: colors.grid }
                     },
                     y: {
                         beginAtZero: true,
-                        grid: { color: 'rgba(255,255,255,0.05)' },
+                        grid: { color: colors.grid },
                         ticks: {
-                            color: '#94a3b8',
+                            color: colors.muted,
                             callback: function(value) {
                                 if (value === 0) return '0';
                                 return 'Rp ' + (value / 1000) + 'k';
@@ -369,22 +391,22 @@
     public string GetIcon(string category)
     {
         var cat = category?.ToUpperInvariant() ?? "";
-        if (cat.Contains("DINING") || cat.Contains("FOOD") || cat.Contains("EAT")) return "🍽️";
-        if (cat.Contains("TRANSPORT") || cat.Contains("GAS") || cat.Contains("CAR")) return "🚗";
-        if (cat.Contains("SHOPPING")) return "🛍️";
-        if (cat.Contains("GROCERIES") || cat.Contains("GROCERY")) return "🛒";
-        if (cat.Contains("ELECTRIC") || cat.Contains("PLN")) return "⚡";
-        if (cat.Contains("WATER") || cat.Contains("PAM")) return "💧";
-        if (cat.Contains("PARENTS") || cat.Contains("FAMILY")) return "👨‍👩‍👧‍👦";
-        if (cat.Contains("INTERNET") || cat.Contains("KUOTA") || cat.Contains("WIFI")) return "🌐";
-        if (cat.Contains("LAUNDRY") || cat.Contains("WASH")) return "🧺";
-        if (cat.Contains("TABUNGAN") || cat.Contains("INVEST") || cat.Contains("DANA")) return "📈";
-        if (cat.Contains("ENSURANCE") || cat.Contains("INSURANCE")) return "🛡️";
-        if (cat.Contains("KAKAVEST")) return "💰";
-        if (cat.Contains("GOLD") || cat.Contains("ANTAM")) return "🥇";
-        if (cat.Contains("RECREATION") || cat.Contains("HOLIDAY") || cat.Contains("VACATION")) return "🏖️";
-        if (cat.Contains("SALARY") || cat.Contains("INCOME")) return "💵";
-        if (cat.Contains("BONUS") || cat.Contains("GIFT")) return "🎁";
-        return "📦";
+        if (cat.Contains("DINING") || cat.Contains("FOOD") || cat.Contains("EAT")) return "<ion-icon name=\"restaurant-outline\"></ion-icon>";
+        if (cat.Contains("TRANSPORT") || cat.Contains("GAS") || cat.Contains("CAR")) return "<ion-icon name=\"car-outline\"></ion-icon>";
+        if (cat.Contains("SHOPPING")) return "<ion-icon name=\"bag-handle-outline\"></ion-icon>";
+        if (cat.Contains("GROCERIES") || cat.Contains("GROCERY")) return "<ion-icon name=\"cart-outline\"></ion-icon>";
+        if (cat.Contains("ELECTRIC") || cat.Contains("PLN")) return "<ion-icon name=\"flash-outline\"></ion-icon>";
+        if (cat.Contains("WATER") || cat.Contains("PAM")) return "<ion-icon name=\"water-outline\"></ion-icon>";
+        if (cat.Contains("PARENTS") || cat.Contains("FAMILY")) return "<ion-icon name=\"people-outline\"></ion-icon>";
+        if (cat.Contains("INTERNET") || cat.Contains("KUOTA") || cat.Contains("WIFI")) return "<ion-icon name=\"wifi-outline\"></ion-icon>";
+        if (cat.Contains("LAUNDRY") || cat.Contains("WASH")) return "<ion-icon name=\"shirt-outline\"></ion-icon>";
+        if (cat.Contains("TABUNGAN") || cat.Contains("INVEST") || cat.Contains("DANA")) return "<ion-icon name=\"trending-up-outline\"></ion-icon>";
+        if (cat.Contains("ENSURANCE") || cat.Contains("INSURANCE")) return "<ion-icon name=\"shield-checkmark-outline\"></ion-icon>";
+        if (cat.Contains("KAKAVEST")) return "<ion-icon name=\"wallet-outline\"></ion-icon>";
+        if (cat.Contains("GOLD") || cat.Contains("ANTAM")) return "<ion-icon name=\"medal-outline\"></ion-icon>";
+        if (cat.Contains("RECREATION") || cat.Contains("HOLIDAY") || cat.Contains("VACATION")) return "<ion-icon name=\"airplane-outline\"></ion-icon>";
+        if (cat.Contains("SALARY") || cat.Contains("INCOME")) return "<ion-icon name=\"cash-outline\"></ion-icon>";
+        if (cat.Contains("BONUS") || cat.Contains("GIFT")) return "<ion-icon name=\"gift-outline\"></ion-icon>";
+        return "<ion-icon name=\"cube-outline\"></ion-icon>";
     }
 }

@@ -21,8 +21,8 @@
         <input type="month" id="monthPicker" class="form-control-custom shadow-none border" style="padding: 8px 12px; min-width: 180px;" value="@ViewBag.Year-@ViewBag.Month.ToString("D2")" onchange="changeMonth()" />
     </div>
     <div class="d-flex gap-2">
-        <a href="/Budget/ExportExcel?year=@ViewBag.Year&month=@ViewBag.Month" class="btn btn-sm text-dark bg-white fw-bold shadow-sm border align-content-center" style="border-radius: 8px;">⬇️ Export Excel</a>
-        <a href="/Settings" class="btn btn-sm btn-primary shadow-sm fw-bold align-content-center">⚙️ Manage Categories</a>
+        <a href="/Budget/ExportExcel?year=@ViewBag.Year&month=@ViewBag.Month" class="btn btn-sm text-dark bg-white fw-bold shadow-sm border d-inline-flex align-items-center gap-1" style="border-radius: 8px;"><ion-icon name="download-outline"></ion-icon> Export Excel</a>
+        <a href="/Settings" class="btn btn-sm btn-primary shadow-sm fw-bold d-inline-flex align-items-center gap-1"><ion-icon name="settings-outline"></ion-icon> Manage Categories</a>
     </div>
 </div>
 

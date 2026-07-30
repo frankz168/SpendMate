@@ -5,9 +5,11 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <div class="d-flex justify-content-between align-items-center mt-2 mb-4">
-    <div class="page-title mb-0">💸 All Transactions</div>
+    <div class="page-title mb-0 d-flex align-items-center"><ion-icon name="cash-outline" class="me-2"></ion-icon> All Transactions</div>
     <div class="d-flex gap-2">
-        <button class="btn btn-sm fw-bold shadow-sm" style="background-color: rgba(255,255,255,0.1); color: var(--text-dark); border-radius: 8px;" onclick="exportExcel()">⬇️ Export Excel</button>
+        <button class="btn btn-sm fw-bold shadow-sm d-flex align-items-center gap-1" style="background-color: rgba(255,255,255,0.1); color: var(--text-dark); border-radius: 8px;" onclick="exportExcel()">
+            <ion-icon name="download-outline"></ion-icon> Export Excel
+        </button>
     </div>
 </div>
 
@@ -135,7 +137,7 @@ function renderTable() {
 
     if (pageData.length === 0) {
         rows = `<tr><td colspan="6" class="text-center text-muted py-5">
-            <div class="fs-1 mb-2">📭</div>
+            <div class="fs-1 mb-2 d-flex justify-content-center"><ion-icon name="document-text-outline"></ion-icon></div>
             No transactions found.
         </td></tr>`;
     } else {
@@ -156,8 +158,12 @@ function renderTable() {
                 <td class="text-muted text-truncate" style="max-width:150px">${x.note ?? "-"}</td>
                 <td class="text-end fw-bold" style="color: ${badgeColor};">Rp ${format(x.amount)}</td>
                 <td class="text-center pe-4">
-                    <button class="btn btn-sm btn-light shadow-sm text-warning fw-bold mx-1" style="border-radius: 6px;" onclick="editTransaction(${x.id})">✏️</button>
-                    <button class="btn btn-sm btn-light shadow-sm text-danger fw-bold mx-1" style="border-radius: 6px;" onclick="deleteTransaction(${x.id})">🗑️</button>
+                    <button class="btn btn-sm btn-light shadow-sm text-warning fw-bold mx-1 d-inline-flex align-items-center" style="border-radius: 6px;" onclick="editTransaction(${x.id})">
+                        <ion-icon name="create-outline"></ion-icon>
+                    </button>
+                    <button class="btn btn-sm btn-light shadow-sm text-danger fw-bold mx-1 d-inline-flex align-items-center" style="border-radius: 6px;" onclick="deleteTransaction(${x.id})">
+                        <ion-icon name="trash-outline"></ion-icon>
+                    </button>
                 </td>
             </tr>`;
         });
@@ -250,25 +256,25 @@ function formatTime(date) {
 }
 
 function icon(cat) {
-    if (!cat) return "📦";
+    if (!cat) return "<ion-icon name=\"cube-outline\"></ion-icon>";
     cat = cat.toUpperCase();
-    if (cat.includes("DINING") || cat.includes("FOOD") || cat.includes("EAT")) return "🍽️";
-    if (cat.includes("TRANSPORT") || cat.includes("GAS") || cat.includes("CAR")) return "🚗";
-    if (cat.includes("SHOPPING")) return "🛍️";
-    if (cat.includes("GROCERIES") || cat.includes("GROCERY")) return "🛒";
-    if (cat.includes("ELECTRIC") || cat.includes("PLN")) return "⚡";
-    if (cat.includes("WATER") || cat.includes("PAM")) return "💧";
-    if (cat.includes("PARENTS") || cat.includes("FAMILY")) return "👨‍👩‍👧‍👦";
-    if (cat.includes("INTERNET") || cat.includes("KUOTA") || cat.includes("WIFI")) return "🌐";
-    if (cat.includes("LAUNDRY") || cat.includes("WASH")) return "🧺";
-    if (cat.includes("TABUNGAN") || cat.includes("INVEST") || cat.includes("DANA")) return "📈";
-    if (cat.includes("ENSURANCE") || cat.includes("INSURANCE")) return "🛡️";
-    if (cat.includes("KAKAVEST")) return "💰";
-    if (cat.includes("GOLD") || cat.includes("ANTAM")) return "🥇";
-    if (cat.includes("RECREATION") || cat.includes("HOLIDAY") || cat.includes("VACATION")) return "🏖️";
-    if (cat.includes("SALARY") || cat.includes("INCOME")) return "💵";
-    if (cat.includes("BONUS") || cat.includes("GIFT")) return "🎁";
-    return "📦";
+    if (cat.includes("DINING") || cat.includes("FOOD") || cat.includes("EAT")) return "<ion-icon name=\"restaurant-outline\"></ion-icon>";
+    if (cat.includes("TRANSPORT") || cat.includes("GAS") || cat.includes("CAR")) return "<ion-icon name=\"car-outline\"></ion-icon>";
+    if (cat.includes("SHOPPING")) return "<ion-icon name=\"bag-handle-outline\"></ion-icon>";
+    if (cat.includes("GROCERIES") || cat.includes("GROCERY")) return "<ion-icon name=\"cart-outline\"></ion-icon>";
+    if (cat.includes("ELECTRIC") || cat.includes("PLN")) return "<ion-icon name=\"flash-outline\"></ion-icon>";
+    if (cat.includes("WATER") || cat.includes("PAM")) return "<ion-icon name=\"water-outline\"></ion-icon>";
+    if (cat.includes("PARENTS") || cat.includes("FAMILY")) return "<ion-icon name=\"people-outline\"></ion-icon>";
+    if (cat.includes("INTERNET") || cat.includes("KUOTA") || cat.includes("WIFI")) return "<ion-icon name=\"wifi-outline\"></ion-icon>";
+    if (cat.includes("LAUNDRY") || cat.includes("WASH")) return "<ion-icon name=\"shirt-outline\"></ion-icon>";
+    if (cat.includes("TABUNGAN") || cat.includes("INVEST") || cat.includes("DANA")) return "<ion-icon name=\"trending-up-outline\"></ion-icon>";
+    if (cat.includes("ENSURANCE") || cat.includes("INSURANCE")) return "<ion-icon name=\"shield-checkmark-outline\"></ion-icon>";
+    if (cat.includes("KAKAVEST")) return "<ion-icon name=\"wallet-outline\"></ion-icon>";
+    if (cat.includes("GOLD") || cat.includes("ANTAM")) return "<ion-icon name=\"medal-outline\"></ion-icon>";
+    if (cat.includes("RECREATION") || cat.includes("HOLIDAY") || cat.includes("VACATION")) return "<ion-icon name=\"airplane-outline\"></ion-icon>";
+    if (cat.includes("SALARY") || cat.includes("INCOME")) return "<ion-icon name=\"cash-outline\"></ion-icon>";
+    if (cat.includes("BONUS") || cat.includes("GIFT")) return "<ion-icon name=\"gift-outline\"></ion-icon>";
+    return "<ion-icon name=\"cube-outline\"></ion-icon>";
 }
 
 function exportExcel() {

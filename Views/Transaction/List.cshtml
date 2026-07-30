@@ -15,17 +15,14 @@
 
     <div class="d-flex justify-content-between align-items-start mb-4">
         <div>
-            <a href="javascript:history.back()" class="btn btn-sm btn-outline-secondary mb-2 rounded-pill px-3 shadow-sm">
-                ⬅ Back to Dashboard
+            <a href="javascript:history.back()" class="btn btn-sm btn-outline-secondary mb-2 rounded-pill px-3 shadow-sm d-inline-flex align-items-center">
+                <ion-icon name="arrow-back-outline" class="me-1"></ion-icon> Back to Dashboard
             </a>
-            <h2 class="fw-bold mb-1">📜 Transactions</h2>
+            <h2 class="fw-bold mb-1 d-flex align-items-center"><ion-icon name="document-text-outline" class="me-2"></ion-icon> Transactions</h2>
             <p class="text-muted mb-0">
                 Viewing records for: <span class="badge bg-primary fs-6 ms-1 shadow-sm">@currentCategory</span>
             </p>
         </div>
-        <button class="btn btn-outline-dark shadow-sm d-flex align-items-center gap-2" onclick="toggleDarkMode()">
-            <span id="themeIcon">🌙</span> <span class="d-none d-md-inline">Toggle Theme</span>
-        </button>
     </div>
 
     <div class="card shadow-sm theme-card mb-4 border-0">
@@ -52,7 +49,7 @@
                                     <span class="badge @GetTypeBadge(x.Type)">@x.Type</span>
                                 </td>
                                 <td class="py-3 fw-semibold">
-                                    <span class="fs-5 me-2">@GetIcon(x.Category)</span> @(x.Type == "Transfer" && !string.IsNullOrEmpty(x.Destination) ? x.Destination : x.Category)
+                                    <span class="fs-5 me-2 d-inline-flex" style="vertical-align: -2px;">@Html.Raw(GetIcon(x.Category))</span> @(x.Type == "Transfer" && !string.IsNullOrEmpty(x.Destination) ? x.Destination : x.Category)
                                 </td>
                                 <td class="py-3 text-muted text-truncate" style="max-width: 200px;">
                                     @(string.IsNullOrEmpty(x.Note) ? "-" : x.Note)
@@ -67,7 +64,7 @@
                     {
                         <tr>
                             <td colspan="5" class="text-center text-muted py-5">
-                                <div class="fs-1 mb-2">📭</div>
+                                <div class="fs-1 mb-2 d-flex justify-content-center"><ion-icon name="document-text-outline"></ion-icon></div>
                                 <h5 class="fw-bold">No transactions found</h5>
                                 <p class="mb-0">Try adjusting your filters or date range.</p>
                             </td>
@@ -79,8 +76,8 @@
         </div>
     </div>
 
-    <div class="card shadow-lg summary-card rounded-3 border-0 mt-3">
-        <div class="card-body d-flex justify-content-between align-items-center px-4 py-3">
+    <div class="theme-card summary-card mt-3">
+        <div class="d-flex justify-content-between align-items-center px-2 py-1">
             <div>
                 <span class="text-muted d-block" style="font-size: 0.85rem;">Total Transactions</span>
                 <span class="fw-bold fs-5">@totalCount <small class="text-muted fw-normal">items</small></span>
@@ -109,10 +106,13 @@
                     hour: '2-digit', minute: '2-digit' 
                 });
                 
-                let icon = d.category === "Food" ? "🍽️" : d.category === "Transport" ? "🚗" : d.category === "Shopping" ? "🛍️" : "📦";
+                let icon = d.category === "Food" || d.category === "Dining" ? "<ion-icon name='restaurant-outline'></ion-icon>" : 
+                           d.category === "Transport" ? "<ion-icon name='car-outline'></ion-icon>" : 
+                           d.category === "Shopping" ? "<ion-icon name='bag-handle-outline'></ion-icon>" : 
+                           "<ion-icon name='cube-outline'></ion-icon>";
 
                 Swal.fire({
-                    title: `<span class="fs-2">${icon}</span><br/>${d.type === 'Transfer' ? d.destination : d.category}`,
+                    title: `<span class="fs-2 d-flex justify-content-center">${icon}</span><br/>${d.type === 'Transfer' ? d.destination : d.category}`,
                     html: `
                         <div class="text-start mt-3 p-3 bg-light rounded border dark-mode-swal-box">
                             <div class="mb-2 d-flex justify-content-between border-bottom pb-2">
@@ -134,10 +134,7 @@
                         </div>
                     `,
                     confirmButtonColor: '#0d6efd',
-                    confirmButtonText: 'Close',
-                    customClass: {
-                        popup: document.body.classList.contains('dark-mode') ? 'bg-dark text-light border' : ''
-                    }
+                    confirmButtonText: 'Close'
                 });
             })
             .catch(err => {
@@ -145,25 +142,6 @@
             });
     }
 
-    // DARK MODE LOGIC
-    function toggleDarkMode() {
-        const body = document.body;
-        body.classList.toggle("dark-mode");
-        
-        const isDark = body.classList.contains("dark-mode");
-        localStorage.setItem("darkMode", isDark);
-        
-        document.getElementById("themeIcon").innerText = isDark ? "☀️" : "🌙";
-    }
-
-    // INITIALIZATION
-    document.addEventListener("DOMContentLoaded", () => {
-        const isDark = localStorage.getItem("darkMode") === "true";
-        if (isDark) {
-            document.body.classList.add("dark-mode");
-            document.getElementById("themeIcon").innerText = "☀️";
-        }
-    });
 </script>
 
 <style>
@@ -171,63 +149,29 @@
     body { transition: background-color 0.3s ease, color 0.3s ease; }
     .theme-card { transition: background-color 0.3s ease, border-color 0.3s ease; border-radius: 12px; }
     .transition-row { transition: background-color 0.2s ease; }
-    
-    /* SUMMARY FOOTER */
-    .summary-card {
-        position: sticky;
-        bottom: 20px;
-        background: rgba(255, 255, 255, 0.95);
-        backdrop-filter: blur(10px);
-        z-index: 1000;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.1) !important;
-    }
-
-    /* DARK MODE RULES */
-    body.dark-mode { background: #121212; color: #eaeaea; }
-    body.dark-mode .theme-card { background: #1e1e1e; border: 1px solid #333 !important; }
-    body.dark-mode .table { color: #eaeaea; }
-    body.dark-mode .table-light { background-color: #2a2a2a; color: #eaeaea; }
-    body.dark-mode .table-hover tbody tr:hover { background-color: #252525; color: white;}
-    body.dark-mode .text-muted { color: #a0a0a0 !important; }
-    
-    body.dark-mode .summary-card {
-        background: rgba(30, 30, 30, 0.95);
-        border: 1px solid #444 !important;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.5) !important;
-    }
-
-    /* SWAL DARK MODE HELPERS */
-    body.dark-mode .dark-mode-swal-box {
-        background-color: #2a2a2a !important;
-        border-color: #444 !important;
-        color: #eaeaea !important;
-    }
-    body.dark-mode .dark-mode-swal-box .border-bottom {
-        border-color: #444 !important;
-    }
 </style>
 
 @functions {
     public string GetIcon(string category)
     {
         var cat = category?.ToUpperInvariant() ?? "";
-        if (cat.Contains("DINING") || cat.Contains("FOOD") || cat.Contains("EAT")) return "🍽️";
-        if (cat.Contains("TRANSPORT") || cat.Contains("GAS") || cat.Contains("CAR")) return "🚗";
-        if (cat.Contains("SHOPPING")) return "🛍️";
-        if (cat.Contains("GROCERIES") || cat.Contains("GROCERY")) return "🛒";
-        if (cat.Contains("ELECTRIC") || cat.Contains("PLN")) return "⚡";
-        if (cat.Contains("WATER") || cat.Contains("PAM")) return "💧";
-        if (cat.Contains("PARENTS") || cat.Contains("FAMILY")) return "👨‍👩‍👧‍👦";
-        if (cat.Contains("INTERNET") || cat.Contains("KUOTA") || cat.Contains("WIFI")) return "🌐";
-        if (cat.Contains("LAUNDRY") || cat.Contains("WASH")) return "🧺";
-        if (cat.Contains("TABUNGAN") || cat.Contains("INVEST") || cat.Contains("DANA")) return "📈";
-        if (cat.Contains("ENSURANCE") || cat.Contains("INSURANCE")) return "🛡️";
-        if (cat.Contains("KAKAVEST")) return "💰";
-        if (cat.Contains("GOLD") || cat.Contains("ANTAM")) return "🥇";
-        if (cat.Contains("RECREATION") || cat.Contains("HOLIDAY") || cat.Contains("VACATION")) return "🏖️";
-        if (cat.Contains("SALARY") || cat.Contains("INCOME")) return "💵";
-        if (cat.Contains("BONUS") || cat.Contains("GIFT")) return "🎁";
-        return "📦";
+        if (cat.Contains("DINING") || cat.Contains("FOOD") || cat.Contains("EAT")) return "<ion-icon name=\"restaurant-outline\"></ion-icon>";
+        if (cat.Contains("TRANSPORT") || cat.Contains("GAS") || cat.Contains("CAR")) return "<ion-icon name=\"car-outline\"></ion-icon>";
+        if (cat.Contains("SHOPPING")) return "<ion-icon name=\"bag-handle-outline\"></ion-icon>";
+        if (cat.Contains("GROCERIES") || cat.Contains("GROCERY")) return "<ion-icon name=\"cart-outline\"></ion-icon>";
+        if (cat.Contains("ELECTRIC") || cat.Contains("PLN")) return "<ion-icon name=\"flash-outline\"></ion-icon>";
+        if (cat.Contains("WATER") || cat.Contains("PAM")) return "<ion-icon name=\"water-outline\"></ion-icon>";
+        if (cat.Contains("PARENTS") || cat.Contains("FAMILY")) return "<ion-icon name=\"people-outline\"></ion-icon>";
+        if (cat.Contains("INTERNET") || cat.Contains("KUOTA") || cat.Contains("WIFI")) return "<ion-icon name=\"wifi-outline\"></ion-icon>";
+        if (cat.Contains("LAUNDRY") || cat.Contains("WASH")) return "<ion-icon name=\"shirt-outline\"></ion-icon>";
+        if (cat.Contains("TABUNGAN") || cat.Contains("INVEST") || cat.Contains("DANA")) return "<ion-icon name=\"trending-up-outline\"></ion-icon>";
+        if (cat.Contains("ENSURANCE") || cat.Contains("INSURANCE")) return "<ion-icon name=\"shield-checkmark-outline\"></ion-icon>";
+        if (cat.Contains("KAKAVEST")) return "<ion-icon name=\"wallet-outline\"></ion-icon>";
+        if (cat.Contains("GOLD") || cat.Contains("ANTAM")) return "<ion-icon name=\"medal-outline\"></ion-icon>";
+        if (cat.Contains("RECREATION") || cat.Contains("HOLIDAY") || cat.Contains("VACATION")) return "<ion-icon name=\"airplane-outline\"></ion-icon>";
+        if (cat.Contains("SALARY") || cat.Contains("INCOME")) return "<ion-icon name=\"cash-outline\"></ion-icon>";
+        if (cat.Contains("BONUS") || cat.Contains("GIFT")) return "<ion-icon name=\"gift-outline\"></ion-icon>";
+        return "<ion-icon name=\"cube-outline\"></ion-icon>";
     }
     public string GetTypeBadge(string type)
     {

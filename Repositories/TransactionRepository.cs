@@ -79,6 +79,7 @@ public class TransactionRepository
     public IEnumerable<Transaction> GetTransactions(int userId, DateTime from, DateTime to)
     {
         var sw = Stopwatch.StartNew();
+        var toInclusive = to.Date.AddDays(1);
 
         try
         {
@@ -90,7 +91,7 @@ public class TransactionRepository
                 {
                     UserId = userId,
                     FromDate = from,
-                    ToDate = to
+                    ToDate = toInclusive
                 }).ToList();
 
             sw.Stop();
@@ -228,6 +229,7 @@ public class TransactionRepository
     public IEnumerable<dynamic> GetAllForExport(int userId, DateTime? from, DateTime? to)
     {
         var sw = Stopwatch.StartNew();
+        DateTime? toInclusive = to.HasValue ? to.Value.Date.AddDays(1) : null;
 
         try
         {
@@ -239,7 +241,7 @@ public class TransactionRepository
                 {
                     UserId = userId,
                     FromDate = from,
-                    ToDate = to
+                    ToDate = toInclusive
                 }).ToList();
 
             sw.Stop();

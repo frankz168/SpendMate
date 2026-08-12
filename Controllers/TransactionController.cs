@@ -100,6 +100,23 @@ public class TransactionController : BaseController
             fileName);
     }
 
+    [HttpPost]
+    public IActionResult UploadBcaStatement(IFormFile file)
+    {
+        if (file == null || file.Length == 0)
+            return BadRequest("File is missing.");
+
+        try
+        {
+            _service.UploadBcaStatement(file.OpenReadStream(), GetUserId());
+            return Ok();
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ex.Message);
+        }
+    }
+
     [HttpGet]
     public IActionResult List(DateTime from, DateTime to, string category)
     {

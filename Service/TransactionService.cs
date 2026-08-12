@@ -1,5 +1,7 @@
 using Microsoft.Extensions.Logging;
 using System.Diagnostics;
+using System.IO;
+using OfficeOpenXml;
 
 public class TransactionService
 {
@@ -158,6 +160,61 @@ public class TransactionService
                 userId);
 
             throw;
+        }
+    }
+
+    public void UploadBcaStatement(Stream fileStream, int userId)
+    {
+        ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+        using var package = new ExcelPackage(fileStream);
+        var ws = package.Workbook.Worksheets.FirstOrDefault();
+        if (ws == null) throw new Exception("No worksheet found.");
+
+        int rowCount = ws.Dimension?.Rows ?? 0;
+
+        for (int row = 1; row <= rowCount; row++)
+        {
+            var dateStr = ws.Cells[row, 1].Text?.Trim();
+            if (string.IsNullOrWhiteSpace(dateStr)) continue;
+
+            if (dateStr.StartsWith("'")) dateStr = dateStr.Substring(1);
+
+            if (DateTime.TryParseExact(dateStr, "dd/MM/yyyy", null, System.Globalization.DateTimeStyles.None, out DateTime txDate) ||
+                DateTime.TryParse(dateStr, new System.Globalization.CultureInfo("id-ID"), System.Globalization.DateTimeStyles.None, out txDate))
+            {
+                var note = ws.Cells[row, 2].Text?.Trim() ?? "";
+                var amountStr = ws.Cells[row, 4].Text?.Trim() ?? "0";
+                
+                if (!decimal.TryParse(amountStr.Replace(",", "").Replace(".", ""), out decimal amount)) 
+                    continue;
+
+                var typeStr = ws.Cells[row, 5].Text?.Trim() ?? "DB";
+
+                string category = "OTHERS";
+                string noteUpper = note.ToUpper();
+                
+                if (noteUpper.Contains("KARTU KREDIT")) category = "Credit Card Statement";
+                else if (noteUpper.Contains("TOKOPEDIA")) category = "SHOPPING";
+                else if (noteUpper.Contains("HARTADINATA")) category = "GOLD 5GR";
+                else if (noteUpper.Contains("DIGITRAVEL")) category = "RECREATION";
+                else if (noteUpper.Contains("FRANKY") || noteUpper.Contains("FAM") || noteUpper.Contains("FEITY") || noteUpper.Contains("FETTY")) category = "FRANKY PARENTS";
+                else if (noteUpper.Contains("EVE") || noteUpper.Contains("JOVITA")) category = "EVE PARENTS";
+
+                string txType = typeStr.Equals("CR", StringComparison.OrdinalIgnoreCase) ? "Income" : "Expense";
+                
+                var model = new Transaction
+                {
+                    UserId = userId,
+                    Createdate = txDate,
+                    Note = note,
+                    Amount = amount,
+                    Category = category,
+                    Type = txType,
+                    Destination = ""
+                };
+
+                _repo.Insert(model);
+            }
         }
     }
 }

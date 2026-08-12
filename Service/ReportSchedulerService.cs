@@ -35,7 +35,7 @@ public class ReportSchedulerService : BackgroundService
 
                 using var scope = _serviceProvider.CreateScope();
                 var reportService = scope.ServiceProvider.GetRequiredService<ReportService>();
-                var config = scope.ServiceProvider.GetRequiredService<ConfigRepository>();
+                var config = scope.ServiceProvider.GetRequiredService<IConfigRepository>();
 
                 CheckDaily(reportService, config, now);
                 CheckWeekly(reportService, config, now);
@@ -56,7 +56,7 @@ public class ReportSchedulerService : BackgroundService
     }
 
     // ================= DAILY
-    private void CheckDaily(ReportService service, ConfigRepository config, DateTime now)
+    private void CheckDaily(ReportService service, IConfigRepository config, DateTime now)
     {
         var time = config.GetTimeSpan("Report_DailyTime", new TimeSpan(7, 10, 0));
         var target = now.Date.Add(time);
@@ -75,7 +75,7 @@ public class ReportSchedulerService : BackgroundService
     }
 
     // ================= WEEKLY
-    private void CheckWeekly(ReportService service, ConfigRepository config, DateTime now)
+    private void CheckWeekly(ReportService service, IConfigRepository config, DateTime now)
     {
         var time = config.GetTimeSpan("Report_WeeklyTime", new TimeSpan(7, 10, 0));
         var target = now.Date.Add(time);
@@ -98,7 +98,7 @@ public class ReportSchedulerService : BackgroundService
     }
 
     // ================= MONTHLY
-    private void CheckMonthly(ReportService service, ConfigRepository config, DateTime now)
+    private void CheckMonthly(ReportService service, IConfigRepository config, DateTime now)
     {
         var time = config.GetTimeSpan("Report_MonthlyTime", new TimeSpan(7, 10, 0));
         var target = now.Date.Add(time);
@@ -120,7 +120,7 @@ public class ReportSchedulerService : BackgroundService
     }
 
     // ================= RECURRING AUTOMATION
-    private void CheckRecurring(IServiceProvider serviceProvider, ConfigRepository config, DateTime now)
+    private void CheckRecurring(IServiceProvider serviceProvider, IConfigRepository config, DateTime now)
     {
         // Run it around 10:00 AM every day
         var time = new TimeSpan(10, 0, 0);

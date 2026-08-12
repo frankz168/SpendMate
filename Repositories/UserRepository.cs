@@ -3,7 +3,7 @@ using Dapper;
 using Microsoft.Extensions.Logging;
 using SpendMate.Models;
 
-public class UserRepository
+public class UserRepository : IUserRepository
 {
     private readonly DbConnectionFactory _db;
     private readonly ILogger<UserRepository> _logger;

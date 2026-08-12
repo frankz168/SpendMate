@@ -5,11 +5,11 @@ using OfficeOpenXml;
 
 public class TransactionService
 {
-    private readonly TransactionRepository _repo;
+    private readonly ITransactionRepository _repo;
     private readonly ILogger<TransactionService> _logger;
 
     public TransactionService(
-        TransactionRepository repo,
+        ITransactionRepository repo,
         ILogger<TransactionService> logger)
     {
         _repo = repo;
@@ -165,7 +165,7 @@ public class TransactionService
 
     public void UploadBcaStatement(Stream fileStream, int userId)
     {
-        ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+        ExcelPackage.License.SetNonCommercialOrganization("SpendMate");
         using var package = new ExcelPackage(fileStream);
         var ws = package.Workbook.Worksheets.FirstOrDefault();
         if (ws == null) throw new Exception("No worksheet found.");

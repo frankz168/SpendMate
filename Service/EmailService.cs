@@ -5,16 +5,16 @@ using System.Diagnostics;
 
 public class EmailService
 {
-    private readonly ConfigRepository _config;
+    private readonly IConfigRepository _config;
     private readonly ILogger<EmailService> _logger;
 
-    public EmailService(ConfigRepository config, ILogger<EmailService> logger)
+    public EmailService(IConfigRepository config, ILogger<EmailService> logger)
     {
         _config = config;
         _logger = logger;
     }
 
-    public void Send(string to, string subject, string htmlBody)
+    public virtual void Send(string to, string subject, string htmlBody)
     {
         var sw = Stopwatch.StartNew();
 

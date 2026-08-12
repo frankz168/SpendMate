@@ -18,9 +18,9 @@ public class SaveBudgetDto
 [Authorize]
 public class BudgetController : BaseController
 {
-    private readonly BudgetRepository _repo;
+    private readonly IBudgetRepository _repo;
 
-    public BudgetController(BudgetRepository repo)
+    public BudgetController(IBudgetRepository repo)
     {
         _repo = repo;
     }

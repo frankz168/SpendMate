@@ -11,10 +11,10 @@ public class SettingsViewModel
 [Authorize]
 public class SettingsController : BaseController
 {
-    private readonly CategoryRepository _categoryRepo;
-    private readonly ConfigRepository _configRepo;
+    private readonly ICategoryRepository _categoryRepo;
+    private readonly IConfigRepository _configRepo;
 
-    public SettingsController(CategoryRepository categoryRepo, ConfigRepository configRepo)
+    public SettingsController(ICategoryRepository categoryRepo, IConfigRepository configRepo)
     {
         _categoryRepo = categoryRepo;
         _configRepo = configRepo;

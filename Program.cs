@@ -40,26 +40,26 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
 
 // DB & CONFIG
 builder.Services.AddSingleton<DbConnectionFactory>();
-builder.Services.AddScoped<ConfigRepository>();
+builder.Services.AddScoped<IConfigRepository, ConfigRepository>();
 
 // DASHBOARD
-builder.Services.AddScoped<DashboardRepository>();
+builder.Services.AddScoped<IDashboardRepository, DashboardRepository>();
 builder.Services.AddScoped<DashboardService>();
 
 // USER
-builder.Services.AddScoped<UserRepository>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
 
 // TRANSACTION
-builder.Services.AddScoped<TransactionRepository>();
+builder.Services.AddScoped<ITransactionRepository, TransactionRepository>();
 builder.Services.AddScoped<TransactionService>();
 
 // BUDGET & MASTER DATA
-builder.Services.AddScoped<BudgetRepository>();
-builder.Services.AddScoped<CategoryRepository>();
+builder.Services.AddScoped<IBudgetRepository, BudgetRepository>();
+builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 
 // REPORT + EMAIL
 builder.Services.AddScoped<EmailService>();
-builder.Services.AddScoped<ReportRepository>();
+builder.Services.AddScoped<IReportRepository, ReportRepository>();
 builder.Services.AddScoped<ReportService>();
 
 // SCHEDULER

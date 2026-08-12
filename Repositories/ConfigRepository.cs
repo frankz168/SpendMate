@@ -1,6 +1,6 @@
 using Dapper;
 
-public class ConfigRepository
+public class ConfigRepository : IConfigRepository
 {
     private readonly DbConnectionFactory _db;
 

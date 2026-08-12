@@ -1,7 +1,7 @@
 using Dapper;
 using SpendMate.Models;
 
-public class CategoryRepository
+public class CategoryRepository : ICategoryRepository
 {
     private readonly DbConnectionFactory _db;
 

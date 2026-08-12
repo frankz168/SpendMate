@@ -5,9 +5,9 @@ using System.Security.Claims;
 
 public class AuthController : Controller
 {
-    private readonly UserRepository _userRepo;
+    private readonly IUserRepository _userRepo;
 
-    public AuthController(UserRepository userRepo)
+    public AuthController(IUserRepository userRepo)
     {
         _userRepo = userRepo;
     }

@@ -1,15 +1,15 @@
 public class DashboardService
 {
-    private readonly TransactionRepository _repo;
-    private readonly ReportRepository _reportRepo;
-    private readonly ConfigRepository _config;
-    private readonly DashboardRepository _dashRepo;
+    private readonly ITransactionRepository _repo;
+    private readonly IReportRepository _reportRepo;
+    private readonly IConfigRepository _config;
+    private readonly IDashboardRepository _dashRepo;
 
     public DashboardService(
-        TransactionRepository repo,
-        ReportRepository reportRepo,
-        ConfigRepository config,
-        DashboardRepository dashRepo)
+        ITransactionRepository repo,
+        IReportRepository reportRepo,
+        IConfigRepository config,
+        IDashboardRepository dashRepo)
     {
         _repo = repo;
         _reportRepo = reportRepo;

@@ -8,10 +8,10 @@ namespace SpendMate.Controllers;
 [Authorize]
 public class UserController : Controller
 {
-    private readonly UserRepository _userRepo;
+    private readonly IUserRepository _userRepo;
     private readonly ILogger<UserController> _logger;
 
-    public UserController(UserRepository userRepo, ILogger<UserController> logger)
+    public UserController(IUserRepository userRepo, ILogger<UserController> logger)
     {
         _userRepo = userRepo;
         _logger = logger;

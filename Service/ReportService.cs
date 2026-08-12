@@ -3,16 +3,16 @@ using System.Diagnostics;
 
 public class ReportService
 {
-    private readonly ReportRepository _repo;
-    private readonly TransactionRepository _transactionRepo;
-    private readonly ConfigRepository _config;
+    private readonly IReportRepository _repo;
+    private readonly ITransactionRepository _transactionRepo;
+    private readonly IConfigRepository _config;
     private readonly EmailService _email;
     private readonly ILogger<ReportService> _logger;
 
     public ReportService(
-        ReportRepository repo,
-        TransactionRepository transactionRepo,
-        ConfigRepository config,
+        IReportRepository repo,
+        ITransactionRepository transactionRepo,
+        IConfigRepository config,
         EmailService email,
         ILogger<ReportService> logger)
     {

@@ -3,7 +3,7 @@ using Microsoft.Extensions.Logging;
 using System.Data;
 using System.Diagnostics;
 
-public class TransactionRepository
+public class TransactionRepository : ITransactionRepository
 {
     private readonly DbConnectionFactory _db;
     private readonly ILogger<TransactionRepository> _logger;

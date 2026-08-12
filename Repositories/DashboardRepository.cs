@@ -2,7 +2,7 @@ using Dapper;
 using Microsoft.Extensions.Logging;
 using System.Diagnostics;
 
-public class DashboardRepository
+public class DashboardRepository : IDashboardRepository
 {
     private readonly DbConnectionFactory _db;
     private readonly ILogger<DashboardRepository> _logger;

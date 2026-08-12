@@ -1,7 +1,7 @@
 using Dapper;
 using Microsoft.Extensions.Logging;
 
-public class ReportRepository
+public class ReportRepository : IReportRepository
 {
     private readonly DbConnectionFactory _db;
     private readonly ILogger<ReportRepository> _logger;

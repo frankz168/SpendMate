@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-@inject CategoryRepository CatRepo
+@inject ICategoryRepository CatRepo
 @{
     var categories = CatRepo.GetAll().Where(c => c.IsActive).ToList();
 }

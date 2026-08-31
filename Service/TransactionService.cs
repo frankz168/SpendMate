@@ -163,14 +163,39 @@ public class TransactionService
         }
     }
 
-    public void UploadBcaStatement(Stream fileStream, int userId)
+    public void UploadBcaStatement(Stream fileStream, string fileName, int userId)
     {
         ExcelPackage.License.SetNonCommercialOrganization("SpendMate");
-        using var package = new ExcelPackage(fileStream);
-        var ws = package.Workbook.Worksheets.FirstOrDefault();
+        using var package = new ExcelPackage();
+        ExcelWorksheet ws = null;
+        
+        if (fileName != null && fileName.EndsWith(".csv", StringComparison.OrdinalIgnoreCase))
+        {
+            ws = package.Workbook.Worksheets.Add("BCA");
+            using var reader = new StreamReader(fileStream);
+            var csvText = reader.ReadToEnd();
+            
+            // Normalize line endings to \r\n for EPPlus, as Mac/Unix files might only have \n
+            csvText = csvText.Replace("\r\n", "\n").Replace("\r", "\n").Replace("\n", "\r\n");
+            
+            // Auto-detect delimiter
+            var firstLine = csvText.Split(new[] { "\r\n" }, StringSplitOptions.RemoveEmptyEntries).FirstOrDefault() ?? "";
+            char delimiter = firstLine.Contains(";") ? ';' : ',';
+            if (csvText.Count(c => c == ';') > csvText.Count(c => c == ',')) delimiter = ';';
+            
+            var format = new ExcelTextFormat { Delimiter = delimiter };
+            ws.Cells["A1"].LoadFromText(csvText, format);
+        }
+        else
+        {
+            package.Load(fileStream);
+            ws = package.Workbook.Worksheets.FirstOrDefault();
+        }
+
         if (ws == null) throw new Exception("No worksheet found.");
 
         int rowCount = ws.Dimension?.Rows ?? 0;
+        DateTime? lastParsedDate = null;
 
         for (int row = 1; row <= rowCount; row++)
         {
@@ -179,14 +204,31 @@ public class TransactionService
 
             if (dateStr.StartsWith("'")) dateStr = dateStr.Substring(1);
 
-            if (DateTime.TryParseExact(dateStr, "dd/MM/yyyy", null, System.Globalization.DateTimeStyles.None, out DateTime txDate) ||
-                DateTime.TryParse(dateStr, new System.Globalization.CultureInfo("id-ID"), System.Globalization.DateTimeStyles.None, out txDate))
+            bool isDateParsed = DateTime.TryParseExact(dateStr, "dd/MM/yyyy", null, System.Globalization.DateTimeStyles.None, out DateTime txDate) ||
+                                DateTime.TryParse(dateStr, new System.Globalization.CultureInfo("id-ID"), System.Globalization.DateTimeStyles.None, out txDate);
+
+            if (isDateParsed)
+            {
+                lastParsedDate = txDate;
+            }
+            else if (dateStr.Equals("PEND", StringComparison.OrdinalIgnoreCase) && lastParsedDate.HasValue)
+            {
+                txDate = lastParsedDate.Value;
+                isDateParsed = true;
+            }
+
+            if (isDateParsed)
             {
                 var note = ws.Cells[row, 2].Text?.Trim() ?? "";
                 var amountStr = ws.Cells[row, 4].Text?.Trim() ?? "0";
                 
+                Console.WriteLine($"[DEBUG row={row}] date={dateStr} (parsed={txDate}), note={note}, amountStr={amountStr}");
+
                 if (!decimal.TryParse(amountStr.Replace(",", "").Replace(".", ""), out decimal amount)) 
+                {
+                    Console.WriteLine($"[DEBUG row={row}] Failed to parse amount: {amountStr}");
                     continue;
+                }
 
                 var typeStr = ws.Cells[row, 5].Text?.Trim() ?? "DB";
 

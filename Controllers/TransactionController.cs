@@ -108,7 +108,7 @@ public class TransactionController : BaseController
 
         try
         {
-            _service.UploadBcaStatement(file.OpenReadStream(), GetUserId());
+            _service.UploadBcaStatement(file.OpenReadStream(), file.FileName, GetUserId());
             return Ok();
         }
         catch (Exception ex)

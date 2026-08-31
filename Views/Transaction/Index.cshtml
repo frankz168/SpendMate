@@ -17,7 +17,7 @@
         <label for="bcaFile" class="btn btn-sm fw-bold shadow-sm d-flex align-items-center gap-1 mb-0" style="background-color: var(--primary-accent); color: white; border-radius: 8px; cursor: pointer;">
             <ion-icon name="cloud-upload-outline"></ion-icon> Upload BCA
         </label>
-        <input type="file" id="bcaFile" accept=".xlsx" style="display: none;" onchange="uploadBca(this)" />
+        <input type="file" id="bcaFile" accept=".csv, .xls, .xlsx" style="display: none;" onchange="uploadBca(this)" />
 
         <button class="btn btn-sm fw-bold shadow-sm d-flex align-items-center gap-1" style="background-color: rgba(255,255,255,0.1); color: var(--text-dark); border-radius: 8px;" onclick="exportExcel()">
             <ion-icon name="download-outline"></ion-icon> Export Excel

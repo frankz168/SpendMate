@@ -143,7 +143,7 @@ public class TransactionRepository : ITransactionRepository
             using var conn = _db.CreateConnection();
 
             var id = conn.ExecuteScalar<int>(
-                "SELECT spendmate_transaction_insert(@UserId, @Type, @Amount, @Category, @Destination, @Note, @IsRecurring);",
+                "SELECT spendmate_transaction_insert(@UserId, @Type, @Amount, @Category, @Destination, @Note, @IsRecurring, @Createdate);",
                 new
                 {
                     UserId = model.UserId,
@@ -152,13 +152,14 @@ public class TransactionRepository : ITransactionRepository
                     Category = model.Category,
                     Destination = model.Destination,
                     Note = model.Note,
-                    IsRecurring = model.IsRecurring
+                    IsRecurring = model.IsRecurring,
+                    Createdate = model.Createdate
                 }
             );
 
             _logger.LogInformation(
-                "Insert Transaction | UserId={UserId}, Type={Type}, Amount={Amount}, Category={Category}",
-                model.UserId, model.Type, model.Amount, model.Category);
+                "Insert Transaction | UserId={UserId}, Type={Type}, Amount={Amount}, Category={Category}, Date={Date}",
+                model.UserId, model.Type, model.Amount, model.Category, model.Createdate);
         }
         catch (Exception ex)
         {
@@ -168,6 +169,7 @@ public class TransactionRepository : ITransactionRepository
             throw;
         }
     }
+
 
     public void Update(Transaction model)
     {

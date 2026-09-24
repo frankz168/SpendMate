@@ -82,6 +82,11 @@ public class TransactionService
                 "💾 Save START | Id={Id}, Category={Category}, Amount={Amount}",
                 model.Id, model.Category, model.Amount);
 
+            if (model.Createdate == default || model.Createdate <= DateTime.MinValue || model.Createdate.Year < 1970)
+            {
+                model.Createdate = DateTime.Now;
+            }
+
             if (model.Id == 0)
             {
                 _repo.Insert(model);
@@ -239,8 +244,9 @@ public class TransactionService
                 else if (noteUpper.Contains("TOKOPEDIA")) category = "SHOPPING";
                 else if (noteUpper.Contains("HARTADINATA")) category = "GOLD 5GR";
                 else if (noteUpper.Contains("DIGITRAVEL")) category = "RECREATION";
-                else if (noteUpper.Contains("FRANKY") || noteUpper.Contains("FAM") || noteUpper.Contains("FEITY") || noteUpper.Contains("FETTY")) category = "FRANKY PARENTS";
-                else if (noteUpper.Contains("EVE") || noteUpper.Contains("JOVITA")) category = "EVE PARENTS";
+                else if (noteUpper.Contains("FRANKY") || noteUpper.Contains("EVE")) category = "Franky's family";
+                else if (noteUpper.Contains("FAM") || noteUpper.Contains("FEITY") || noteUpper.Contains("FETTY")) category = "FRANKY PARENTS";
+                else if (noteUpper.Contains("JOVITA")) category = "EVE PARENTS";
 
                 string txType = typeStr.Equals("CR", StringComparison.OrdinalIgnoreCase) ? "Income" : "Expense";
                 

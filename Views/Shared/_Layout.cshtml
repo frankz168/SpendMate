@@ -142,6 +142,11 @@
                         </select>
                     </div>
 
+                    <div class="form-group-custom d-flex justify-content-between align-items-center border-bottom pb-2">
+                        <label class="mb-0 text-muted">Date</label>
+                        <input type="date" id="modalDate" class="form-control-custom w-auto text-end p-0 bg-transparent text-dark shadow-none" />
+                    </div>
+
                     <div class="form-group-custom d-flex justify-content-between align-items-center border-bottom pb-2" id="modalDestContainer" style="display:none;">
                         <label class="mb-0 text-muted">Destination</label>
                         <input type="text" id="modalDestination" class="form-control-custom w-50 text-end p-0 bg-transparent text-dark shadow-none" placeholder="e.g. BCA" />
@@ -221,10 +226,16 @@
             document.getElementById('modalNote').value = '';
             document.getElementById('modalDestination').value = '';
             document.getElementById('modalRecurring').checked = false;
+            const today = new Date();
+            const yyyy = today.getFullYear();
+            const mm = String(today.getMonth() + 1).padStart(2, '0');
+            const dd = String(today.getDate()).padStart(2, '0');
+            const dateInput = document.getElementById('modalDate');
+            if (dateInput) dateInput.value = `${yyyy}-${mm}-${dd}`;
             toggleModalType();
         }
 
-        function populateModalForm(id, type, amount, category, note, destination, isRecurring) {
+        function populateModalForm(id, type, amount, category, note, destination, isRecurring, createdate) {
             globalEditId = id;
             if (type === 'Expense') document.getElementById('toggleExpense').checked = true;
             else if (type === 'Transfer') document.getElementById('toggleTransfer').checked = true;
@@ -236,6 +247,28 @@
             document.getElementById('modalDestination').value = destination || "";
             document.getElementById('modalRecurring').checked = isRecurring === true || isRecurring === 'true';
             
+            const dateInput = document.getElementById('modalDate');
+            if (dateInput) {
+                if (createdate) {
+                    let safeDate = typeof createdate === 'string' ? createdate.replace(' ', 'T') : createdate;
+                    const d = new Date(safeDate);
+                    if (!isNaN(d.getTime())) {
+                        const y = d.getFullYear();
+                        const m = String(d.getMonth() + 1).padStart(2, '0');
+                        const day = String(d.getDate()).padStart(2, '0');
+                        dateInput.value = `${y}-${m}-${day}`;
+                    } else {
+                        dateInput.value = createdate.substring(0, 10);
+                    }
+                } else {
+                    const today = new Date();
+                    const yyyy = today.getFullYear();
+                    const mm = String(today.getMonth() + 1).padStart(2, '0');
+                    const dd = String(today.getDate()).padStart(2, '0');
+                    dateInput.value = `${yyyy}-${mm}-${dd}`;
+                }
+            }
+
             toggleModalType();
             
             const modal = new bootstrap.Modal(document.getElementById('addTransactionModal'));
@@ -268,6 +301,8 @@
             const note = document.getElementById('modalNote').value;
             const destination = document.getElementById('modalDestination').value;
             const isRecurring = document.getElementById('modalRecurring').checked;
+            const dateInput = document.getElementById('modalDate');
+            const createdate = (dateInput && dateInput.value) ? `${dateInput.value}T12:00:00` : new Date().toISOString();
 
             if (!amount || parseFloat(amount) <= 0) {
                 Swal.fire('Warning', 'Please enter a valid amount.', 'warning');
@@ -285,7 +320,8 @@
                         amount: parseFloat(amount),
                         note: note,
                         destination: destination,
-                        isRecurring: isRecurring
+                        isRecurring: isRecurring,
+                        createdate: createdate
                     })
                 });
 

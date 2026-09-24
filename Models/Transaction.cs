@@ -20,7 +20,7 @@ public class Transaction
 
     public string? Note { get; set; }
 
-    public DateTime Createdate { get; set; } 
+    public DateTime Createdate { get; set; } = DateTime.Now;
 
     public bool IsRecurring { get; set; }
 }

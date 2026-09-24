@@ -153,7 +153,9 @@ public class TransactionRepository : ITransactionRepository
                     Destination = model.Destination,
                     Note = model.Note,
                     IsRecurring = model.IsRecurring,
-                    Createdate = model.Createdate
+                    Createdate = (model.Createdate == default || model.Createdate <= DateTime.MinValue || model.Createdate.Year < 1970)
+                        ? DateTime.Now
+                        : model.Createdate
                 }
             );
 
@@ -178,7 +180,7 @@ public class TransactionRepository : ITransactionRepository
             using var conn = _db.CreateConnection();
 
             conn.Execute(
-                "SELECT spendmate_transaction_update(@Id, @UserId, @Type, @Amount, @Category, @Destination, @Note, @IsRecurring);",
+                "SELECT spendmate_transaction_update(@Id, @UserId, @Type, @Amount, @Category, @Destination, @Note, @IsRecurring, @Createdate);",
                 new
                 {
                     Id = model.Id,
@@ -188,7 +190,10 @@ public class TransactionRepository : ITransactionRepository
                     Category = model.Category,
                     Destination = model.Destination,
                     Note = model.Note,
-                    IsRecurring = model.IsRecurring
+                    IsRecurring = model.IsRecurring,
+                    Createdate = (model.Createdate == default || model.Createdate <= DateTime.MinValue || model.Createdate.Year < 1970)
+                        ? (DateTime?)null
+                        : model.Createdate
                 }
             );
 

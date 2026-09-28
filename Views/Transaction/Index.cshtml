@@ -61,6 +61,22 @@
     </div>
 </div>
 
+@*
+<!-- SMART INPUT MODULE (Temporarily Disabled - Missing Gemini API Key) -->
+<div class="theme-card mb-4 p-4 shadow-sm" style="border: 1px solid #e2e8f0; border-radius: 12px; background: linear-gradient(to right, #f8fafc, #f1f5f9);">
+    <h6 class="fw-bold d-flex align-items-center mb-3" style="color: #334155; font-size: 16px;">
+        <span class="fs-4 me-2" style="color: #6366f1;"><ion-icon name="sparkles"></ion-icon></span>
+        AI Smart Input
+    </h6>
+    <div class="d-flex gap-2">
+        <input type="text" id="smartInputText" class="form-control shadow-none border-0" style="padding: 12px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1) !important;" placeholder="E.g. Spent 50000 on lunch at KFC..." onkeypress="if(event.key === 'Enter') submitSmartInput()" />
+        <button id="btnSmartInput" class="btn text-white fw-bold shadow-sm px-4" style="background-color: #6366f1; border-radius: 8px;" onclick="submitSmartInput()">
+            <ion-icon name="send"></ion-icon>
+        </button>
+    </div>
+</div>
+*@
+
 <!-- TRANSACTION TABLE -->
 <div class="theme-card p-0 overflow-hidden mb-5">
     <div class="table-responsive">
@@ -341,6 +357,66 @@ async function uploadBca(input) {
         Swal.fire("Error", "Network error", "error");
     } finally {
         input.value = ""; // reset
+    }
+}
+
+// ================= SMART INPUT =================
+async function submitSmartInput() {
+    const inputEl = document.getElementById("smartInputText");
+    const btn = document.getElementById("btnSmartInput");
+    const text = inputEl.value.trim();
+    if (!text) return;
+
+    btn.disabled = true;
+    inputEl.disabled = true;
+    const originalIcon = btn.innerHTML;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>';
+
+    try {
+        const res = await fetch('/Transaction/SmartInput', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(text)
+        });
+
+        if (res.ok) {
+            const tx = await res.json();
+            
+            Swal.fire({
+                title: 'Parsed Successfully!',
+                html: `Is this correct?<br/><br/><b>Type:</b> ${tx.type}<br/><b>Amount:</b> Rp ${format(tx.amount)}<br/><b>Category:</b> ${tx.category}<br/><b>Note:</b> ${tx.note}`,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'Yes, Save it!',
+                cancelButtonText: 'No, let me edit'
+            }).then(async (result) => {
+                if (result.isConfirmed) {
+                    await fetch('/Transaction/Save', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(tx)
+                    });
+                    inputEl.value = "";
+                    if(typeof showToast === 'function') showToast("success", "Saved!");
+                    loadData();
+                } else if (result.dismiss === Swal.DismissReason.cancel) {
+                    if (typeof populateModalForm === 'function') {
+                        populateModalForm(0, tx.type, tx.amount, tx.category, tx.note, tx.destination, tx.isRecurring, tx.createdate);
+                        inputEl.value = "";
+                    }
+                }
+            });
+        } else {
+            const errText = await res.text();
+            Swal.fire('Error', 'Failed to parse input: ' + errText, 'error');
+        }
+    } catch(err) {
+        console.error(err);
+        Swal.fire('Error', 'Network error reaching AI', 'error');
+    } finally {
+        btn.disabled = false;
+        inputEl.disabled = false;
+        btn.innerHTML = originalIcon;
     }
 }
 

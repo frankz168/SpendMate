@@ -6,10 +6,29 @@ using OfficeOpenXml;
 public class TransactionController : BaseController
 {
     private readonly TransactionService _service;
+    private readonly IGeminiSmartInputService _geminiService;
 
-    public TransactionController(TransactionService service)
+    public TransactionController(TransactionService service, IGeminiSmartInputService geminiService)
     {
         _service = service;
+        _geminiService = geminiService;
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> SmartInput([FromBody] string input)
+    {
+        if (string.IsNullOrWhiteSpace(input))
+            return BadRequest("Input cannot be empty.");
+
+        try
+        {
+            var transaction = await _geminiService.ParseNaturalLanguageAsync(input, GetUserId());
+            return Json(transaction);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ex.Message);
+        }
     }
 
     public IActionResult Index()

@@ -65,6 +65,17 @@ builder.Services.AddScoped<ReportService>();
 // SCHEDULER
 builder.Services.AddHostedService<ReportSchedulerService>();
 
+// SMART INPUT & CACHE (Redis + Gemini)
+builder.Services.AddStackExchangeRedisCache(options =>
+{
+    options.Configuration = builder.Configuration.GetConnectionString("RedisCache");
+    options.InstanceName = "SpendMate_";
+});
+builder.Services.AddScoped<ICacheService, RedisCacheService>();
+
+builder.Services.AddHttpClient<IGeminiSmartInputService, GeminiSmartInputService>();
+builder.Services.AddHttpClient<IFinancialInsightService, FinancialInsightService>();
+
 #endregion
 
 var app = builder.Build();

@@ -12,9 +12,9 @@ public class DashboardController : BaseController
         _service = service;
     }
 
-    public IActionResult Index()
+    public async Task<IActionResult> Index()
     {
-        var vm = _service.GetDailySummary(GetUserId());
+        var vm = await _service.GetDailySummaryAsync(GetUserId());
         return View(vm);
     }
 }

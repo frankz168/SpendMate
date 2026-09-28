@@ -1,20 +1,26 @@
+using System;
+using System.Threading.Tasks;
+
 public class DashboardService
 {
     private readonly ITransactionRepository _repo;
     private readonly IReportRepository _reportRepo;
     private readonly IConfigRepository _config;
     private readonly IDashboardRepository _dashRepo;
+    private readonly ICacheService _cache;
 
     public DashboardService(
         ITransactionRepository repo,
         IReportRepository reportRepo,
         IConfigRepository config,
-        IDashboardRepository dashRepo)
+        IDashboardRepository dashRepo,
+        ICacheService cache)
     {
         _repo = repo;
         _reportRepo = reportRepo;
         _config = config;
         _dashRepo = dashRepo;
+        _cache = cache;
     }
 
     public DailySummaryVM GetDailySummary(int userId)
@@ -49,6 +55,24 @@ public class DashboardService
         // ================= TREND (LAST 6 MONTHS)
         vm.TrendItems = _dashRepo.Get6MonthTrend(userId);
 
+        return vm;
+    }
+
+    public async Task<DailySummaryVM> GetDailySummaryAsync(int userId)
+    {
+        string cacheKey = $"Dashboard_Summary_{userId}_{DateTime.Now:yyyyMMdd_HH}";
+        
+        var cached = await _cache.GetAsync<DailySummaryVM>(cacheKey);
+        if (cached != null)
+        {
+            return cached;
+        }
+
+        var vm = GetDailySummary(userId);
+        
+        // Cache for 10 minutes
+        await _cache.SetAsync(cacheKey, vm, TimeSpan.FromMinutes(10));
+        
         return vm;
     }
 }

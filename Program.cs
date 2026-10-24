@@ -68,7 +68,7 @@ builder.Services.AddHostedService<ReportSchedulerService>();
 // SMART INPUT & CACHE (Redis + Gemini)
 builder.Services.AddStackExchangeRedisCache(options =>
 {
-    options.Configuration = builder.Configuration.GetConnectionString("RedisCache");
+    options.Configuration = builder.Configuration.GetConnectionString("RedisCache") ?? "localhost:6379,abortConnect=false,connectTimeout=1000,syncTimeout=1000";
     options.InstanceName = "SpendMate_";
 });
 builder.Services.AddScoped<ICacheService, RedisCacheService>();

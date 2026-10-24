@@ -66,17 +66,16 @@ Task RemoveAsync(string key);
 
 ---
 
-## RedisCacheService Error Handling
+## RedisCacheService Error Handling & Resilience
 
-All three methods catch all exceptions silently:
+All operations enforce a **500ms timeout** and a **circuit breaker** to prevent application freeze if Redis is down or slow:
 
-```csharp
-// GetAsync: returns default(T) on any error
-// SetAsync: swallows error (object simply won't be cached)
-// RemoveAsync: swallows error
-```
+- **Operation Timeout:** 500ms via `CancellationTokenSource`. Cache queries never block page loads.
+- **Circuit Breaker:** If Redis throws a connection or timeout error, the circuit breaker opens for 30 seconds.
+  - While open, all `GetAsync`, `SetAsync`, and `RemoveAsync` calls return immediately (0ms) without attempting Redis operations.
+  - After 30 seconds, a single probe is attempted to automatically recover when Redis is back online.
+- **Connection timeouts:** `connectTimeout=1000,syncTimeout=1000` configured in connection string.
 
-`FinancialInsightService` additionally wraps both its Redis calls in `try-catch` with `LogWarning` to emit a user-facing warning log.
 
 ---
 
